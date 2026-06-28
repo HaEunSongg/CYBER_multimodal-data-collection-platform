@@ -1,5 +1,7 @@
+# NAPS Stimulus Selection Protocol
+
 ## Overview
-Brief description of the project and what this memo documents.
+Brief description of the NAPS images that was used in this project.
 
 ## Source
 - Dataset: Nencki Affective Picture System (NAPS)
