@@ -2,7 +2,7 @@
 ### Web-Based Psychometric Data Collection for IoT & AI Behavioral Observation
 
 **Programme:** Erasmus Mundus CYBER (Cyberspace Behavior and E-Therapy)  
-**Institutions:** Université Paris Cité / Universidade Lusófona  
+**Institutions:** Université Paris Cité
 **Lab:** Centre Borelli (UMR9010), in collaboration with Thales AVS  
 
 ---
