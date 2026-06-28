@@ -129,7 +129,7 @@ Tested and confirmed working on:
 ## Related Repository
 
 The statistical analysis pipeline and synthetic data generation scripts
-are in a separate repository:
+are in a separate repository: https://github.com/HaEunSongg/CYBER_syntheticdata
 ---
 
 ## Citation
