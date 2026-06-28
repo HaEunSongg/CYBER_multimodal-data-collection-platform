@@ -27,7 +27,10 @@ Available in two parallel language versions:
 | Module | Description |
 |---|---|
 | **Neutral baseline** | Rainbow Passage (Fairbanks, 1960) : standardised attentional priming before emotionally loaded content |
-| **Tutorial** | 3-step interactive practice (BFI-2-S item · Plutchik Wheel · Russell grid) before data collection begins |
+| **Consent Page** | Brief consent page and instructions |
+| **Collection of PARTICIPANT INFORMATION** | NAME/ Birthdate/ Gender/ age raange/ email/ nationality. native language |
+| **Instruction pages** | Instruction pages are displayed (BFI-2-S item · Plutchik Wheel · Russell grid) before each test begins |
+| **HADS** | Hospital Anxiety and Depression Scale - 14 items (7 Anxiety / 7 Depression), with per-item ISO 8601 timestamps and automatic subscale scoring |
 | **BFI-2-S** | 30-item Big Five personality assessment with automatic reverse-scoring and per-item ISO 8601 timestamps |
 | **NAPS stimuli** | 20 affective images from the Nencki Affective Picture System (NAPS BE) |
 | **Plutchik Wheel** | SVG-rendered interactive emotion category + intensity ring selection |
