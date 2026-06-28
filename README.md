@@ -11,14 +11,14 @@
 
 A client-side single-page application (SPA) built in **HTML5, CSS3, and JavaScript**
 for structured multimodal psychometric data collection. No server infrastructure
-required — runs entirely in the browser or as a standalone desktop executable.
+required -runs entirely in the browser or as a standalone desktop executable.
 
 Developed as part of the master's project:
 **"MultiModal Behavioral Observation during Psychometric Testing using IoT & AI"**
 
 Available in two parallel language versions:
-- 🇬🇧 `fullverEng.html` — English version
-- 🇫🇷 `fullverFrench.html` — French version
+- 🇬🇧 `fullverEng.html` :English version
+- 🇫🇷 `fullverFrench.html` : French version
 
 ---
 
@@ -26,20 +26,20 @@ Available in two parallel language versions:
 
 | Module | Description |
 |---|---|
-| **Neutral baseline** | Rainbow Passage (Fairbanks, 1960) — standardised attentional priming before emotionally loaded content |
+| **Neutral baseline** | Rainbow Passage (Fairbanks, 1960) : standardised attentional priming before emotionally loaded content |
 | **Tutorial** | 3-step interactive practice (BFI-2-S item · Plutchik Wheel · Russell grid) before data collection begins |
 | **BFI-2-S** | 30-item Big Five personality assessment with automatic reverse-scoring and per-item ISO 8601 timestamps |
 | **NAPS stimuli** | 20 affective images from the Nencki Affective Picture System (NAPS BE) |
 | **Plutchik Wheel** | SVG-rendered interactive emotion category + intensity ring selection |
 | **Russell Circumplex** | Canvas-rendered valence/arousal grid (−1 to +1 on both axes) |
-| **CSV export** | Pseudonymized output (participant code format: `P-XXXXXXXXX`) — no server transmission |
+| **CSV export** | Pseudonymized output (participant code format: `P-XXXXXXXXX`) : no server transmission |
 | **GDPR compliance** | All data processed client-side; consent form integrated; no external API calls |
 
 ---
 
 ## How to Run
 
-### Option 1 — Direct browser (simplest)
+### Option 1 - Direct browser (simplest)
 ```bash
 # No installation needed
 # Just open the file in any modern browser
@@ -48,7 +48,7 @@ start fullverEng.html       # Windows
 xdg-open fullverEng.html    # Linux
 ```
 
-### Option 2 — Local server (recommended for development)
+### Option 2 - Local server (recommended for development)
 ```bash
 # Python 3
 python -m http.server 8000
@@ -57,7 +57,7 @@ python -m http.server 8000
 # http://localhost:8000/fullverEng.html
 ```
 
-### Option 3 — Desktop executable (Windows)
+### Option 3 - Desktop executable (Windows)
 The app was packaged as a standalone Windows `.exe` using **pywebview**.
 See the `packaging/` folder for build instructions.
 
@@ -92,7 +92,7 @@ Each exported CSV contains one row per participant with:
 
 ## Privacy & GDPR
 
-- All data processing is **client-side only** — no data is transmitted to any server
+- All data processing is **client-side only** - no data is transmitted to any server
 - Participant names are **never stored** in the data files
 - Exported CSV contains only the pseudonymized participant code
 - The consent form (paper, bearing participant name) is stored separately
@@ -105,8 +105,8 @@ Each exported CSV contains one row per participant with:
 
 No installation required. The app uses only:
 - Vanilla HTML5 / CSS3 / JavaScript
-- [jQuery v3.6.0](https://jquery.com/) — loaded via CDN
-- [DM Sans + DM Mono](https://fonts.google.com/) — Google Fonts (loaded via CDN)
+- [jQuery v3.6.0](https://jquery.com/) - loaded via CDN
+- [DM Sans + DM Mono](https://fonts.google.com/) —-Google Fonts (loaded via CDN)
 
 For offline use, CDN resources can be downloaded locally
 and paths updated in the HTML files.
@@ -144,7 +144,7 @@ If you use this platform, please cite:
 ## References
 
 - Fairbanks, G. (1960). *Voice and articulation drillbook* (2nd ed.). Harper & Row.
-  *(Rainbow Passage — neutral baseline text)*
+  *(Rainbow Passage -neutral baseline text)*
 - Marchewka, A., et al. (2014). The Nencki Affective Picture System (NAPS).
   *Behavior Research Methods, 46*(2), 596–610.
 - Plutchik, R. (1980). *Emotion: A psychoevolutionary synthesis*. Harper & Row.
