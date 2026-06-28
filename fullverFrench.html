@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test psychométrique</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;}
+:root{
+  --bg:#f9f8f5;--surface:#fff;--border:#e0dbd2;
+  --text:#1a1714;--muted:#7a7469;--accent:#2c2c2c;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;--r:12px;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:20px;}
+.hidden{display:none!important;}
+#intro-screen{max-width:780px;margin:0 auto;}
+.intro-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;}
+.intro-title{font-size:1.75rem;font-weight:600;line-height:1.25;letter-spacing:-.025em;margin-bottom:.4rem;}
+.intro-subtitle{font-size:.93rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem;}
+.intro-meta-chip{display:flex;align-items:center;gap:.45rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.45rem .8rem;font-size:.8rem;font-weight:500;color:var(--muted);}
+.intro-meta-chip strong{color:var(--text);font-weight:600;}
+.intro-chip-icon{font-size:.95rem;line-height:1;}
+.intro-section-pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.section-pill{display:flex;align-items:center;gap:.4rem;padding:.35rem .8rem;border-radius:20px;font-size:.75rem;font-weight:600;border:1px solid transparent;}
+.pill-hads{background:#fef9ec;color:#7a5200;border-color:#f0d888;}
+.pill-bfi{background:#edf4ff;color:#204080;border-color:#b0ccf0;}
+.pill-emo{background:#f0fdf4;color:#1a6040;border-color:#a0d8b8;}
+.pill-num{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+.pill-hads .pill-num{background:#f0d888;color:#7a5200;}
+.pill-bfi .pill-num{background:#b0ccf0;color:#204080;}
+.pill-emo .pill-num{background:#a0d8b8;color:#1a6040;}
+.btn-start-tutorial{display:inline-flex;align-items:center;gap:.55rem;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:var(--font);font-size:.95rem;font-weight:600;padding:.75rem 1.8rem;cursor:pointer;transition:background .15s,transform .1s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+.btn-start-tutorial:hover{background:#444;transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.18);}
+.btn-start-tutorial:active{transform:translateY(0);}
+.btn-start-tutorial svg{width:16px;height:16px;flex-shrink:0;}
+.btn-skip-link{font-size:.8rem;color:var(--muted);cursor:pointer;text-decoration:underline;text-decoration-color:rgba(122,116,105,.35);text-underline-offset:3px;background:none;border:none;font-family:var(--font);padding:0;transition:color .15s;}
+.btn-skip-link:hover{color:var(--text);}
+#tutorial-screen{max-width:1400px;margin:0 auto;}
+.tut-header{margin-bottom:1.5rem;}
+.tut-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;}
+.tut-title{font-size:1.1rem;font-weight:600;letter-spacing:-.01em;margin-bottom:.2rem;}
+.tut-desc{font-size:.85rem;color:var(--muted);line-height:1.55;}
+.tut-stepper{display:flex;align-items:center;gap:.4rem;margin-bottom:1.5rem;}
+.tut-step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .25s,transform .25s;}
+.tut-step-dot.active{background:var(--accent);transform:scale(1.35);}
+.tut-step-dot.done{background:#2a9d4e;}
+.tut-step-label{font-size:.75rem;font-weight:600;color:var(--muted);margin-left:.4rem;letter-spacing:.03em;}
+.tut-feedback{padding:.65rem 1rem;border-radius:9px;font-size:.85rem;font-weight:500;margin-top:1rem;display:flex;align-items:flex-start;gap:.6rem;transition:opacity .3s;}
+.tut-feedback.correct{background:#edfaf3;border:1px solid #a0d8b8;color:#1a6040;}
+.tut-feedback.neutral{background:#f0f4ff;border:1px solid #b0ccf0;color:#204080;}
+.tut-feedback svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;}
+.tut-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;flex-wrap:wrap;gap:.75rem;}
+.btn-tut-next{display:inline-flex;align-items:center;gap:.45rem;background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:var(--font);font-size:.88rem;font-weight:600;padding:.6rem 1.4rem;cursor:pointer;transition:background .15s,opacity .15s;}
+.btn-tut-next:hover:not(:disabled){background:#444;}
+.btn-tut-next:disabled{opacity:.4;cursor:not-allowed;}
+.tut-hint{font-size:.78rem;color:var(--muted);font-style:italic;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;}
+.question-text{font-size:1rem;font-weight:600;margin-bottom:1.25rem;}
+.opt-row{display:flex;align-items:center;gap:10px;padding:.55rem .7rem;border-radius:7px;border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;margin-bottom:.4rem;}
+.opt-row:hover{background:var(--bg);border-color:var(--border);}
+.opt-row.selected{background:#edfaf3;border-color:#2a9d4e;}
+.opt-row input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+.opt-row label{font-size:.9rem;cursor:pointer;}
+.bfi-scale-row{display:flex;gap:.4rem;margin-top:.75rem;}
+.bfi-scale-btn{flex:1;padding:.55rem .3rem;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);font-family:var(--font);font-size:.75rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center;line-height:1.3;}
+.bfi-scale-btn:hover{border-color:#aaa;background:#f0ede8;color:var(--text);}
+.bfi-scale-btn.bfi-sel{background:var(--accent);color:#fff;border-color:var(--accent);}
+.bfi-scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:.3rem;padding:0 2px;}
+#tut-question-area .plut-row{justify-content:flex-start;overflow-x:auto;padding-bottom:.5rem;}
+canvas#tutRussellCanvas{display:block;border-radius:8px;cursor:crosshair;transition:box-shadow .2s;}
+canvas#tutRussellCanvas:hover{box-shadow:0 0 0 2px rgba(80,160,255,0.4);}
+canvas#tutRussellCanvas.clicked{box-shadow:0 0 0 2px rgba(80,220,140,0.6);}
+#tutRussellGridWrap{background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem;width:100%;position:relative;transition:opacity .3s;}
+#tutRussellGridWrap.locked{opacity:.45;pointer-events:none;}
+#tutRussellGridWrap.locked::after{content:'① Sélectionnez d\'abord une émotion sur la roue';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:#6090b0;letter-spacing:.04em;text-align:center;background:rgba(15,25,35,0.55);border-radius:var(--r);pointer-events:none;}
+.screen-wrap{max-width:700px;margin:0 auto;}
+.screen-wrap h2{font-size:1.25rem;font-weight:600;margin-bottom:1.25rem;letter-spacing:-.01em;}
+.screen-wrap p,.screen-wrap li{font-size:.93rem;line-height:1.65;}
+.field-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.3rem;}
+.field-ctrl{font-family:var(--font);font-size:.9rem;padding:.5rem .75rem;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);width:100%;outline:none;margin-bottom:1rem;}
+.field-ctrl:focus{border-color:#aaa;}
+.btn-primary-custom{background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.9rem;font-weight:600;padding:.65rem 1.6rem;cursor:pointer;transition:background .15s;}
+.btn-primary-custom:hover{background:#444;}
+.btn-danger-custom{background:#d63838;color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.9rem;font-weight:600;padding:.65rem 1.6rem;cursor:pointer;}
+.btn-agree{background:#2a9d4e;color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.9rem;font-weight:600;padding:.65rem 1.6rem;cursor:pointer;transition:background .15s,opacity .15s;}
+.btn-agree:hover:not(:disabled){background:#228a42;}
+.btn-agree:disabled{opacity:.45;cursor:not-allowed;}
+.consent-check-row{display:flex;align-items:center;gap:.75rem;padding:.55rem .75rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;user-select:none;transition:border-color .15s,background .15s;}
+.consent-check-row:hover{border-color:#aaa;background:#f3f1ed;}
+.consent-check-row.checked{border-color:#2a9d4e;background:#edfaf3;}
+.consent-check-row span{font-size:.88rem;color:var(--text);line-height:1.4;}
+.cbox{width:20px;height:20px;border-radius:5px;border:1.5px solid #ccc;background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;}
+.consent-check-row.checked .cbox{border-color:#2a9d4e;background:#2a9d4e;}
+.cbox-tick{width:11px;height:11px;opacity:0;transform:scale(.5);transition:opacity .15s,transform .15s;}
+.consent-check-row.checked .cbox-tick{opacity:1;transform:scale(1);}
+#main-test{max-width:1400px;margin:0 auto;}
+.prog-wrap{margin-bottom:1rem;}
+.prog-top{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em;}
+.prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .35s;}
+.instruction{font-size:.82rem;font-weight:600;color:var(--muted);border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;background:var(--bg);margin-bottom:1rem;}
+.next-btn{flex:1;padding:.65rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.88rem;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;max-width:200px;}
+.next-btn:hover{background:#444;}.next-btn:active{transform:scale(.98);}
+.next-btn:disabled{background:#bbb;cursor:not-allowed;}
+.act-row{display:flex;gap:.65rem;width:100%;}
+#plutchik-area{display:flex;flex-direction:column;gap:.75rem;}
+.plut-row{display:flex;flex-direction:row;gap:1rem;align-items:flex-start;justify-content:center;flex-wrap:nowrap;}
+.img-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;display:flex;flex-direction:column;align-items:center;gap:.6rem;flex-shrink:0;width:280px;}
+.img-qlabel{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.img-display{width:260px;height:300px;object-fit:contain;border-radius:9px;border:1px solid var(--border);background:var(--bg);}
+.wheel-wrap{position:relative;flex-shrink:0;}
+svg#wheel{display:block;cursor:pointer;}
+.seg{transition:filter .15s;cursor:pointer;}
+.seg:hover{filter:brightness(1.08);}
+.seg.sel{filter:brightness(1.18) drop-shadow(0 0 8px rgba(0,0,0,.3));}
+.plut-sidebar{display:flex;flex-direction:column;gap:.8rem;width:340px;flex-shrink:0;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;}
+.emo-name{font-size:1.5rem;font-weight:600;line-height:1;margin-bottom:.15rem;transition:color .2s;}
+.emo-sub{font-size:.7rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;}
+.intensity-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;}
+.intensity-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.idots{display:flex;align-items:center;gap:4px;}
+.dot{width:10px;height:10px;border-radius:50%;background:#ddd;}
+.dot.on{background:currentColor;}
+.intensity-text{font-size:.78rem;font-weight:600;color:var(--muted);}
+.step-checklist{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.4rem;}
+.step-check-item{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--muted);}
+.step-check-dot{width:16px;height:16px;border-radius:50%;border:1.5px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.step-check-dot.done{border-color:#2a9d4e;background:#2a9d4e;}
+.step-check-dot svg{display:none;width:9px;height:9px;}
+.step-check-dot.done svg{display:block;}
+.va-display-panel{background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem 1rem;display:flex;align-items:center;gap:1rem;transition:opacity .3s;}
+.va-display-panel.empty{opacity:.4;}
+.va-axis-block{flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem;}
+.va-axis-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6090b0;}
+.va-axis-value{font-family:var(--mono);font-size:1.35rem;font-weight:600;color:#ccc;transition:color .3s,transform .2s;line-height:1;}
+.va-axis-value.positive{color:#4ae0a0;}
+.va-axis-value.negative{color:#e07070;}
+.va-axis-value.popped{transform:scale(1.18);}
+.va-divider{width:1px;height:40px;background:#2a3a50;flex-shrink:0;}
+.va-quadrant-label{font-size:.7rem;font-weight:600;color:#6090b0;text-align:center;line-height:1.3;padding:.25rem .5rem;background:rgba(255,255,255,.04);border-radius:6px;border:1px solid #2a3a50;min-width:80px;transition:color .3s,background .3s;}
+.emo-sector-badge{display:inline-flex;align-items:center;gap:6px;padding:.35rem .75rem;border-radius:20px;font-size:.78rem;font-weight:600;margin-bottom:.5rem;}
+.qbadge{display:inline-block;margin-top:.4rem;font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;}
+.russell-grid-wrap-main{background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem;position:relative;transition:opacity .3s;}
+.russell-grid-wrap-main.locked{opacity:.45;pointer-events:none;}
+.russell-grid-wrap-main.locked::after{content:'① Sélectionnez d\'abord une émotion sur la roue';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:#6090b0;letter-spacing:.04em;text-align:center;background:rgba(15,25,35,0.55);border-radius:var(--r);pointer-events:none;}
+.russell-grid-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6090b0;margin-bottom:.5rem;text-align:center;}
+.russell-canvas-wrap{position:relative;display:flex;justify-content:center;}
+canvas#russellCanvas{display:block;border-radius:8px;cursor:crosshair;transition:box-shadow .2s;}
+canvas#russellCanvas:hover{box-shadow:0 0 0 2px rgba(80,160,255,0.4);}
+canvas#russellCanvas.clicked{box-shadow:0 0 0 2px rgba(80,220,140,0.6);}
+.domain-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:.75rem;}
+.instr-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;}
+@media(max-width:600px){.instr-layout{grid-template-columns:1fr;}.plut-row{flex-direction:column;}}
+.instr-meta{display:flex;flex-direction:column;gap:1rem;}
+.q-count-badge{display:flex;align-items:center;gap:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:.65rem .9rem;}
+.q-count-icon{font-size:1.3rem;line-height:1;}
+.q-count-text{display:flex;flex-direction:column;}
+.q-count-num{font-family:var(--mono);font-size:1.4rem;font-weight:600;line-height:1;color:var(--accent);}
+.q-count-lbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.time-badge{display:flex;align-items:center;gap:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:.65rem .9rem;}
+.instr-steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;}
+.instr-steps li{display:flex;align-items:flex-start;gap:.55rem;font-size:.85rem;line-height:1.5;}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.instr-divider{border:none;border-top:1px solid var(--border);margin:1.25rem 0;}
+#instruction-screen .panel{padding:1.75rem;}
+#instruction-screen{max-width:900px;}
+#instruction-screen.screen-wrap{max-width:900px;}
+.hads-demo{width:100%;padding:.85rem;display:flex;flex-direction:column;gap:.5rem;}
+.demo-q{font-size:.72rem;font-weight:600;color:#444;margin-bottom:.3rem;}
+.demo-opt{display:flex;align-items:center;gap:.45rem;padding:.3rem .4rem;border-radius:6px;font-size:.7rem;color:#555;border:1px solid transparent;transition:all .3s;}
+.demo-opt.demo-selected{background:#e9f7ee;border-color:#2a9d4e;color:#1a6b38;}
+.demo-opt .demo-radio{width:12px;height:12px;border-radius:50%;border:1.5px solid #bbb;flex-shrink:0;position:relative;transition:all .3s;}
+.demo-opt.demo-selected .demo-radio{border-color:#2a9d4e;background:#2a9d4e;}
+.demo-opt.demo-selected .demo-radio::after{content:'';position:absolute;width:4px;height:4px;background:#fff;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
+.bfi-demo{width:100%;padding:.85rem;display:flex;flex-direction:column;gap:.5rem;}
+.scale-row{display:flex;gap:.3rem;justify-content:space-between;margin-top:.3rem;}
+.scale-btn{flex:1;height:28px;border-radius:5px;border:1px solid var(--border);background:var(--bg);font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;}
+.scale-btn.scale-sel{background:#2c2c2c;color:#fff;border-color:#2c2c2c;}
+.plut-instr-demo{background:#1a1a2e;border-radius:10px;overflow:hidden;border:1px solid #333;display:flex;flex-direction:column;}
+.plut-instr-demo-body{padding:.9rem;display:flex;gap:.75rem;align-items:flex-start;}
+.plut-instr-img-frame{width:90px;height:110px;border-radius:8px;border:1px solid #333;background:#12122a;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.plut-instr-canvas-wrap{position:relative;flex-shrink:0;}
+.plut-instr-cursor{position:absolute;width:10px;height:10px;border-radius:50%;background:white;border:2px solid #ccc;pointer-events:none;transition:left .65s cubic-bezier(.4,0,.2,1),top .65s cubic-bezier(.4,0,.2,1);opacity:0;z-index:10;}
+.plut-instr-ring{position:absolute;width:20px;height:20px;border-radius:50%;border:2px solid white;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(1);z-index:10;transition:opacity .4s,transform .4s;}
+.plut-instr-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:.5rem;}
+.plut-instr-step-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:#aaa;background:#252540;border:1px solid #333;border-radius:20px;padding:3px 10px;width:fit-content;letter-spacing:.04em;}
+.plut-instr-step-dot{width:6px;height:6px;border-radius:50%;background:#555;transition:background .3s;}
+.plut-instr-step-dot.on{background:#2a9d4e;}
+.plut-instr-emo-card{background:#12122a;border:1px solid #2a2a50;border-radius:8px;padding:.55rem .7rem;min-height:62px;}
+.plut-instr-emo-name{font-size:14px;font-weight:600;color:#888;transition:color .4s;line-height:1.2;}
+.plut-instr-emo-meta{font-size:9px;color:#555;margin-top:2px;transition:color .3s;}
+.plut-instr-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+.plut-instr-tag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;}
+.plut-instr-tag.pos{background:#0d2b18;color:#4ac870;}
+.plut-instr-tag.neg{background:#2b0d0d;color:#e06060;}
+.plut-instr-tag.hi{background:#2b1e00;color:#e0a030;}
+.plut-instr-tag.lo{background:#0d1a2b;color:#5090d8;}
+.plut-instr-img-label{font-size:9px;color:#666;text-align:center;margin-top:3px;transition:color .3s;}
+.plut-instr-caption{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#555;padding:.4rem .75rem;background:#111;text-align:center;border-top:1px solid #222;}
+.ax{position:absolute;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;pointer-events:none;}
+.ax-top{top:2px;left:50%;transform:translateX(-50%);color:#c00;}
+.ax-bot{bottom:2px;left:50%;transform:translateX(-50%);color:#00c;}
+.ax-left{left:0;top:50%;transform:translateY(-50%) rotate(-90deg);color:#60a;font-size:9px;}
+.ax-right{right:0;top:50%;transform:translateY(-50%) rotate(90deg);color:#080;font-size:9px;}
+/* ── FINISH SCREEN ── */
+.finish-hero{text-align:center;padding:2rem 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
+.finish-icon{font-size:3rem;margin-bottom:.75rem;animation:bounceIn .6s ease;}
+@keyframes bounceIn{0%{transform:scale(0.3);opacity:0;}60%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+.finish-title{font-size:1.4rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.5rem;}
+.finish-msg{font-size:.95rem;color:var(--muted);line-height:1.7;max-width:480px;margin:0 auto;}
+/* ── SUMMARY EMOTION SECTION ── */
+.emo-summary-grid{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;}
+.emo-summary-card{flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.emo-summary-card-dark{flex:1;min-width:180px;background:#0f1923;border:1px solid #2a3a50;border-radius:10px;padding:1rem;}
+.emo-summary-card-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.65rem;}
+.emo-summary-card-title-dark{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6090b0;margin-bottom:.65rem;}
+
+/* ── NOTICE DE CONFIDENTIALITÉ / PSEUDONYMISATION ── */
+.privacy-notice{background:#f0f4ff;border:1px solid #b0ccf0;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:.75rem;align-items:flex-start;}
+.privacy-notice-icon{font-size:1.2rem;line-height:1;flex-shrink:0;margin-top:1px;}
+.privacy-notice-text{font-size:.85rem;color:#204080;line-height:1.6;}
+.privacy-notice-text strong{font-weight:700;}
+.privacy-notice-code{font-family:var(--mono);background:#dde8ff;padding:1px 6px;border-radius:4px;font-weight:600;}
+.plut-instr-top-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;margin-bottom:1.25rem;}@media(max-width:680px){.plut-instr-top-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ===== INTRO SCREEN ===== -->
+<div id="intro-screen">
+  <div class="panel" style="padding:2rem;">
+    <div class="intro-eyebrow">Étude de recherche</div>
+    <h1 class="intro-title">Observation multimodale des comportements<br>lors d'évaluations psychométriques</h1>
+    <p class="intro-subtitle">Cette étude s'inscrit dans une démarche de recherche clinique et technologique portant sur les dimensions affectives et comportementales de l'expérience psychologique. Avant de débuter le protocole, nous vous invitons à lire attentivement le passage ci-dessous.</p>
+
+<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
+  <p style="font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;">Vingt mille lieues sous les mers (1870)</p>
+  <p style="font-size:.93rem;color:var(--text);line-height:1.85;font-style:italic;">
+    « Le fond de la mer forme de véritables plaines dont la surface paraît, en certains endroits, parfaitement unie. Les sables se déposent régulièrement et forment des couches horizontales. La lumière, qui pénètre à travers l'eau, se répartit uniformément sur ces étendues. On distingue çà et là quelques rochers aux contours arrondis, quelques cailloux polis par le mouvement des eaux. Entre ces reliefs, le sol présente une teinte grise, légèrement dorée par les reflets de la lumière filtrée. Aucun courant ne vient troubler cette tranquillité. Les formes restent stables, les contours demeurent nets. L'ensemble compose un paysage régulier, silencieux, dont les proportions paraissent immuables. »
+  </p>
+</div>
+    <button class="btn-start-tutorial" onclick="skipToConsent()">Commencer →</button>
+  </div>
+</div>
+
+<!-- ===== CONSENT ===== -->
+<div id="consent-screen" class="screen-wrap hidden" style="max-width:760px;">
+  <h2>Notice d'information et formulaire de consentement</h2>
+  <div class="panel">
+    <p style="margin-bottom:.25rem;"><strong>Titre de l'étude :</strong> Observation multimodale des comportements lors d'évaluations psychométriques grâce à l'Internet des objets (IoT) et à l'intelligence artificielle</p>
+    <hr style="border:none;border-top:1px solid var(--border);margin:1.1rem 0;">
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">Informations sur l'étude</p>
+    <p style="font-size:.87rem;color:var(--muted);line-height:1.6;margin-bottom:.85rem;">Vous êtes invité(e) à prendre part à une étude portant sur les dimensions affectives, comportementales et dispositionnelles de l'expérience psychologique. Ce protocole articule des outils psychométriques validés et des tâches d'évaluation émotionnelle, dans une perspective à la fois clinique et technologique.</p>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.5rem;">Déroulement du protocole</p>
+    <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem;">
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">1.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Lire attentivement la notice d'information, le formulaire de consentement et le document de débriefing.</span></div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">2.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Porter un bracelet connecté permettant de mesurer votre fréquence cardiaque, puis utiliser la souris, le clavier et la caméra dans le cadre de la collecte des données comportementales.</span></div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">3.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Répondre à de courts questionnaires psychométriques (HADS et BFI-2-S).</span></div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">4.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Observer des images à caractère émotionnel et évaluer vos ressentis à l'aide de la roue des émotions de Plutchik et du modèle circumplexe de Russell.</span></div>
+    </div>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:.9rem;">⏱ Durée estimée : 20 à 25 minutes</p>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">Quelles données seront collectées ?</p>
+    <ul style="font-size:.87rem;color:var(--muted);line-height:1.75;padding-left:1.25rem;margin-bottom:.85rem;">
+      <li>Vos réponses aux questionnaires</li><li>Vos évaluations émotionnelles</li><li>Vos temps de réaction</li>
+      <li>Vos interactions avec la souris et le clavier</li><li>Les enregistrements vidéo réalisés via la caméra</li><li>Des données physiologiques liées à votre fréquence cardiaque</li>
+    </ul>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">Risques</p>
+    <p style="font-size:.87rem;color:var(--muted);line-height:1.6;margin-bottom:.85rem;">Certaines images présentées dans ce protocole sont susceptibles de susciter un vécu émotionnel inconfortable. Il vous est possible de mettre fin à votre participation à tout moment, sans justification ni conséquence, en fermant simplement votre navigateur.</p>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">Vos droits</p>
+    <ul style="font-size:.87rem;color:var(--muted);line-height:1.75;padding-left:1.25rem;margin-bottom:.85rem;">
+      <li>Votre participation repose sur le principe du volontariat libre et éclairé.</li><li>Vous pouvez vous retirer à tout moment, sans justification et sans aucune conséquence.</li>
+      <li>Les données recueillies feront l'objet d'une pseudonymisation et seront conservées dans des conditions garantissant leur confidentialité.</li><li>Aucune donnée permettant votre identification directe ne figurera dans les publications issues de cette recherche.</li>
+    </ul>
+    <hr style="border:none;border-top:1px solid var(--border);margin:1.1rem 0 1rem;">
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.4rem;">Consentement</p>
+    <p style="font-size:.87rem;color:var(--muted);margin-bottom:.85rem;">En cliquant sur <strong>« J'accepte et souhaite participer »</strong>, vous attestez que :</p>
+    <div id="consent-checks" style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem;">
+      <label class="consent-check-row" onclick="toggleCheck(0)"><div class="cbox" id="cbox0"><svg class="cbox-tick" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 5,9.5 10,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Vous avez entre 18 et 40 ans et ne présentez, à votre connaissance, aucune condition physique ou psychologique susceptible d'interférer avec le bon déroulement des tâches proposées dans ce protocole.</span></label>
+      <label class="consent-check-row" onclick="toggleCheck(1)"><div class="cbox" id="cbox1"><svg class="cbox-tick" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 5,9.5 10,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Vous avez pris connaissance des informations figurant dans ce document et en avez compris la portée.</span></label>
+      <label class="consent-check-row" onclick="toggleCheck(2)"><div class="cbox" id="cbox2"><svg class="cbox-tick" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 5,9.5 10,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Vous acceptez librement de participer à cette étude.</span></label>
+    </div>
+    <div class="d-flex gap-3 align-items-center flex-wrap">
+      <button class="btn-agree" id="agreeBtn" disabled>J'accepte et souhaite participer</button>
+      <button class="btn-danger-custom" id="declineBtn">Je n'accepte pas</button>
+    </div>
+    <p id="consent-hint" style="font-size:.78rem;color:#c06000;margin-top:.55rem;display:none;">Veuillez cocher les trois cases ci-dessus pour continuer.</p>
+  </div>
+</div>
+
+<!-- PARTICIPANT INFO -->
+<div id="participant-screen" class="screen-wrap hidden">
+  <h2>Informations sur le participant</h2>
+  <div class="panel">
+    <div class="privacy-notice">
+      <div class="privacy-notice-icon">🔒</div>
+      <div class="privacy-notice-text">Votre nom et vos données personnelles sont recueillis uniquement pour permettre à l'équipe de recherche de vous identifier et de vous recontacter si nécessaire. <strong>Ces informations ne seront pas publiées ni partagées </strong> l'ensemble des données exportées, fichiers et comptes-rendus d'analyse font référence à un code de complétion généré aléatoirement.</div>
+    </div>
+    <label class="field-label">Nom complet</label>
+    <input type="text" id="p_name" class="field-ctrl" placeholder="ex. Jeanne Dupont">
+    <label class="field-label">Date de naissance</label>
+    <input type="text" id="p_dob" class="field-ctrl" placeholder="JJ/MM/AAAA">
+    <label class="field-label">Genre</label>
+    <select id="p_gender" class="field-ctrl"><option value="">Sélectionnez</option><option>Homme</option><option>Femme</option><option>Préfère ne pas se prononcer</option></select>
+    <label class="field-label">Tranche d'âge</label>
+    <select id="p_age" class="field-ctrl"><option value="">Sélectionnez</option><option>18-21</option><option>22-25</option><option>26-30</option><option>31-35</option><option>36-40</option></select>
+    <label class="field-label">Adresse e-mail</label>
+    <input type="email" id="p_email" class="field-ctrl" placeholder="ex. nom@email.com">
+    <label class="field-label">Nationalité</label>
+    <input type="text" id="p_nationality" class="field-ctrl" placeholder="ex. France">
+    <label class="field-label">Langue maternelle</label>
+    <select id="p_language" class="field-ctrl"><option value="">Sélectionnez</option><option>Français</option><option>Anglais</option><option>Autres</option></select>
+    <div class="mt-3"><button class="btn-primary-custom" id="startStudyBtn">Continuer →</button></div>
+  </div>
+</div>
+
+<!-- READY SCREEN -->
+<div id="ready-screen" class="screen-wrap hidden">
+  <div class="panel" style="text-align:center;padding:3rem 2rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎯</div>
+    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:.5rem;letter-spacing:-.02em;">Prêt(e) à commencer ?</h2>
+    <p style="color:var(--muted);font-size:.93rem;line-height:1.6;margin-bottom:.5rem;">Vous allez à présent débuter le protocole d'évaluation psychométrique.</p>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;">
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-bottom:.5rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.82rem;color:var(--muted);"><span>📝</span><span><strong>HADS</strong> - 14 questions</span></div>
+        <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.82rem;color:var(--muted);"><span>📋</span><span><strong>BFI-2-S</strong> - 30 questions</span></div>
+        <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.82rem;color:var(--muted);"><span>🖼️</span><span><strong>Émotions</strong> - 20 images</span></div>
+      </div>
+      <button class="btn-start-tutorial" id="readyStartBtn" onclick="startCountdown()" style="font-size:1.05rem;padding:.85rem 2.5rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Commencer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="countdown-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(26,23,20,0.92);backdrop-filter:blur(6px);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
+  <div style="font-size:.85rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.45);">Démarrage imminent</div>
+  <div id="countdown-number" style="font-family:var(--mono);font-size:8rem;font-weight:700;color:#fff;line-height:1;transition:transform .15s,opacity .15s;"></div>
+  <div style="font-size:.9rem;color:rgba(255,255,255,.4);">Installez-vous...</div>
+</div>
+
+<!-- INSTRUCTION -->
+<div id="instruction-screen" class="screen-wrap hidden">
+  <h2 id="instr-title">Instructions</h2>
+  <div class="panel">
+    <div id="instruction-text"></div>
+    <div class="mt-4"><button class="btn-primary-custom" id="beginTestBtn">Démarrer le test →</button></div>
+  </div>
+</div>
+
+<!-- MAIN TEST -->
+<div id="main-test" class="hidden">
+  <div class="prog-wrap">
+    <div class="prog-top"><span id="progLabel">Question 1</span><span id="progPct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+  <div id="test-area"></div>
+  <div id="plutchik-area" class="hidden">
+    <div style="font-size:.82rem;font-weight:600;color:var(--muted);border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;background:var(--bg);margin-bottom:.75rem;">
+      Pour chaque image : <strong>① Cliquez sur la roue des émotions de Plutchik</strong> pour indiquer votre émotion, puis <strong>② cliquez sur la grille du modèle circumplexe de Russell</strong>. Ces deux étapes sont requises avant de poursuivre vers l'image suivante.
+    </div>
+    <div class="plut-row">
+      <div class="img-panel">
+        <div class="img-qlabel" id="qLbl">Image 1</div>
+        <img class="img-display" id="qImg" src="" alt="stimulus"/>
+        <div class="step-checklist" style="width:100%;margin-top:.5rem;">
+          <div class="step-check-item">
+            <div class="step-check-dot" id="dot-wheel"><svg viewBox="0 0 10 10" fill="none"><polyline points="1.5,5.5 4,8 8.5,2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>① Émotion identifiée sur la roue</span>
+          </div>
+          <div class="step-check-item">
+            <div class="step-check-dot" id="dot-russell"><svg viewBox="0 0 10 10" fill="none"><polyline points="1.5,5.5 4,8 8.5,2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>② Position indiquée sur la grille</span>
+          </div>
+        </div>
+      </div>
+      <div class="wheel-wrap" style="width:660px;height:660px;">
+        <span class="ax ax-top">FORTE ACTIVATION</span>
+        <span class="ax ax-bot">FAIBLE ACTIVATION</span>
+        <span class="ax ax-left">VALENCE NÉGATIVE</span>
+        <span class="ax ax-right">VALENCE POSITIVE</span>
+        <svg id="wheel" viewBox="0 0 800 800" width="660" height="660" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="mU" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M2,6L4,2L6,6" fill="none" stroke="#333" stroke-width="1.3"/></marker>
+            <marker id="mD" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M2,2L4,6L6,2" fill="none" stroke="#333" stroke-width="1.3"/></marker>
+          </defs>
+          <line x1="400" y1="370" x2="400" y2="32" stroke="#333" stroke-width="1.8" marker-end="url(#mU)"/>
+          <line x1="400" y1="430" x2="400" y2="768" stroke="#333" stroke-width="1.8" marker-end="url(#mD)"/>
+          <g id="segs"></g><g id="lbls"></g>
+        </svg>
+      </div>
+      <div class="plut-sidebar">
+        <div class="info-card">
+          <div class="emo-name" id="eName" style="color:#bbb;">-</div>
+          <div class="emo-sub" id="eSub">Sélectionnez une émotion sur la roue</div>
+          <div id="emoSectorBadgeWrap"></div>
+          <div class="intensity-row" id="emoIntensityRow" style="display:none;">
+            <span class="intensity-label">Intensité</span>
+            <div class="idots" id="eDots" style="color:#ccc;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <span class="intensity-text" id="eIs"></span>
+          </div>
+          <div class="qbadge" id="eQ" style="background:#f0f0f0;color:#999;display:none;"></div>
+        </div>
+        <div class="russell-grid-wrap-main locked" id="russellGridWrap">
+          <div class="russell-grid-title">② Modèle circumplexe de Russell - Cliquez pour évaluer Valence &amp; Activation</div>
+          <div class="russell-canvas-wrap"><canvas id="russellCanvas" width="300" height="300"></canvas></div>
+        </div>
+        <div class="va-display-panel empty" id="vaDisplayPanel">
+          <div class="va-axis-block">
+            <div class="va-axis-label">Valence</div>
+            <div class="va-axis-value" id="vaValenceVal">-</div>
+            <div style="font-size:9px;color:#4a6a80;margin-top:2px;">← déplaisant · agréable →</div>
+          </div>
+          <div class="va-divider"></div>
+          <div class="va-axis-block">
+            <div class="va-axis-label">Activation</div>
+            <div class="va-axis-value" id="vaArousalVal">-</div>
+            <div style="font-size:9px;color:#4a6a80;margin-top:2px;">↓ faible · élevée ↑</div>
+          </div>
+          <div class="va-divider"></div>
+          <div class="va-quadrant-label" id="vaQuadrantLabel">Cliquez sur<br>la grille</div>
+        </div>
+        <div class="act-row">
+          <button class="next-btn" id="plutNextBtn" disabled onclick="plutNext()">Suivant →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="mcq-nav" style="margin-top:1.25rem;display:flex;gap:.65rem;">
+    <button class="next-btn" id="nextBtn" onclick="handleNext()" style="max-width:200px;">Suivant →</button>
+  </div>
+</div>
+
+<!-- THANK YOU -->
+<div id="finish-screen" class="screen-wrap hidden">
+  <h2 style="text-align:center;">Étude terminée</h2>
+  <div class="panel">
+    <div class="finish-hero">
+      <div class="finish-icon">🎉</div>
+      <div class="finish-title">Merci pour votre participation !</div>
+      <p class="finish-msg">Vos réponses constituent une contribution précieuse à ce programme de recherche. En acceptant de partager votre vécu émotionnel et comportemental, vous participez à l'élaboration d'une meilleure compréhension des interactions entre technologie et psychologie humaine. Nous vous en remercions.</p>
+    </div>
+    <p id="completionID" style="font-family:var(--mono);font-size:.9rem;color:var(--muted);margin-bottom:1.25rem;text-align:center;"></p>
+    <label class="field-label">Vos commentaires</label>
+    <textarea id="userFeedback" class="field-ctrl" rows="4" placeholder="Tout retour est précieux pour notre recherche, n'hésitez pas à partager vos impressions."></textarea>
+    <div class="mt-3"><button class="btn-primary-custom" id="finishBtn">Terminer le test →</button></div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div id="summary-screen" class="screen-wrap hidden" style="max-width:820px;">
+  <h2>Synthèse des données recueillies</h2>
+  <div class="panel">
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">HADS</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Sous-échelle</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Score total</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Moyenne</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Temps (s)</th>
+        </tr></thead>
+        <tbody id="hads-sum-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">Big Five Personality (BFI-2-S)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Domaine</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Score total</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Moyenne (÷6)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Temps (s)</th>
+        </tr></thead>
+        <tbody id="bfi-sum-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">Plutchik + Russell - Réponses émotionnelles</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Image</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">NAPS ID</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Émotion (Roue)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Valence (Grille)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Activation (Grille)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Temps (s)</th>
+        </tr></thead>
+        <tbody id="plut-sum-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-bottom:1.75rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;">Résumé émotionnel - Roue &amp; Vue d'ensemble Valence/Activation</div>
+      <div class="emo-summary-grid">
+        <div class="emo-summary-card">
+          <div class="emo-summary-card-title">Émotions les plus sélectionnées</div>
+          <div id="emo-freq-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+        </div>
+        <div class="emo-summary-card">
+          <div class="emo-summary-card-title">Moyennes Valence / Activation</div>
+          <div id="va-avg-display" style="display:flex;flex-direction:column;gap:.5rem;"></div>
+        </div>
+        <div class="emo-summary-card-dark">
+          <div class="emo-summary-card-title-dark">Distribution par quadrant</div>
+          <div id="quadrant-dist" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+        </div>
+      </div>
+      <div style="background:#0f1923;border:1px solid #2a3a50;border-radius:10px;padding:.75rem;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6090b0;margin-bottom:.5rem;text-align:center;">Carte Valence–Activation de vos réponses (20 images)</div>
+        <div style="display:flex;justify-content:center;">
+          <canvas id="summaryVACanvas" width="340" height="300" style="border-radius:8px;"></canvas>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary-custom" onclick="downloadCSV(completionID)" style="width:100%;justify-content:center;display:flex;align-items:center;gap:8px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Télécharger les résultats (CSV)
+    </button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+
+const NAPS_ORDERS = {
+  1: [
+    {photo:"Faces_198_h",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG03"},
+    {photo:"Animals_008_v",emotion:"Surprise",valence:"neutre",intensity:"faible",napsId:"IMG16"},
+    {photo:"Faces_172_h",emotion:"Tristesse",valence:"négatif",intensity:"moyen",napsId:"IMG07"},
+    {photo:"Landscapes_139_h",emotion:"Colère",valence:"négatif",intensity:"moyen",napsId:"IMG13"},
+    {photo:"Landscapes_121_h",emotion:"Bonheur",valence:"positif",intensity:"moyen",napsId:"IMG05"},
+    {photo:"Animals_087_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG18"},
+    {photo:"Faces_270_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG17"},
+    {photo:"People_198_h",emotion:"Dégoût",valence:"négatif",intensity:"élevé",napsId:"IMG12"},
+    {photo:"Animals_166_v",emotion:"Bonheur",valence:"positif",intensity:"moyen",napsId:"IMG06"},
+    {photo:"Landscapes_005_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG19"},
+    {photo:"Landscapes_024_v",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG02"},
+    {photo:"People_220_h",emotion:"Dégoût",valence:"négatif",intensity:"élevé",napsId:"IMG11"},
+    {photo:"Objects_177_h",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG04"},
+    {photo:"Objects_148_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG20"},
+    {photo:"Animals_030_h",emotion:"Peur",valence:"négatif",intensity:"élevé",napsId:"IMG09"},
+    {photo:"Landscapes_026_h",emotion:"Colère",valence:"négatif",intensity:"moyen",napsId:"IMG14"},
+    {photo:"Objects_282_h",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG01"},
+    {photo:"Animals_074_h",emotion:"Tristesse",valence:"négatif",intensity:"moyen",napsId:"IMG08"},
+    {photo:"Animals_011_h",emotion:"Peur",valence:"négatif",intensity:"moyen",napsId:"IMG10"},
+    {photo:"People_237_h",emotion:"Surprise",valence:"négatif",intensity:"moyen",napsId:"IMG15"},
+  ],
+  2: [
+    {photo:"Animals_008_v",emotion:"Surprise",valence:"neutre",intensity:"faible",napsId:"IMG16"},
+    {photo:"Objects_282_h",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG01"},
+    {photo:"Landscapes_005_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG19"},
+    {photo:"Objects_148_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG20"},
+    {photo:"Landscapes_121_h",emotion:"Bonheur",valence:"positif",intensity:"moyen",napsId:"IMG05"},
+    {photo:"Animals_087_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG18"},
+    {photo:"Animals_166_v",emotion:"Bonheur",valence:"positif",intensity:"moyen",napsId:"IMG06"},
+    {photo:"Landscapes_139_h",emotion:"Colère",valence:"négatif",intensity:"moyen",napsId:"IMG13"},
+    {photo:"People_220_h",emotion:"Dégoût",valence:"négatif",intensity:"élevé",napsId:"IMG11"},
+    {photo:"Faces_198_h",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG03"},
+    {photo:"Animals_011_h",emotion:"Peur",valence:"négatif",intensity:"moyen",napsId:"IMG10"},
+    {photo:"People_198_h",emotion:"Dégoût",valence:"négatif",intensity:"élevé",napsId:"IMG12"},
+    {photo:"Faces_270_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG17"},
+    {photo:"Objects_177_h",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG04"},
+    {photo:"Faces_172_h",emotion:"Tristesse",valence:"négatif",intensity:"moyen",napsId:"IMG07"},
+    {photo:"Landscapes_026_h",emotion:"Colère",valence:"négatif",intensity:"moyen",napsId:"IMG14"},
+    {photo:"People_237_h",emotion:"Surprise",valence:"négatif",intensity:"moyen",napsId:"IMG15"},
+    {photo:"Landscapes_024_v",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG02"},
+    {photo:"Animals_030_h",emotion:"Peur",valence:"négatif",intensity:"élevé",napsId:"IMG09"},
+    {photo:"Animals_074_h",emotion:"Tristesse",valence:"négatif",intensity:"moyen",napsId:"IMG08"},
+  ],
+  3: [
+    {photo:"Objects_177_h",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG04"},
+    {photo:"Objects_282_h",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG01"},
+    {photo:"Faces_172_h",emotion:"Tristesse",valence:"négatif",intensity:"moyen",napsId:"IMG07"},
+    {photo:"Animals_074_h",emotion:"Tristesse",valence:"négatif",intensity:"moyen",napsId:"IMG08"},
+    {photo:"Animals_008_v",emotion:"Surprise",valence:"neutre",intensity:"faible",napsId:"IMG16"},
+    {photo:"Landscapes_026_h",emotion:"Colère",valence:"négatif",intensity:"moyen",napsId:"IMG14"},
+    {photo:"Landscapes_121_h",emotion:"Bonheur",valence:"positif",intensity:"moyen",napsId:"IMG05"},
+    {photo:"Faces_270_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG17"},
+    {photo:"People_198_h",emotion:"Dégoût",valence:"négatif",intensity:"élevé",napsId:"IMG12"},
+    {photo:"Landscapes_005_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG19"},
+    {photo:"Landscapes_024_v",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG02"},
+    {photo:"People_237_h",emotion:"Surprise",valence:"négatif",intensity:"moyen",napsId:"IMG15"},
+    {photo:"Animals_087_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG18"},
+    {photo:"Animals_030_h",emotion:"Peur",valence:"négatif",intensity:"élevé",napsId:"IMG09"},
+    {photo:"Faces_198_h",emotion:"Neutre",valence:"neutre",intensity:"faible",napsId:"IMG03"},
+    {photo:"Animals_011_h",emotion:"Peur",valence:"négatif",intensity:"moyen",napsId:"IMG10"},
+    {photo:"People_220_h",emotion:"Dégoût",valence:"négatif",intensity:"élevé",napsId:"IMG11"},
+    {photo:"Animals_166_v",emotion:"Bonheur",valence:"positif",intensity:"moyen",napsId:"IMG06"},
+    {photo:"Objects_148_h",emotion:"Intéressant",valence:"négatif",intensity:"moyen",napsId:"IMG20"},
+    {photo:"Landscapes_139_h",emotion:"Colère",valence:"négatif",intensity:"moyen",napsId:"IMG13"},
+  ],
+};
+
+function initImageOrder(){let counter=parseInt(sessionStorage.getItem('naps_participant_counter')||'0');const orderNumber=(counter%3)+1;sessionStorage.setItem('naps_participant_counter',counter+1);sessionStorage.setItem('naps_order_number',orderNumber);const seq=NAPS_ORDERS[orderNumber].map((img,i)=>({image:'images/'+img.photo+'.jpg',napsPhoto:img.photo,napsId:img.napsId,napsEmotion:img.emotion,napsValence:img.valence,napsIntensity:img.intensity,position:i+1}));sessionStorage.setItem('naps_image_sequence',JSON.stringify(seq));return orderNumber;}
+let napsOrderNumber=1;let plutchikImages=[];
+const consentState=[false,false,false];
+function toggleCheck(idx){consentState[idx]=!consentState[idx];document.querySelectorAll('.consent-check-row')[idx].classList.toggle('checked',consentState[idx]);const allChecked=consentState.every(Boolean);document.getElementById('agreeBtn').disabled=!allChecked;document.getElementById('consent-hint').style.display=allChecked?'none':'block';}
+const DOMAIN_COLOURS={'Extraversion':{bg:'#e8f0fd',color:'#2350a8'},'Agreeableness':{bg:'#e8faf0',color:'#1a7a45'},'Conscientiousness':{bg:'#fff5e0',color:'#8a5500'},'Negative Emotionality':{bg:'#fde8e8',color:'#a82323'},'Open-Mindedness':{bg:'#f3e8fd',color:'#6b2398'}};
+const RUSSELL_W=300;let R_PAD=42,R_GW,R_GH,R_CX,R_CY;
+function initRussellDims(){R_GW=RUSSELL_W-R_PAD*2;R_GH=RUSSELL_W-R_PAD*2;R_CX=R_PAD+R_GW/2;R_CY=R_PAD+R_GH/2;}
+initRussellDims();
+let russellClickedV=null,russellClickedA=null;
+
+function drawRussellGrid(clickedPoint){const canvas=document.getElementById('russellCanvas');if(!canvas)return;const ctx=canvas.getContext('2d');const W=RUSSELL_W,PAD=R_PAD,GW=R_GW,GH=R_GH,CX=R_CX,CY=R_CY;ctx.clearRect(0,0,W,W);ctx.fillStyle='#0d1520';ctx.fillRect(0,0,W,W);const QUADS=[{x:-1,y:1,color:'rgba(180,40,40,0.18)',label:'Tendu / Alarmé',tc:'#e07070'},{x:1,y:1,color:'rgba(180,160,0,0.16)',label:'Joyeux / Excité',tc:'#d4c040'},{x:-1,y:-1,color:'rgba(30,60,180,0.18)',label:'Triste / Déprimé',tc:'#7090e8'},{x:1,y:-1,color:'rgba(30,140,70,0.16)',label:'Calme / Détendu',tc:'#60d890'}];QUADS.forEach(q=>{const qx=q.x<0?PAD:CX,qy=q.y>0?PAD:CY;ctx.fillStyle=q.color;ctx.fillRect(qx,qy,GW/2,GH/2);ctx.font='bold 13px DM Sans,sans-serif';ctx.fillStyle=q.tc;ctx.globalAlpha=.75;ctx.textAlign='center';const lines=q.label.split(' / ');const tx=q.x<0?PAD+GW*.25:PAD+GW*.75,ty=q.y>0?PAD+GH*.15:PAD+GH*.85;lines.forEach((ln,i)=>ctx.fillText(ln,tx,ty+i*16));ctx.globalAlpha=1;});ctx.strokeStyle='rgba(50,80,110,0.4)';ctx.lineWidth=0.5;for(let i=1;i<8;i++){const xi=PAD+(GW/8)*i,yi=PAD+(GH/8)*i;ctx.beginPath();ctx.moveTo(xi,PAD);ctx.lineTo(xi,PAD+GH);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD,yi);ctx.lineTo(PAD+GW,yi);ctx.stroke();}ctx.strokeStyle='rgba(100,160,220,0.7)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(PAD,CY);ctx.lineTo(PAD+GW,CY);ctx.stroke();ctx.beginPath();ctx.moveTo(CX,PAD);ctx.lineTo(CX,PAD+GH);ctx.stroke();const drawArrow=(x1,y1,x2,y2)=>{const angle=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-7*Math.cos(angle-.4),y2-7*Math.sin(angle-.4));ctx.lineTo(x2-7*Math.cos(angle+.4),y2-7*Math.sin(angle+.4));ctx.closePath();ctx.fillStyle='rgba(100,160,220,0.8)';ctx.fill();};drawArrow(PAD,CY,PAD+GW-2,CY);drawArrow(PAD+GW,CY,PAD+2,CY);drawArrow(CX,PAD+GH,CX,PAD+2);drawArrow(CX,PAD,CX,PAD+GH-2);ctx.font='bold 12px DM Sans,sans-serif';ctx.textAlign='left';ctx.fillStyle='#e07070';ctx.fillText('Déplaisant',PAD+2,CY-6);ctx.textAlign='right';ctx.fillStyle='#60d890';ctx.fillText('Agréable',PAD+GW-2,CY-6);ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.6)';ctx.font='bold 11px DM Sans,sans-serif';ctx.fillText('VALENCE',CX,PAD+GH+14);ctx.save();ctx.translate(PAD-12,CY);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.6)';ctx.font='bold 11px DM Sans,sans-serif';ctx.fillText('ACTIVATION',0,0);ctx.restore();ctx.textAlign='center';ctx.font='bold 11px DM Sans,sans-serif';ctx.fillStyle='#e0a040';ctx.fillText('Élevée',CX+3,PAD+12);ctx.fillStyle='#6090c0';ctx.fillText('Faible',CX+3,PAD+GH-3);ctx.font='10px DM Mono,monospace';ctx.fillStyle='rgba(80,110,150,0.6)';[-1,-.5,.5,1].forEach(v=>{const px=CX+v*(GW/2);ctx.textAlign='center';ctx.fillText(v>0?'+'+v.toFixed(1):v.toFixed(1),px,CY+12);});ctx.textAlign='right';[-1,-.5,.5,1].forEach(a=>{const py=CY-a*(GH/2);ctx.fillText(a>0?'+'+a.toFixed(1):a.toFixed(1),PAD-3,py+3);});if(clickedPoint){const px=CX+clickedPoint.v*(GW/2),py=CY-clickedPoint.a*(GH/2);ctx.save();ctx.shadowColor='#4ae0a0';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(px,py,9,0,Math.PI*2);ctx.strokeStyle='rgba(74,224,160,0.5)';ctx.lineWidth=2;ctx.stroke();ctx.restore();ctx.save();ctx.shadowColor='#4ae0a0';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fillStyle='#4ae0a0';ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);ctx.fillStyle='#0d2a1a';ctx.fill();ctx.strokeStyle='rgba(74,224,160,0.25)';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(PAD,py);ctx.lineTo(px-10,py);ctx.stroke();ctx.beginPath();ctx.moveTo(px+10,py);ctx.lineTo(PAD+GW,py);ctx.stroke();ctx.beginPath();ctx.moveTo(px,PAD);ctx.lineTo(px,py-10);ctx.stroke();ctx.beginPath();ctx.moveTo(px,py+10);ctx.lineTo(px,PAD+GH);ctx.stroke();ctx.setLineDash([]);ctx.font='bold 10px DM Mono,monospace';ctx.fillStyle='#4ae0a0';ctx.textAlign='center';const vy=clickedPoint.v>=0?'+'+clickedPoint.v.toFixed(2):clickedPoint.v.toFixed(2),ay=clickedPoint.a>=0?'+'+clickedPoint.a.toFixed(2):clickedPoint.a.toFixed(2),ldy=py>PAD+22?py-14:py+18;ctx.fillText('('+vy+', '+ay+')',px,ldy);}}
+
+function updateVAPanel(v,a){const panel=document.getElementById('vaDisplayPanel');const valEl=document.getElementById('vaValenceVal');const aroEl=document.getElementById('vaArousalVal');const quadEl=document.getElementById('vaQuadrantLabel');if(v===null||a===null){panel.classList.add('empty');valEl.textContent='-';valEl.className='va-axis-value';aroEl.textContent='-';aroEl.className='va-axis-value';quadEl.textContent='Cliquez sur\nla grille';quadEl.style.color='#6090b0';quadEl.style.background='rgba(255,255,255,.04)';return;}panel.classList.remove('empty');const vStr=(v>=0?'+':'')+v.toFixed(2),aStr=(a>=0?'+':'')+a.toFixed(2);valEl.textContent=vStr;valEl.className='va-axis-value '+(v>=0?'positive':'negative');aroEl.textContent=aStr;aroEl.className='va-axis-value '+(a>=0?'positive':'negative');let ql,qc,qbg;if(v>=0&&a>=0){ql='Joyeux /\nExcité';qc='#d4c040';qbg='rgba(180,160,0,0.15)';}if(v<0&&a>=0){ql='Tendu /\nAlarmé';qc='#e07070';qbg='rgba(180,40,40,0.15)';}if(v>=0&&a<0){ql='Calme /\nDétendu';qc='#60d890';qbg='rgba(30,140,70,0.15)';}if(v<0&&a<0){ql='Triste /\nDéprimé';qc='#7090e8';qbg='rgba(30,60,180,0.15)';}quadEl.textContent=ql;quadEl.style.color=qc;quadEl.style.background=qbg;quadEl.style.border='1px solid '+qc+'55';}
+function initRussellClick(){const canvas=document.getElementById('russellCanvas');if(!canvas)return;if(canvas._russellHandler)canvas.removeEventListener('click',canvas._russellHandler);canvas._russellHandler=function(e){if(!curEmo)return;const rect=canvas.getBoundingClientRect();const scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height;const mx=(e.clientX-rect.left)*scaleX,my=(e.clientY-rect.top)*scaleY;russellClickedV=parseFloat(Math.max(-1,Math.min(1,(mx-R_CX)/(R_GW/2))).toFixed(3));russellClickedA=parseFloat(Math.max(-1,Math.min(1,-(my-R_CY)/(R_GH/2))).toFixed(3));canvas.classList.add('clicked');document.getElementById('dot-russell').classList.add('done');updateVAPanel(russellClickedV,russellClickedA);drawRussellGrid({v:russellClickedV,a:russellClickedA});checkBothSelected();};canvas.addEventListener('click',canvas._russellHandler);}
+function checkBothSelected(){document.getElementById('plutNextBtn').disabled=!(!!curEmo&&russellClickedV!==null);}
+
+const SECTORS=[
+  {name:'joie',angle:0,colors:['#e8b800','#f5d020','#fae878'],innerEmo:'extase',midEmo:'joie',outerEmo:'sérénité'},
+  {name:'confiance',angle:45,colors:['#4db03a','#72c455','#a8dc90'],innerEmo:'admiration',midEmo:'confiance',outerEmo:'acceptation'},
+  {name:'peur',angle:90,colors:['#38a860','#5cc47a','#9adcb0'],innerEmo:'terreur',midEmo:'peur',outerEmo:'appréhension'},
+  {name:'surprise',angle:135,colors:['#3898cc','#5ab4e0','#96d0f0'],innerEmo:'étonnement',midEmo:'surprise',outerEmo:'distraction'},
+  {name:'tristesse',angle:180,colors:['#3858b8','#5070d0','#8ca0e8'],innerEmo:'chagrin',midEmo:'tristesse',outerEmo:'songerie'},
+  {name:'dégoût',angle:225,colors:['#8038a8','#a058c4','#c894e0'],innerEmo:'aversion',midEmo:'dégoût',outerEmo:'ennui'},
+  {name:'colère',angle:270,colors:['#d02020','#e84040','#f48888'],innerEmo:'rage',midEmo:'colère',outerEmo:'contrariété'},
+  {name:'anticipation',angle:315,colors:['#d06010','#e88030','#f4b070'],innerEmo:'vigilance',midEmo:'anticipation',outerEmo:'intérêt'},
+];
+const INTER=[{name:'amour',angle:22.5},{name:'soumission',angle:67.5},{name:'crainte',angle:112.5},{name:'désappointement',angle:157.5},{name:'remords',angle:202.5},{name:'mépris',angle:247.5},{name:'agressivité',angle:292.5},{name:'optimisme',angle:337.5}];
+const EMO_DATA={
+  'extase':{v:0.90,a:0.90,i:3,q:'Haute activation · Positif'},
+  'joie':{v:0.72,a:0.68,i:2,q:'Haute activation · Positif'},
+  'sérénité':{v:0.50,a:0.20,i:1,q:'Faible activation · Positif'},
+  'admiration':{v:0.85,a:0.75,i:3,q:'Haute activation · Positif'},
+  'confiance':{v:0.65,a:0.30,i:2,q:'Faible activation · Positif'},
+  'acceptation':{v:0.40,a:0.10,i:1,q:'Faible activation · Positif'},
+  'terreur':{v:-0.90,a:0.90,i:3,q:'Haute activation · Négatif'},
+  'peur':{v:-0.50,a:0.72,i:2,q:'Haute activation · Négatif'},
+  'appréhension':{v:-0.25,a:0.40,i:1,q:'Haute activation · Négatif'},
+  'étonnement':{v:0.20,a:0.90,i:3,q:'Haute activation · Positif'},
+  'surprise':{v:0.10,a:0.60,i:2,q:'Haute activation · Positif'},
+  'distraction':{v:0.05,a:0.30,i:1,q:'Faible activation · Positif'},
+  'chagrin':{v:-0.90,a:-0.80,i:3,q:'Faible activation · Négatif'},
+  'tristesse':{v:-0.68,a:-0.55,i:2,q:'Faible activation · Négatif'},
+  'songerie':{v:-0.40,a:-0.25,i:1,q:'Faible activation · Négatif'},
+  'aversion':{v:-0.90,a:-0.70,i:3,q:'Faible activation · Négatif'},
+  'dégoût':{v:-0.60,a:-0.40,i:2,q:'Faible activation · Négatif'},
+  'ennui':{v:-0.35,a:-0.60,i:1,q:'Faible activation · Négatif'},
+  'rage':{v:-0.90,a:0.90,i:3,q:'Haute activation · Négatif'},
+  'colère':{v:-0.72,a:0.65,i:2,q:'Haute activation · Négatif'},
+  'contrariété':{v:-0.45,a:0.30,i:1,q:'Haute activation · Négatif'},
+  'vigilance':{v:0.75,a:0.85,i:3,q:'Haute activation · Positif'},
+  'anticipation':{v:0.55,a:0.48,i:2,q:'Haute activation · Positif'},
+  'intérêt':{v:0.30,a:0.20,i:1,q:'Faible activation · Positif'},
+  'amour':{v:0.88,a:0.50,i:2,q:'Haute activation · Positif'},
+  'soumission':{v:0.20,a:0.20,i:2,q:'Faible activation · Positif'},
+  'crainte':{v:0.10,a:0.50,i:2,q:'Haute activation · Positif'},
+  'désappointement':{v:-0.30,a:0.20,i:2,q:'Faible activation · Négatif'},
+  'remords':{v:-0.70,a:-0.60,i:2,q:'Faible activation · Négatif'},
+  'mépris':{v:-0.65,a:0.10,i:2,q:'Faible activation · Négatif'},
+  'agressivité':{v:-0.40,a:0.70,i:2,q:'Haute activation · Négatif'},
+  'optimisme':{v:0.70,a:0.55,i:2,q:'Haute activation · Positif'},
+};
+
+const CX=400,CY=400,NS='http://www.w3.org/2000/svg';
+function rad(deg){return(deg-90)*Math.PI/180;}function pt(deg,r){return[CX+r*Math.cos(rad(deg)),CY+r*Math.sin(rad(deg))];}
+function slicePath(ca,r1,r2){const h=22.5,a1=ca-h,a2=ca+h;const[ox1,oy1]=pt(a1,r1),[ox2,oy2]=pt(a2,r1);const[ix1,iy1]=pt(a1,r2),[ix2,iy2]=pt(a2,r2);return`M${ox1} ${oy1} A${r1} ${r1} 0 0 1 ${ox2} ${oy2} L${ix2} ${iy2} A${r2} ${r2} 0 0 0 ${ix1} ${iy1} Z`;}
+function interSlicePath(ca,r1,r2){const h=20,a1=ca-h,a2=ca+h;const[ox1,oy1]=pt(a1,r1),[ox2,oy2]=pt(a2,r1);const[ix1,iy1]=pt(a1,r2),[ix2,iy2]=pt(a2,r2);return`M${ox1} ${oy1} A${r1} ${r1} 0 0 1 ${ox2} ${oy2} L${ix2} ${iy2} A${r2} ${r2} 0 0 0 ${ix1} ${iy1} Z`;}
+function svgEl(t){return document.createElementNS(NS,t);}
+function mkPath(d,fill,stroke,sw,dashed){const p=svgEl('path');p.setAttribute('d',d);p.setAttribute('fill',fill);p.setAttribute('stroke',stroke||'#fff');p.setAttribute('stroke-width',sw||'1.5');if(dashed)p.setAttribute('stroke-dasharray','5,3');return p;}
+function mkText(x,y,text,size,weight,fill,angle){const t=svgEl('text');t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.setAttribute('font-size',size);t.setAttribute('font-weight',weight);t.setAttribute('fill',fill);t.setAttribute('font-family',"'DM Sans',sans-serif");t.setAttribute('pointer-events','none');if(angle)t.setAttribute('transform',`rotate(${angle},${x},${y})`);t.textContent=text;return t;}
+const R_IN=120,R_MID=[120,230],R_OUT=[230,320],R_DAS=[320,378];
+const gSegs=document.getElementById('segs'),gLbls=document.getElementById('lbls');
+INTER.forEach(em=>{const g=svgEl('g');g.setAttribute('class','seg');g.appendChild(mkPath(interSlicePath(em.angle,R_DAS[0],R_DAS[1]),'#f0ece4','#bbb','1.2',true));g.addEventListener('click',()=>pickEmo({name:em.name,...em,cm:'#888',sector:em.name},g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const g=svgEl('g');g.setAttribute('class','seg');g.appendChild(mkPath(slicePath(sec.angle,R_OUT[0],R_OUT[1]),sec.colors[2],'#fff','1.5'));const em={name:sec.outerEmo,cm:sec.colors[2],sector:sec.name,...EMO_DATA[sec.outerEmo]||{}};g.addEventListener('click',()=>pickEmo(em,g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const g=svgEl('g');g.setAttribute('class','seg');g.appendChild(mkPath(slicePath(sec.angle,R_MID[0],R_MID[1]),sec.colors[1],'#fff','1.5'));const em={name:sec.midEmo,cm:sec.colors[1],sector:sec.name,...EMO_DATA[sec.midEmo]||{}};g.addEventListener('click',()=>pickEmo(em,g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const g=svgEl('g');g.setAttribute('class','seg');const h=22.5,a1=sec.angle-h,a2=sec.angle+h;const[x1,y1]=pt(a1,R_IN),[x2,y2]=pt(a2,R_IN);g.appendChild(mkPath(`M${CX} ${CY} L${x1} ${y1} A${R_IN} ${R_IN} 0 0 1 ${x2} ${y2} Z`,sec.colors[0],'#fff','1.5'));const em={name:sec.innerEmo,cm:sec.colors[0],sector:sec.name,...EMO_DATA[sec.innerEmo]||{}};g.addEventListener('click',()=>pickEmo(em,g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const ang=sec.angle,rot=(ang>90&&ang<270)?ang+180:ang;const[ix,iy]=pt(ang,95);gLbls.appendChild(mkText(ix,iy,sec.innerEmo,'15','700','#fff',rot));const[mx,my]=pt(ang,175);gLbls.appendChild(mkText(mx,my,sec.midEmo,'19','700','#fff',rot));const[ox,oy]=pt(ang,275);gLbls.appendChild(mkText(ox,oy,sec.outerEmo,'16','600','#333',rot));});
+INTER.forEach(em=>{const ang=em.angle,rot=(ang>90&&ang<270)?ang+180:ang;const[x,y]=pt(ang,352);gLbls.appendChild(mkText(x,y,em.name,'15','500','#555',rot));});
+
+const tests=[
+  {name:'HADS',instructionKey:'HADS',questions:[
+    {q:"1. Je me sens tendu(e) ou énervé(e)",options:["La plupart du temps","Souvent","De temps en temps","Jamais"],scores:[3,2,1,0],category:"Anxiety"},
+    {q:"2. Je prends plaisir aux mêmes choses qu'autrefois",options:["Oui, tout autant","Pas autant","Un peu seulement","Presque plus"],scores:[0,1,2,3],category:"Depression"},
+    {q:"3. J'ai une sensation de peur comme si quelque chose d'horrible allait m'arriver",options:["Oui, très nettement","Oui, mais ce n'est pas trop grave","Un peu, mais cela ne m'inquiète pas","Pas du tout"],scores:[3,2,1,0],category:"Anxiety"},
+    {q:"4. Je ris facilement et vois le bon côté des choses",options:["Autant que par le passé","Pas autant qu'avant","Vraiment moins qu'avant","Plus du tout"],scores:[0,1,2,3],category:"Depression"},
+    {q:"5. Je me fais du souci",options:["Très souvent","Assez souvent","Occasionnellement","Très occasionnellement"],scores:[3,2,1,0],category:"Anxiety"},
+    {q:"6. Je suis de bonne humeur",options:["Jamais","Rarement","Assez souvent","La plupart du temps"],scores:[3,2,1,0],category:"Depression"},
+    {q:"7. Je peux rester tranquillement assis(e) à ne rien faire et me sentir décontracté(e)",options:["Oui, quoi qu'il arrive","Oui, en général","Rarement","Jamais"],scores:[0,1,2,3],category:"Anxiety"},
+    {q:"8. J'ai l'impression de fonctionner au ralenti",options:["Presque toujours","Très souvent","Parfois","Jamais"],scores:[3,2,1,0],category:"Depression"},
+    {q:"9. J'éprouve des sensations de peur et j'ai l'estomac noué",options:["Jamais","Parfois","Assez souvent","Très souvent"],scores:[0,1,2,3],category:"Anxiety"},
+    {q:"10. Je ne m'intéresse plus à mon apparence",options:["J'y prête autant d'attention que par le passé","Je n'y accorde pas autant d'attention que je devrais","Il se peut que je n'y fasse plus autant attention","Plus du tout"],scores:[0,1,2,3],category:"Depression"},
+    {q:"11. J'ai la bougeotte et n'arrive pas à tenir en place",options:["Pas du tout","Un peu","Assez","Oui, c'est tout à fait le cas"],scores:[0,1,2,3],category:"Anxiety"},
+    {q:"12. Je me réjouis d'avance à l'idée de faire certaines choses",options:["Autant qu'avant","Un peu moins qu'avant","Bien moins qu'avant","Presque jamais"],scores:[0,1,2,3],category:"Depression"},
+    {q:"13. J'éprouve des sensations soudaines de panique",options:["Jamais","Pas très souvent","Assez souvent","Vraiment très souvent"],scores:[0,1,2,3],category:"Anxiety"},
+    {q:"14. Je peux prendre plaisir à un bon livre ou à une bonne émission",options:["Souvent","Parfois","Rarement","Très rarement"],scores:[0,1,2,3],category:"Depression"}
+  ]},
+  {name:'BFI-2-S',instructionKey:'BFI',questions:[
+    {q:"1. Je suis quelqu'un qui a tendance à être silencieux",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Extraversion',reversed:true},
+    {q:"2. Je suis quelqu'un qui est sensible, a bon cœur",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Agreeableness',reversed:false},
+    {q:"3. Je suis quelqu'un qui a tendance à être désorganisé",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Conscientiousness',reversed:true},
+    {q:"4. Je suis quelqu'un qui se fait beaucoup de souci",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Negative Emotionality',reversed:false},
+    {q:"5. Je suis quelqu'un qui est fasciné par l'art, la musique ou la littérature",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Open-Mindedness',reversed:false},
+    {q:"6. Je suis quelqu'un qui est dominant, se comporte en leader",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Extraversion',reversed:false},
+    {q:"7. Je suis quelqu'un qui est parfois impoli avec les autres",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Agreeableness',reversed:true},
+    {q:"8. Je suis quelqu'un qui a des difficultés à démarrer les tâches",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Conscientiousness',reversed:true},
+    {q:"9. Je suis quelqu'un qui a tendance à être déprimé, cafardeux",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Negative Emotionality',reversed:false},
+    {q:"10. Je suis quelqu'un qui n'a pas beaucoup d'intérêt pour les idées abstraites",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Open-Mindedness',reversed:true},
+    {q:"11. Je suis quelqu'un qui est plein d'énergie",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Extraversion',reversed:false},
+    {q:"12. Je suis quelqu'un qui voit les autres sous leur meilleur jour",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Agreeableness',reversed:false},
+    {q:"13. Je suis quelqu'un qui est fiable dans son travail",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Conscientiousness',reversed:false},
+    {q:"14. Je suis quelqu'un qui est tempéré, pas facilement troublé",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Negative Emotionality',reversed:true},
+    {q:"15. Je suis quelqu'un qui est original, trouve de nouvelles idées",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Open-Mindedness',reversed:false},
+    {q:"16. Je suis quelqu'un qui est sociable, extraverti",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Extraversion',reversed:false},
+    {q:"17. Je suis quelqu'un qui est dédaigneux et insensible",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Agreeableness',reversed:true},
+    {q:"18. Je suis quelqu'un qui garde les choses propres et bien rangées",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Conscientiousness',reversed:false},
+    {q:"19. Je suis quelqu'un qui est décontracté, gère bien le stress",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Negative Emotionality',reversed:true},
+    {q:"20. Je suis quelqu'un qui est peu intéressé par tout ce qui est artistique",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Open-Mindedness',reversed:true},
+    {q:"21. Je suis quelqu'un qui préfère laisser les autres prendre les responsabilités",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Extraversion',reversed:true},
+    {q:"22. Je suis quelqu'un qui est respectueux, traite les autres avec respect",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Agreeableness',reversed:false},
+    {q:"23. Je suis quelqu'un qui est persévérant, travaille jusqu'à ce que la tâche soit finie",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Conscientiousness',reversed:false},
+    {q:"24. Je suis quelqu'un qui est serein, en accord avec lui-même",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Negative Emotionality',reversed:true},
+    {q:"25. Je suis quelqu'un qui est complexe, pense profondément",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Open-Mindedness',reversed:false},
+    {q:"26. Je suis quelqu'un qui est moins actif que les autres",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Extraversion',reversed:true},
+    {q:"27. Je suis quelqu'un qui a tendance à trouver des défauts chez les autres",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Agreeableness',reversed:true},
+    {q:"28. Je suis quelqu'un qui peut se conduire de façon irréfléchie",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Conscientiousness',reversed:true},
+    {q:"29. Je suis quelqu'un qui est émotif, peut avoir des réactions émotionnelles",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[1,2,3,4,5],category:'Negative Emotionality',reversed:false},
+    {q:"30. Je suis quelqu'un qui est peu créatif",options:["Désapprouve fortement","Désapprouve","Neutre","Approuve","Approuve fortement"],scores:[5,4,3,2,1],category:'Open-Mindedness',reversed:true}
+  ]},
+  {name:'Plutchik',type:'plutchik',instructionKey:'Plutchik'}
+];
+const BFI_DOMAINS=['Extraversion','Agreeableness','Conscientiousness','Negative Emotionality','Open-Mindedness'];
+
+let participantInfo={},answers=[],userFeedback='';
+let currentTest=0,qIndex=0,rIndex=0;
+let questionStartTime=null,plutStartTime=null;
+let completionID='';
+let selEl=null,curEmo=null;
+let _plutDemoStart=null;
+
+function totalQ(){return tests.reduce((s,t)=>s+(t.type==='plutchik'?plutchikImages.length:t.questions.length),0);}
+function updateProgress(){const pct=Math.round((answers.length/totalQ())*100);$('#progFill').css('width',pct+'%');$('#progPct').text(pct+'%');}
+function skipToConsent(){$('#intro-screen').addClass('hidden');$('#consent-screen').removeClass('hidden');}
+$('#agreeBtn').click(()=>{if(!consentState.every(Boolean)){document.getElementById('consent-hint').style.display='block';return;}$('#consent-screen').addClass('hidden');$('#participant-screen').removeClass('hidden');});
+$('#declineBtn').click(()=>window.close());
+$('#startStudyBtn').click(()=>{const nm=$('#p_name').val().trim(),dob=$('#p_dob').val().trim(),g=$('#p_gender').val(),a=$('#p_age').val(),e=$('#p_email').val(),n=$('#p_nationality').val(),l=$('#p_language').val();if(!nm||!dob||!g||!a||!n||!l){alert("Nous vous invitons à renseigner l'ensemble des champs requis avant de poursuivre.");return;}const dobRegex=/^\d{1,2}\/\d{1,2}\/\d{4}$/;if(!dobRegex.test(dob)){alert('Veuillez saisir votre date de naissance au format JJ/MM/AAAA.');return;}const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;if(e&&!emailRegex.test(e)){alert('Veuillez entrer une adresse e-mail valide.');return;}participantInfo={name:nm,dob:dob,g,a,e,n,l};napsOrderNumber=initImageOrder();const seq=JSON.parse(sessionStorage.getItem('naps_image_sequence'));plutchikImages.length=0;seq.forEach(img=>plutchikImages.push(img));$('#participant-screen').addClass('hidden');$('#ready-screen').removeClass('hidden');});
+function startCountdown(){$('#ready-screen').addClass('hidden');startSectionCountdown(loadTest);}
+
+function buildPlutchikDemo(){
+  const html=`<div style="border-radius:10px;overflow:hidden;border:1px solid #2a2a50;background:#0f1923;"><video src="images/Plutchickfrench.mp4" autoplay muted loop playsinline style="width:100%;display:block;max-height:340px;object-fit:cover;"></video><div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#555;padding:.4rem .75rem;background:#111;text-align:center;border-top:1px solid #222;">Démo — Présentation de la tâche émotionnelle</div></div>`;
+  return{html:html,start:function(){}};
+}
+
+let hadsInterval=null,bfiInterval=null;
+function startHadsDemoAnimation(){if(!document.getElementById('d0'))return;if(hadsInterval)clearInterval(hadsInterval);const opts=['d0','d1','d2','d3'];let current=2;document.getElementById(opts[current]).classList.add('demo-selected');hadsInterval=setInterval(()=>{document.getElementById(opts[current]).classList.remove('demo-selected');current=(current+1)%opts.length;document.getElementById(opts[current]).classList.add('demo-selected');},1500);}
+function startBfiDemoAnimation(){const scaleEl=document.getElementById('bfi-scale');if(!scaleEl)return;if(bfiInterval)clearInterval(bfiInterval);const btns=scaleEl.querySelectorAll('.scale-btn');let cur=3;bfiInterval=setInterval(()=>{btns.forEach(b=>b.classList.remove('scale-sel'));cur=(cur+1)%btns.length;btns[cur].classList.add('scale-sel');},1200);}
+
+const INSTRUCTIONS={
+  HADS:{title:"HADS : Échelle d'anxiété et de dépression",html:`<div class="instr-meta" style="flex-direction:row;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;"><div class="q-count-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">📝</div><div class="q-count-text"><div class="q-count-num">14</div><div class="q-count-lbl">Questions au total</div></div></div><div class="time-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">⏱</div><div class="q-count-text"><div class="q-count-num">~7 min</div><div class="q-count-lbl">Temps estimé</div></div></div><div style="flex:2;min-width:200px;background:#fff8e6;border:1px solid #f0d890;border-radius:8px;padding:.65rem .8rem;font-size:.78rem;color:#7a5c00;"><strong>💡 Conseil :</strong> Vos réponses doivent refléter votre vécu au cours des <strong>7 derniers jours,</strong> en vous appuyant sur votre ressenti réel plutôt que sur ce que vous pensez devoir ressentir.</div></div><p style="font-size:.88rem;margin-bottom:.75rem;font-weight:600;">Modalités de passation :</p><ul class="instr-steps"><li><div class="step-num">1</div> Lisez attentivement chaque affirmation.</li><li><div class="step-num">2</div> Choisissez l'option qui correspond le mieux à votre ressenti au cours de la <strong>dernière semaine</strong>.</li><li><div class="step-num">3</div> Fiez-vous à votre première impression - il n'existe pas de réponse juste ou erronée à ces items.</li><li><div class="step-num">4</div> Cliquez sur <strong>Démarrer le HADS →</strong> pour commencer.</li><li><div class="step-num">5</div> Cliquez sur <strong>Suivant →</strong> pour passer à la question suivante.</li></ul><div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;"><div style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);">Exemple</div><div class="hads-demo" id="hads-demo"><div class="demo-q">Manger de la glace me rends heureux :</div><div class="demo-opt" id="d0"><div class="demo-radio"></div> La plupart du temps</div><div class="demo-opt" id="d1"><div class="demo-radio"></div> Souvent</div><div class="demo-opt" id="d2"><div class="demo-radio"></div> De temps en temps</div><div class="demo-opt" id="d3"><div class="demo-radio"></div> Jamais</div></div></div>`},
+  BFI:{title:'Inventaire de personnalité Big Five (BFI-2-S)',html:`<div class="instr-meta" style="flex-direction:row;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;"><div class="q-count-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">📝</div><div class="q-count-text"><div class="q-count-num">30</div><div class="q-count-lbl">Questions au total</div></div></div><div class="time-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">⏱</div><div class="q-count-text"><div class="q-count-num">~10 min</div><div class="q-count-lbl">Temps estimé</div></div></div><div style="flex:2;min-width:200px;background:#f0f7ff;border:1px solid #b0d4f5;border-radius:8px;padding:.65rem .8rem;font-size:.78rem;color:#1a4a7a;"><strong>💡 Conseil :</strong> Répondez selon votre <strong>première impression</strong> - ne réfléchissez pas trop.</div></div><p style="font-size:.88rem;margin-bottom:.5rem;font-weight:600;">Domaines mesurés :</p><div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;"><span style="background:#e8f0fd;color:#2350a8;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Extraversion</span><span style="background:#e8faf0;color:#1a7a45;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Agréabilité</span><span style="background:#fff5e0;color:#8a5500;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Conscienciosité</span><span style="background:#fde8e8;color:#a82323;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Émotivité négative</span><span style="background:#f3e8fd;color:#6b2398;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Ouverture d'esprit</span></div><ul class="instr-steps"><li><div class="step-num">1</div> Lisez chaque affirmation de personnalité attentivement.</li><li><div class="step-num">2</div> Indiquez votre degré d'accord sur une échelle en 5 points dans quelle mesure chaque affirmation correspond à votre personnalité.</li><li><div class="step-num">3</div> Certains items sont inversés - répondez honnêtement, le score est calculé automatiquement.</li><li><div class="step-num">4</div> Cliquez sur <strong>Démarrer le BFI-2-S →</strong> pour commencer.</li><li><div class="step-num">5</div> Cliquez sur <strong>Suivant →</strong> pour continuer.</li></ul><div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;"><div style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);">Exemple</div><div class="bfi-demo"><div class="demo-q">J'aime voyager.</div><div class="scale-row" id="bfi-scale"><div class="scale-btn" data-i="0">Pas du tout<br>d'accord</div><div class="scale-btn" data-i="1">Pas d'accord</div><div class="scale-btn" data-i="2">Neutre</div><div class="scale-btn scale-sel" data-i="3">D'accord</div><div class="scale-btn" data-i="4">Tout à fait<br>d'accord</div></div></div></div>`},
+  Plutchik:{title:"Cartographie des émotions : Roue de Plutchik / Modèle circumplexe de Russell",buildHtml:function(){const demo=buildPlutchikDemo();const staticHtml=`
+<div class="plut-instr-top-grid">
+  <div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;">APERÇU DE LA TÂCHE</div>
+    ${demo.html}
+    <div style="margin-top:.6rem;display:flex;gap:.5rem;align-items:flex-start;background:#fdf3ec;border:1px solid #f0c8a0;border-radius:8px;padding:.55rem .75rem;">
+      <span style="font-size:.95rem;line-height:1;flex-shrink:0;">⚠️</span>
+      <span style="font-size:.78rem;line-height:1.5;color:#7a4010;">Cette tâche comprend des images susceptibles d'être perçues comme perturbantes ou difficiles par certains participants.</span>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:.75rem;">
+    <div class="q-count-badge">
+      <div class="q-count-icon">🖼️</div>
+      <div class="q-count-text">
+        <div class="q-count-num">20</div>
+        <div class="q-count-lbl">Images à évaluer</div>
+      </div>
+    </div>
+    <div class="time-badge">
+      <div class="q-count-icon">⏱</div>
+      <div class="q-count-text">
+        <div class="q-count-num">~8 min</div>
+        <div class="q-count-lbl">Durée estimée</div>
+      </div>
+    </div>
+    <div style="background:#f3fdf3;border:1px solid #a0dba0;border-radius:8px;padding:.65rem .8rem;font-size:.78rem;color:#1a5c1a;">
+      <strong>💡 Conseil :</strong> Fiez-vous à votre vécu immédiat — choisissez ce que vous ressentez, non ce que vous pensez devoir ressentir.
+    </div>
+    <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:.35rem;background:#fff8dc;border:1px solid #e8d870;border-radius:7px;padding:.28rem .55rem;font-size:.71rem;"><span style="width:10px;height:10px;border-radius:2px;background:#e8b800;display:inline-block;flex-shrink:0;"></span><strong>Anneau intérieur</strong>&nbsp;= Intensité élevée</div>
+      <div style="display:flex;align-items:center;gap:.35rem;background:#fffbea;border:1px solid #e8d870;border-radius:7px;padding:.28rem .55rem;font-size:.71rem;"><span style="width:10px;height:10px;border-radius:2px;background:#f5d020;display:inline-block;flex-shrink:0;"></span><strong>Anneau médian</strong>&nbsp;= Intensité moyenne</div>
+      <div style="display:flex;align-items:center;gap:.35rem;background:#fdf9e8;border:1px solid #e8d870;border-radius:7px;padding:.28rem .55rem;font-size:.71rem;"><span style="width:10px;height:10px;border-radius:2px;background:#fae878;display:inline-block;flex-shrink:0;"></span><strong>Anneau extérieur</strong>&nbsp;= Intensité faible</div>
+      <div style="display:flex;align-items:center;gap:.35rem;background:#edfaf8;border:1px solid #a0e0c8;border-radius:7px;padding:.28rem .55rem;font-size:.71rem;"><span style="width:10px;height:10px;border-radius:2px;background:#4ae0a0;display:inline-block;flex-shrink:0;"></span><strong>Point vert</strong>&nbsp;= Votre position Valence/Activation</div>
+    </div>
+  </div>
+</div>
+
+<hr class="instr-divider">
+
+<p style="font-size:.88rem;margin-bottom:.75rem;font-weight:600;">Modalités de passation : deux étapes à effectuer dans l'ordre :</p>
+<ul class="instr-steps" style="gap:.75rem;">
+  <li style="align-items:flex-start;gap:.75rem;">
+    <div class="step-num" style="flex-shrink:0;margin-top:2px;">1</div>
+    <div style="display:flex;gap:.6rem;align-items:flex-start;flex:1;">
+      <div style="min-width:160px;font-weight:700;font-size:.88rem;line-height:1.4;">Observez attentivement l'image présentée sur la partie gauche de l'écran avant de répondre. Cliquez sur la roue des émotions de Plutchik</div>
+      <div style="font-size:.88rem;line-height:1.6;color:var(--text);">Sélectionnez le segment qui correspond le mieux à votre vécu émotionnel. La distance par rapport au centre indique l'intensité ressentie — plus vous vous situez vers l'intérieur, plus l'intensité est élevée. La grille se déverrouillera après cette étape.</div>
+    </div>
+  </li>
+  <li style="align-items:flex-start;gap:.75rem;">
+    <div class="step-num" style="flex-shrink:0;margin-top:2px;">2</div>
+    <div style="display:flex;gap:.6rem;align-items:flex-start;flex:1;">
+      <div style="min-width:160px;font-weight:700;font-size:.88rem;line-height:1.4;">Cliquez sur la grille du modèle circumplexe de Russell</div>
+      <div style="font-size:.88rem;line-height:1.6;color:var(--text);">Indiquez votre position sur la grille. À gauche = vécu déplaisant, à droite = vécu agréable. En haut = activation élevée, en bas = activation faible.</div>
+    </div>
+  </li>
+  <li style="align-items:flex-start;gap:.75rem;">
+    <div class="step-num" style="flex-shrink:0;margin-top:2px;">3</div>
+    <div style="font-size:.88rem;line-height:1.6;">Lorsque vous êtes prêt(e), cliquez sur &nbsp;<strong>Démarrer la tâche émotionnelle →</strong>&nbsp; pour débuter.</div>
+  </li>
+  <li style="align-items:flex-start;gap:.75rem;">
+    <div class="step-num" style="flex-shrink:0;margin-top:2px;">4</div>
+    <div style="font-size:.88rem;line-height:1.6;">Au cours de la tâche, une fois les deux étapes complétées pour chaque image, le bouton &nbsp;<strong>Suivant →</strong>&nbsp; devient disponible.</div>
+  </li>
+</ul>`;return{html:staticHtml,startDemo:demo.start};}}
+};
+
+function loadTest(){
+  if(currentTest>=tests.length){finishStudy();return;}
+  $('#main-test').addClass('hidden');$('#instruction-screen').removeClass('hidden');
+  const t=tests[currentTest];const key=t.instructionKey;_plutDemoStart=null;let instrHtml='';
+  const titleEl=document.getElementById('instr-title');
+  if(key==='Plutchik'){titleEl.textContent=INSTRUCTIONS.Plutchik.title;const built=INSTRUCTIONS.Plutchik.buildHtml();instrHtml=built.html;_plutDemoStart=built.startDemo;}
+  else{const instr=INSTRUCTIONS[key]||{title:'Instructions',html:''};titleEl.textContent=instr.title;instrHtml=instr.html;}
+  document.getElementById('instruction-text').innerHTML=instrHtml;
+  setTimeout(()=>{startHadsDemoAnimation();startBfiDemoAnimation();if(_plutDemoStart)_plutDemoStart();},300);
+  const sectionLabels={HADS:'Démarrer le HADS →',BFI:'Démarrer le BFI-2-S →',Plutchik:'Démarrer la tâche émotionnelle →'};
+  const btn=document.getElementById('beginTestBtn');btn.textContent=sectionLabels[key]||'Démarrer →';
+  $('#beginTestBtn').off().click(function(){$('#instruction-screen').addClass('hidden');$('#main-test').removeClass('hidden');qIndex=0;if(tests[currentTest].type==='plutchik'){rIndex=0;loadPluImage();}else loadQuestion();});
+}
+
+function startSectionCountdown(onDone){const overlay=document.getElementById('countdown-overlay');const numEl=document.getElementById('countdown-number');overlay.classList.remove('hidden');overlay.style.display='flex';let count=3;function tick(){numEl.style.transition='none';numEl.style.transform='scale(1.5)';numEl.style.opacity='0';setTimeout(()=>{numEl.textContent=count;numEl.style.transition='none';numEl.style.transform='scale(1.5)';numEl.style.opacity='1';setTimeout(()=>{numEl.style.transition='transform .55s cubic-bezier(.2,0,.2,1), opacity .55s';numEl.style.transform='scale(1)';},30);if(count>1){count--;setTimeout(tick,950);}else{setTimeout(()=>{overlay.style.display='none';overlay.classList.add('hidden');onDone();},900);}},120);}tick();}
+
+function loadQuestion(){
+  if(hadsInterval){clearInterval(hadsInterval);hadsInterval=null;}if(bfiInterval){clearInterval(bfiInterval);bfiInterval=null;}
+  questionStartTime=Date.now();$('#plutchik-area').addClass('hidden');$('#mcq-nav').show();
+  const t=tests[currentTest],q=t.questions[qIndex];let html=`<div class="question-card">`;html+=`<div class="question-text">${q.q}</div>`;
+  if(t.name==='BFI-2-S'){html+=`<div class="bfi-scale-row" id="bfi-live-scale">`;q.options.forEach((o,i)=>{html+=`<button class="bfi-scale-btn" data-i="${i}" onclick="selectBfi(this)">${o}</button>`;});html+=`</div><div class="bfi-scale-labels"><span>← Pas du tout d'accord</span><span>Tout à fait d'accord →</span></div>`;html+=`<input type="hidden" id="bfi-selected-val" value="">`;}
+  else{q.options.forEach((o,i)=>{html+=`<div class="opt-row" onclick="document.getElementById('opt${i}').checked=true"><input type="radio" name="q" id="opt${i}" value="${i}"><label for="opt${i}">${o}</label></div>`;});}
+  html+='</div>';$('#test-area').html(html);$('#progLabel').text(`${t.name} - Question ${qIndex+1} sur ${t.questions.length}`);updateProgress();
+}
+function selectBfi(btn){document.querySelectorAll('.bfi-scale-btn').forEach(b=>b.classList.remove('bfi-sel'));btn.classList.add('bfi-sel');document.getElementById('bfi-selected-val').value=btn.getAttribute('data-i');}
+function handleNext(){
+  if(tests[currentTest].type==='plutchik')return;
+  const t=tests[currentTest],q=t.questions[qIndex];let idx;
+  if(t.name==='BFI-2-S'){const hv=document.getElementById('bfi-selected-val');if(!hv||hv.value===''){alert('Sélectionnez une réponse.');return;}idx=parseInt(hv.value);}
+  else{const sel=$("input[name='q']:checked");if(!sel.length){alert('Sélectionnez une réponse.');return;}idx=parseInt(sel.val());}
+  const endTime=Date.now();
+  answers.push({test:t.name,question:q.q,answer:q.options[idx],score:q.scores[idx],trait:q.category||'',reversed:q.reversed||false,startTime:new Date(questionStartTime).toISOString(),endTime:new Date(endTime).toISOString(),time:((endTime-questionStartTime)/1000).toFixed(2),timestamp:new Date().toISOString()});
+  qIndex++;if(qIndex<t.questions.length)loadQuestion();else{currentTest++;loadTest();}
+}
+
+function loadPluImage(){
+  plutStartTime=Date.now();curEmo=null;russellClickedV=null;russellClickedA=null;
+  if(selEl){selEl.classList.remove('sel');selEl=null;}
+  document.getElementById('plutNextBtn').disabled=true;
+  document.getElementById('eName').textContent='-';document.getElementById('eName').style.color='#bbb';
+  document.getElementById('eSub').textContent='Sélectionnez une émotion sur la roue';
+  document.getElementById('emoSectorBadgeWrap').innerHTML='';
+  document.getElementById('emoIntensityRow').style.display='none';document.getElementById('eQ').style.display='none';
+  document.getElementById('russellGridWrap').classList.add('locked');
+  const rc=document.getElementById('russellCanvas');if(rc)rc.classList.remove('clicked');
+  updateVAPanel(null,null);
+  document.getElementById('dot-wheel').classList.remove('done');document.getElementById('dot-russell').classList.remove('done');
+  $('#test-area').html('');$('#mcq-nav').hide();$('#plutchik-area').removeClass('hidden');
+  const total=plutchikImages.length;
+  const imgMeta=plutchikImages[rIndex];
+  $('#qLbl').text(`Image ${rIndex+1} sur ${total}`);
+  document.getElementById('plutNextBtn').textContent=rIndex===total-1?'Terminer ✓':'Suivant →';
+  document.getElementById('qImg').src=imgMeta.image;
+  $('#progLabel').text(`Tâche émotionnelle - Image ${rIndex+1} sur ${total}`);
+  updateProgress();
+  setTimeout(()=>{initRussellDims();drawRussellGrid(null);initRussellClick();},80);
+}
+
+function plutNext(){
+  if(!curEmo){alert('Veuillez sélectionner une émotion sur la roue avant de continuer.');return;}
+  if(russellClickedV===null){alert('Veuillez cliquer sur la grille Valence–Activation.');return;}
+  const endTime=Date.now();
+  const imgMeta=plutchikImages[rIndex];
+  answers.push({test:'Plutchik',question:`Image ${rIndex+1}`,napsPhoto:imgMeta.napsPhoto||'',napsId:imgMeta.napsId||'',napsEmotion:imgMeta.napsEmotion||'',napsValence:imgMeta.napsValence||'',napsIntensity:imgMeta.napsIntensity||'',napsPosition:rIndex+1,napsOrder:napsOrderNumber,emotion:curEmo.name,russellValence:russellClickedV.toFixed(3),russellArousal:russellClickedA.toFixed(3),startTime:new Date(plutStartTime).toISOString(),endTime:new Date(endTime).toISOString(),time:((endTime-plutStartTime)/1000).toFixed(2),timestamp:new Date().toISOString()});
+  rIndex++;if(rIndex<plutchikImages.length)loadPluImage();else{currentTest++;$('#plutchik-area').addClass('hidden');loadTest();}
+}
+
+function pickEmo(em,gEl){
+  if(selEl)selEl.classList.remove('sel');gEl.classList.add('sel');selEl=gEl;curEmo=em;
+  document.getElementById('dot-wheel').classList.add('done');document.getElementById('russellGridWrap').classList.remove('locked');
+  const d=EMO_DATA[em.name]||em;const intensity=d.i||em.intensity||1;const q=d.q||em.quadrant||'-';const cm=em.cm||'#888';
+  document.getElementById('eName').textContent=em.name;document.getElementById('eName').style.color=cm;
+  const sectorName=em.sector||em.name;const sectorObj=SECTORS.find(s=>s.name===sectorName)||null;const sectorColor=sectorObj?sectorObj.colors[1]:'#888';
+  document.getElementById('emoSectorBadgeWrap').innerHTML=`<div class="emo-sector-badge" style="background:${sectorColor}22;color:${sectorColor};border:1px solid ${sectorColor}44;">${sectorName}</div>`;
+  const intL=['Faible','Moyenne','Élevée'][intensity-1];document.getElementById('emoIntensityRow').style.display='flex';
+  const dots=document.getElementById('eDots');dots.style.color=cm;dots.innerHTML='';
+  for(let i=1;i<=3;i++){const d2=document.createElement('div');d2.className='dot'+(i<=intensity?' on':'');dots.appendChild(d2);}
+  document.getElementById('eIs').textContent=intL;document.getElementById('eSub').textContent='Intensité '+intL.toLowerCase();
+  const v=d.v||0,a=d.a||0,isPos=v>=0,isHi=a>=0;const qc=isPos&&isHi?['#fff8e0','#b07000']:isPos?['#edfaf5','#1a8c6c']:isHi?['#fdf5f3','#c0392b']:['#f9f2fd','#7c3d9e'];
+  const qEl=document.getElementById('eQ');qEl.textContent=q;qEl.style.background=qc[0];qEl.style.color=qc[1];qEl.style.display='inline-block';
+  drawRussellGrid(russellClickedV!==null?{v:russellClickedV,a:russellClickedA}:null);checkBothSelected();
+}
+
+function finishStudy(){
+  if(hadsInterval)clearInterval(hadsInterval);if(bfiInterval)clearInterval(bfiInterval);
+  completionID='P-'+Math.random().toString(36).substr(2,9).toUpperCase();
+  $('#main-test').addClass('hidden');$('#finish-screen').removeClass('hidden');
+  $('#completionID').text('ID de complétion : '+completionID);
+  const duration=3000,end=Date.now()+duration;
+  (function frame(){confetti({particleCount:6,angle:60,spread:55,origin:{x:0},colors:['#2a9d4e','#2350a8','#e8b800']});confetti({particleCount:6,angle:120,spread:55,origin:{x:1},colors:['#2a9d4e','#2350a8','#e8b800']});if(Date.now()<end)requestAnimationFrame(frame);}());
+}
+
+function calculateSummaryScores(){
+  const scores={HADS:{Anxiety:{score:0,time:0,count:0},Depression:{score:0,time:0,count:0}},BFI:{}};
+  BFI_DOMAINS.forEach(d=>{scores.BFI[d]={score:0,time:0,count:0};});
+  answers.forEach(a=>{if(a.test==='HADS'){const sub=a.trait;if(scores.HADS[sub]){scores.HADS[sub].score+=Number(a.score);scores.HADS[sub].time+=Number(a.time);scores.HADS[sub].count++;}}if(a.test==='BFI-2-S'){const domain=a.trait;if(scores.BFI[domain]){scores.BFI[domain].score+=Number(a.score);scores.BFI[domain].time+=Number(a.time);scores.BFI[domain].count++;}}});
+  return scores;
+}
+
+$('#finishBtn').click(function(){
+  userFeedback=$('#userFeedback').val().trim();
+  if(!userFeedback){alert('Nous vous invitons à partager vos observations avant de finaliser votre participation.');return;}
+  const summary=calculateSummaryScores();const plut=answers.filter(a=>a.test==='Plutchik');
+  const hadsBody=document.getElementById('hads-sum-body');hadsBody.innerHTML='';
+  [['Anxiety',summary.HADS.Anxiety,7],['Depression',summary.HADS.Depression,7]].forEach(([trait,data,n])=>{const tr=document.createElement('tr');tr.innerHTML=`<td style="padding:6px 8px;border-bottom:1px solid var(--border);">${trait}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.score}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${(data.score/n).toFixed(2)}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.time.toFixed(2)}s</td>`;hadsBody.appendChild(tr);});
+  const bfiBody=document.getElementById('bfi-sum-body');bfiBody.innerHTML='';
+  BFI_DOMAINS.forEach(domain=>{const data=summary.BFI[domain];const dc=DOMAIN_COLOURS[domain]||{bg:'#f0f0f0',color:'#555'};const tr=document.createElement('tr');tr.innerHTML=`<td style="padding:6px 8px;border-bottom:1px solid var(--border);"><span style="background:${dc.bg};color:${dc.color};padding:2px 8px;border-radius:12px;font-size:.78rem;font-weight:600;">${domain}</span></td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.score}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.count>0?(data.score/data.count).toFixed(2):'-'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.time.toFixed(2)}s</td>`;bfiBody.appendChild(tr);});
+  const plutBody=document.getElementById('plut-sum-body');plutBody.innerHTML='';
+  if(plut.length){plut.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td style="padding:6px 8px;border-bottom:1px solid var(--border);">${r.question}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.8rem;">${r.napsPhoto||'-'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-weight:600;">${r.emotion}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${r.russellValence||'-'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${r.russellArousal||'-'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${r.time}s</td>`;plutBody.appendChild(tr);});}
+  else{plutBody.innerHTML='<tr><td colspan="6" style="padding:6px 8px;color:var(--muted);font-size:.82rem;">Aucune réponse émotionnelle enregistrée.</td></tr>';}
+  const sectorColor=name=>{const s=SECTORS.find(s=>s.innerEmo===name||s.midEmo===name||s.outerEmo===name);return s?s.colors[1]:'#888';};
+  const emoCount={};plut.forEach(a=>{emoCount[a.emotion]=(emoCount[a.emotion]||0)+1;});
+  const sorted=Object.entries(emoCount).sort((x,y)=>y[1]-x[1]);
+  const freqEl=document.getElementById('emo-freq-list');
+  if(freqEl){freqEl.innerHTML='';sorted.forEach(([emo,count])=>{const pct=Math.round((count/Math.max(plut.length,1))*100);const col=sectorColor(emo);freqEl.innerHTML+=`<div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:.78rem;font-weight:600;min-width:90px;color:var(--text);">${emo}</span><div style="flex:1;background:var(--border);border-radius:4px;height:8px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${col};border-radius:4px;"></div></div><span style="font-size:.72rem;color:var(--muted);min-width:28px;text-align:right;">${count}×</span></div>`;});}
+  const avgV=plut.length?plut.reduce((s,a)=>s+parseFloat(a.russellValence),0)/plut.length:0;
+  const avgA=plut.length?plut.reduce((s,a)=>s+parseFloat(a.russellArousal),0)/plut.length:0;
+  const vaAvgEl=document.getElementById('va-avg-display');
+  if(vaAvgEl){const vStr=(avgV>=0?'+':'')+avgV.toFixed(3),aStr=(avgA>=0?'+':'')+avgA.toFixed(3);const vCol=avgV>=0?'#2a9d4e':'#d63838',aCol=avgA>=0?'#e0a040':'#7090e8';const ql=avgV>=0&&avgA>=0?'Joyeux / Excité':avgV<0&&avgA>=0?'Tendu / Alarmé':avgV>=0&&avgA<0?'Calme / Détendu':'Triste / Déprimé';vaAvgEl.innerHTML=`<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;"><span style="font-size:.75rem;font-weight:700;color:var(--muted);min-width:60px;">Valence</span><span style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:${vCol};">${vStr}</span><span style="font-size:.72rem;color:var(--muted);">${avgV>=0?'→ Agréable':'→ Déplaisant'}</span></div><div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;"><span style="font-size:.75rem;font-weight:700;color:var(--muted);min-width:60px;">Activation</span><span style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:${aCol};">${aStr}</span><span style="font-size:.72rem;color:var(--muted);">${avgA>=0?'↑ Élevée':'↓ Faible'}</span></div><div style="padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:.78rem;font-weight:600;color:var(--text);">Zone globale : <span style="color:#2350a8;">${ql}</span></div>`;}
+  const qdEl=document.getElementById('quadrant-dist');
+  if(qdEl){const qd={'Joyeux / Excité':0,'Tendu / Alarmé':0,'Calme / Détendu':0,'Triste / Déprimé':0};const qColors={'Joyeux / Excité':'#d4c040','Tendu / Alarmé':'#e07070','Calme / Détendu':'#60d890','Triste / Déprimé':'#7090e8'};plut.forEach(a=>{const v=parseFloat(a.russellValence),ar=parseFloat(a.russellArousal);if(v>=0&&ar>=0)qd['Joyeux / Excité']++;else if(v<0&&ar>=0)qd['Tendu / Alarmé']++;else if(v>=0&&ar<0)qd['Calme / Détendu']++;else qd['Triste / Déprimé']++;});qdEl.innerHTML='';Object.entries(qd).forEach(([q,c])=>{const pct=Math.round((c/Math.max(plut.length,1))*100);qdEl.innerHTML+=`<div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:.72rem;font-weight:600;min-width:100px;color:${qColors[q]};">${q}</span><div style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:7px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${qColors[q]};border-radius:4px;"></div></div><span style="font-size:.7rem;color:#6090b0;min-width:22px;text-align:right;">${c}</span></div>`;});}
+  setTimeout(()=>{const sc=document.getElementById('summaryVACanvas');if(!sc||!plut.length)return;const ctx=sc.getContext('2d');const W=340,H=300,PAD=42,GW=W-PAD*2,GH=H-PAD*2,CX=PAD+GW/2,CY=PAD+GH/2;ctx.fillStyle='#0d1520';ctx.fillRect(0,0,W,H);[[-1,1,'rgba(180,40,40,0.15)'],[1,1,'rgba(180,160,0,0.12)'],[-1,-1,'rgba(30,60,180,0.15)'],[1,-1,'rgba(30,140,70,0.12)']].forEach(([vx,ay,col])=>{ctx.fillStyle=col;ctx.fillRect(vx<0?PAD:CX,ay>0?PAD:CY,GW/2,GH/2);});ctx.strokeStyle='rgba(50,80,110,0.35)';ctx.lineWidth=0.5;for(let i=1;i<8;i++){const xi=PAD+(GW/8)*i,yi=PAD+(GH/8)*i;ctx.beginPath();ctx.moveTo(xi,PAD);ctx.lineTo(xi,PAD+GH);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD,yi);ctx.lineTo(PAD+GW,yi);ctx.stroke();}ctx.strokeStyle='rgba(100,160,220,0.6)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(PAD,CY);ctx.lineTo(PAD+GW,CY);ctx.stroke();ctx.beginPath();ctx.moveTo(CX,PAD);ctx.lineTo(CX,PAD+GH);ctx.stroke();ctx.font='bold 8px DM Sans,sans-serif';ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.55)';ctx.fillText('VALENCE',CX,PAD+GH+14);ctx.fillStyle='#e07070';ctx.textAlign='left';ctx.fillText('Déplaisant',PAD+2,CY-4);ctx.fillStyle='#60d890';ctx.textAlign='right';ctx.fillText('Agréable',PAD+GW-2,CY-4);ctx.fillStyle='#e0a040';ctx.textAlign='center';ctx.fillText('Élevée',CX+3,PAD+9);ctx.fillStyle='#6090c0';ctx.fillText('Faible',CX+3,PAD+GH-3);plut.forEach((a,i)=>{const px=CX+parseFloat(a.russellValence)*(GW/2),py=CY-parseFloat(a.russellArousal)*(GH/2);const col=sectorColor(a.emotion);ctx.save();ctx.shadowColor=col;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fillStyle='#0d1520';ctx.fill();ctx.font='bold 7px DM Mono,monospace';ctx.fillStyle='rgba(255,255,255,0.55)';ctx.textAlign='center';ctx.fillText(i+1,px,py-8);});const ax=CX+avgV*(GW/2),ay2=CY-avgA*(GH/2);ctx.save();ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(PAD,ay2);ctx.lineTo(PAD+GW,ay2);ctx.stroke();ctx.beginPath();ctx.moveTo(ax,PAD);ctx.lineTo(ax,PAD+GH);ctx.stroke();ctx.restore();ctx.setLineDash([]);ctx.save();ctx.shadowColor='#fff';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(ax,ay2,7,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=2;ctx.stroke();ctx.restore();ctx.font='bold 7.5px DM Mono,monospace';ctx.fillStyle='rgba(255,255,255,0.7)';ctx.textAlign='center';ctx.fillText('MOY',ax,ay2-11);},200);
+  $('#finish-screen').addClass('hidden');$('#summary-screen').removeClass('hidden');
+});
+
+function downloadCSV(id){
+  const summary=calculateSummaryScores();const hadsAnswers=answers.filter(a=>a.test==='HADS');const bfiAnswers=answers.filter(a=>a.test==='BFI-2-S');const plut=answers.filter(a=>a.test==='Plutchik');
+  let csv='';csv+='INFORMATIONS PARTICIPANT\n';csv+='ID complétion,Nom,Date de naissance,Genre,Âge,Email,Nationalité,Langue maternelle,Consentement,Ordre NAPS\n';csv+=`"${id}","${participantInfo.name||''}","${participantInfo.dob||''}","${participantInfo.g||''}","${participantInfo.a||''}","${participantInfo.e||''}","${participantInfo.n||''}","${participantInfo.l||''}","Accepté","Ordre ${napsOrderNumber}"\n\n`;
+  csv+='RÉPONSES HADS\nTest,Sous-échelle,Question,Réponse,Score,Début,Fin,Temps(s),Horodatage\n';hadsAnswers.forEach(a=>{csv+=`"HADS","${a.trait}","${a.question}","${a.answer}","${a.score}","${a.startTime}","${a.endTime}","${a.time}","${a.timestamp}"\n`;});
+  csv+='\nRÉSUMÉ HADS\nSous-échelle,Score total,Moyenne (÷7),Temps total (s)\n';csv+=`"Anxiété","${summary.HADS.Anxiety.score}","${(summary.HADS.Anxiety.score/7).toFixed(2)}","${summary.HADS.Anxiety.time.toFixed(2)}"\n`;csv+=`"Dépression","${summary.HADS.Depression.score}","${(summary.HADS.Depression.score/7).toFixed(2)}","${summary.HADS.Depression.time.toFixed(2)}"\n\n`;
+  csv+='RÉPONSES BFI-2-S\nTest,Domaine,Question,Inversé,Réponse,Score,Début,Fin,Temps(s),Horodatage\n';bfiAnswers.forEach(a=>{csv+=`"BFI-2-S","${a.trait}","${a.question}","${a.reversed?'Oui':'Non'}","${a.answer}","${a.score}","${a.startTime}","${a.endTime}","${a.time}","${a.timestamp}"\n`;});
+  csv+='\nRÉSUMÉ BFI-2-S\nDomaine,Score total,Moyenne (÷6),Temps total (s),Items répondus\n';BFI_DOMAINS.forEach(domain=>{const d=summary.BFI[domain];csv+=`"${domain}","${d.score}","${d.count>0?(d.score/d.count).toFixed(2):'-'}","${d.time.toFixed(2)}","${d.count}"\n`;});
+  csv+='\nRÉPONSES ÉMOTIONNELLES NAPS\n';csv+='Test,Position,Photo_NAPS,ID_NAPS,Émotion_NAPS,Valence_NAPS,Intensité_NAPS,Ordre_NAPS,';csv+='Émotion_Participant,Valence_Russell,Activation_Russell,Début,Fin,Temps(s),Horodatage\n';
+  plut.forEach(a=>{csv+=`"Plutchik","${a.napsPosition}","${a.napsPhoto}","${a.napsId}","${a.napsEmotion}","${a.napsValence}","${a.napsIntensity}","Ordre ${a.napsOrder}","${a.emotion}","${a.russellValence||''}","${a.russellArousal||''}","${a.startTime}","${a.endTime}","${a.time}","${a.timestamp}"\n`;});
+  csv+='\n====================\nCOMMENTAIRES PARTICIPANT\n====================\n"'+userFeedback+'"\n';
+  const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));link.download=`resultats_${id}.csv`;link.click();
+}
+
+const plutObserver=new MutationObserver(function(mutations){mutations.forEach(function(m){if(!m.target.classList.contains('hidden')){setTimeout(function(){initRussellDims();drawRussellGrid(null);initRussellClick();},80);}});});
+const plutArea=document.getElementById('plutchik-area');
+if(plutArea)plutObserver.observe(plutArea,{attributes:true,attributeFilter:['class']});
+</script>
+</body>
+</html>
