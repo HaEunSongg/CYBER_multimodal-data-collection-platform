@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psychometric Test</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;}
+:root{
+  --bg:#f9f8f5;--surface:#fff;--border:#e0dbd2;
+  --text:#1a1714;--muted:#7a7469;--accent:#2c2c2c;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;--r:12px;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:20px;}
+.hidden{display:none!important;}
+#intro-screen{max-width:780px;margin:0 auto;}
+.intro-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;}
+.intro-title{font-size:1.75rem;font-weight:600;line-height:1.25;letter-spacing:-.025em;margin-bottom:.4rem;}
+.intro-subtitle{font-size:.93rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem;}
+.btn-start-tutorial{display:inline-flex;align-items:center;gap:.55rem;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:var(--font);font-size:.95rem;font-weight:600;padding:.75rem 1.8rem;cursor:pointer;transition:background .15s,transform .1s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+.btn-start-tutorial:hover{background:#444;transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.18);}
+.btn-start-tutorial:active{transform:translateY(0);}
+.btn-start-tutorial svg{width:16px;height:16px;flex-shrink:0;}
+.btn-skip-link{font-size:.8rem;color:var(--muted);cursor:pointer;text-decoration:underline;text-decoration-color:rgba(122,116,105,.35);text-underline-offset:3px;background:none;border:none;font-family:var(--font);padding:0;transition:color .15s;}
+.btn-skip-link:hover{color:var(--text);}
+#tutorial-screen{max-width:1400px;margin:0 auto;}
+.tut-header{margin-bottom:1.5rem;}
+.tut-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;}
+.tut-title{font-size:1.1rem;font-weight:600;letter-spacing:-.01em;margin-bottom:.2rem;}
+.tut-desc{font-size:.85rem;color:var(--muted);line-height:1.55;}
+.tut-stepper{display:flex;align-items:center;gap:.4rem;margin-bottom:1.5rem;}
+.tut-step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .25s,transform .25s;}
+.tut-step-dot.active{background:var(--accent);transform:scale(1.35);}
+.tut-step-dot.done{background:#2a9d4e;}
+.tut-step-label{font-size:.75rem;font-weight:600;color:var(--muted);margin-left:.4rem;letter-spacing:.03em;}
+.tut-feedback{padding:.65rem 1rem;border-radius:9px;font-size:.85rem;font-weight:500;margin-top:1rem;display:flex;align-items:flex-start;gap:.6rem;transition:opacity .3s;}
+.tut-feedback.correct{background:#edfaf3;border:1px solid #a0d8b8;color:#1a6040;}
+.tut-feedback.neutral{background:#f0f4ff;border:1px solid #b0ccf0;color:#204080;}
+.tut-feedback svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;}
+.tut-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;flex-wrap:wrap;gap:.75rem;}
+.btn-tut-next{display:inline-flex;align-items:center;gap:.45rem;background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:var(--font);font-size:.88rem;font-weight:600;padding:.6rem 1.4rem;cursor:pointer;transition:background .15s,opacity .15s;}
+.btn-tut-next:hover:not(:disabled){background:#444;}
+.btn-tut-next:disabled{opacity:.4;cursor:not-allowed;}
+.tut-hint{font-size:.78rem;color:var(--muted);font-style:italic;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;}
+.question-text{font-size:1rem;font-weight:600;margin-bottom:1.25rem;}
+.opt-row{display:flex;align-items:center;gap:10px;padding:.55rem .7rem;border-radius:7px;border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;margin-bottom:.4rem;}
+.opt-row:hover{background:var(--bg);border-color:var(--border);}
+.opt-row.selected{background:#edfaf3;border-color:#2a9d4e;}
+.opt-row input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+.opt-row label{font-size:.9rem;cursor:pointer;}
+.bfi-scale-row{display:flex;gap:.4rem;margin-top:.75rem;}
+.bfi-scale-btn{flex:1;padding:.55rem .3rem;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);font-family:var(--font);font-size:.75rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center;line-height:1.3;}
+.bfi-scale-btn:hover{border-color:#aaa;background:#f0ede8;color:var(--text);}
+.bfi-scale-btn.bfi-sel{background:var(--accent);color:#fff;border-color:var(--accent);}
+.bfi-scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:.3rem;padding:0 2px;}
+canvas#tutRussellCanvas{display:block;border-radius:8px;cursor:crosshair;transition:box-shadow .2s;}
+canvas#tutRussellCanvas:hover{box-shadow:0 0 0 2px rgba(80,160,255,0.4);}
+canvas#tutRussellCanvas.clicked{box-shadow:0 0 0 2px rgba(80,220,140,0.6);}
+#tutRussellGridWrap{background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem;width:100%;position:relative;transition:opacity .3s;}
+#tutRussellGridWrap.locked{opacity:.45;pointer-events:none;}
+#tutRussellGridWrap.locked::after{content:'① Select emotion on wheel first';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:#6090b0;letter-spacing:.04em;text-align:center;background:rgba(15,25,35,0.55);border-radius:var(--r);pointer-events:none;}
+.screen-wrap{max-width:700px;margin:0 auto;}
+.screen-wrap h2{font-size:1.25rem;font-weight:600;margin-bottom:1.25rem;letter-spacing:-.01em;}
+.screen-wrap p,.screen-wrap li{font-size:.93rem;line-height:1.65;}
+.field-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.3rem;}
+.field-ctrl{font-family:var(--font);font-size:.9rem;padding:.5rem .75rem;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);width:100%;outline:none;margin-bottom:1rem;}
+.field-ctrl:focus{border-color:#aaa;}
+.btn-primary-custom{background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.9rem;font-weight:600;padding:.65rem 1.6rem;cursor:pointer;transition:background .15s;}
+.btn-primary-custom:hover{background:#444;}
+.btn-danger-custom{background:#d63838;color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.9rem;font-weight:600;padding:.65rem 1.6rem;cursor:pointer;}
+.btn-agree{background:#2a9d4e;color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.9rem;font-weight:600;padding:.65rem 1.6rem;cursor:pointer;transition:background .15s,opacity .15s;}
+.btn-agree:hover:not(:disabled){background:#228a42;}
+.btn-agree:disabled{opacity:.45;cursor:not-allowed;}
+.consent-check-row{display:flex;align-items:center;gap:.75rem;padding:.55rem .75rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;user-select:none;transition:border-color .15s,background .15s;}
+.consent-check-row:hover{border-color:#aaa;background:#f3f1ed;}
+.consent-check-row.checked{border-color:#2a9d4e;background:#edfaf3;}
+.consent-check-row span{font-size:.88rem;color:var(--text);line-height:1.4;}
+.cbox{width:20px;height:20px;border-radius:5px;border:1.5px solid #ccc;background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;}
+.consent-check-row.checked .cbox{border-color:#2a9d4e;background:#2a9d4e;}
+.cbox-tick{width:11px;height:11px;opacity:0;transform:scale(.5);transition:opacity .15s,transform .15s;}
+.consent-check-row.checked .cbox-tick{opacity:1;transform:scale(1);}
+#main-test{max-width:1400px;margin:0 auto;}
+.prog-wrap{margin-bottom:1rem;}
+.prog-top{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em;}
+.prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .35s;}
+.instruction{font-size:.82rem;font-weight:600;color:var(--muted);border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;background:var(--bg);margin-bottom:1rem;}
+.next-btn{flex:1;padding:.65rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.88rem;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;max-width:200px;}
+.next-btn:hover{background:#444;}.next-btn:active{transform:scale(.98);}
+.next-btn:disabled{background:#bbb;cursor:not-allowed;}
+.act-row{display:flex;gap:.65rem;width:100%;}
+#plutchik-area{display:flex;flex-direction:column;gap:.75rem;}
+.plut-row{display:flex;flex-direction:row;gap:1rem;align-items:flex-start;justify-content:center;flex-wrap:nowrap;}
+.img-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;display:flex;flex-direction:column;align-items:center;gap:.6rem;flex-shrink:0;width:280px;}
+.img-qlabel{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.img-display{width:260px;height:300px;object-fit:contain;border-radius:9px;border:1px solid var(--border);background:var(--bg);}
+.wheel-wrap{position:relative;flex-shrink:0;}
+svg#wheel{display:block;cursor:pointer;}
+.seg{transition:filter .15s;cursor:pointer;}
+.seg:hover{filter:brightness(1.08);}
+.seg.sel{filter:brightness(1.18) drop-shadow(0 0 8px rgba(0,0,0,.3));}
+.plut-sidebar{display:flex;flex-direction:column;gap:.8rem;width:340px;flex-shrink:0;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;}
+.emo-name{font-size:1.5rem;font-weight:600;line-height:1;margin-bottom:.15rem;transition:color .2s;}
+.emo-sub{font-size:.7rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;}
+.intensity-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;}
+.intensity-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.idots{display:flex;align-items:center;gap:4px;}
+.dot{width:10px;height:10px;border-radius:50%;background:#ddd;}
+.dot.on{background:currentColor;}
+.intensity-text{font-size:.78rem;font-weight:600;color:var(--muted);}
+.step-checklist{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.4rem;}
+.step-check-item{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--muted);}
+.step-check-dot{width:16px;height:16px;border-radius:50%;border:1.5px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.step-check-dot.done{border-color:#2a9d4e;background:#2a9d4e;}
+.step-check-dot svg{display:none;width:9px;height:9px;}
+.step-check-dot.done svg{display:block;}
+.va-display-panel{background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem 1rem;display:flex;align-items:center;gap:1rem;transition:opacity .3s;}
+.va-display-panel.empty{opacity:.4;}
+.va-axis-block{flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem;}
+.va-axis-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6090b0;}
+.va-axis-value{font-family:var(--mono);font-size:1.35rem;font-weight:600;color:#ccc;transition:color .3s,transform .2s;line-height:1;}
+.va-axis-value.positive{color:#4ae0a0;}
+.va-axis-value.negative{color:#e07070;}
+.va-axis-value.popped{transform:scale(1.18);}
+.va-divider{width:1px;height:40px;background:#2a3a50;flex-shrink:0;}
+.va-quadrant-label{font-size:.7rem;font-weight:600;color:#6090b0;text-align:center;line-height:1.3;padding:.25rem .5rem;background:rgba(255,255,255,.04);border-radius:6px;border:1px solid #2a3a50;min-width:80px;transition:color .3s,background .3s;}
+.emo-sector-badge{display:inline-flex;align-items:center;gap:6px;padding:.35rem .75rem;border-radius:20px;font-size:.78rem;font-weight:600;margin-bottom:.5rem;}
+.qbadge{display:inline-block;margin-top:.4rem;font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;}
+.russell-grid-wrap-main{background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem;position:relative;transition:opacity .3s;}
+.russell-grid-wrap-main.locked{opacity:.45;pointer-events:none;}
+.russell-grid-wrap-main.locked::after{content:'① Select emotion on wheel first';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:#6090b0;letter-spacing:.04em;text-align:center;background:rgba(15,25,35,0.55);border-radius:var(--r);pointer-events:none;}
+.russell-grid-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6090b0;margin-bottom:.5rem;text-align:center;}
+.russell-canvas-wrap{position:relative;display:flex;justify-content:center;}
+canvas#russellCanvas{display:block;border-radius:8px;cursor:crosshair;transition:box-shadow .2s;}
+canvas#russellCanvas:hover{box-shadow:0 0 0 2px rgba(80,160,255,0.4);}
+canvas#russellCanvas.clicked{box-shadow:0 0 0 2px rgba(80,220,140,0.6);}
+.domain-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:.75rem;}
+.instr-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;}
+@media(max-width:600px){.instr-layout{grid-template-columns:1fr;}.plut-row{flex-direction:column;}}
+.instr-meta{display:flex;flex-direction:column;gap:1rem;}
+.q-count-badge{display:flex;align-items:center;gap:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:.65rem .9rem;}
+.q-count-icon{font-size:1.3rem;line-height:1;}
+.q-count-text{display:flex;flex-direction:column;}
+.q-count-num{font-family:var(--mono);font-size:1.4rem;font-weight:600;line-height:1;color:var(--accent);}
+.q-count-lbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.time-badge{display:flex;align-items:center;gap:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:.65rem .9rem;}
+.instr-steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;}
+.instr-steps li{display:flex;align-items:flex-start;gap:.55rem;font-size:.85rem;line-height:1.5;}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.instr-divider{border:none;border-top:1px solid var(--border);margin:1.25rem 0;}
+.instr-visual{border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#f4f2ee;display:flex;flex-direction:column;align-items:center;gap:0;}
+.instr-visual-caption{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:.45rem .75rem;text-align:center;background:#f4f2ee;width:100%;}
+#instruction-screen .panel{padding:1.75rem;}
+#instruction-screen{max-width:900px;}
+#instruction-screen.screen-wrap{max-width:900px;}
+.hads-demo{width:100%;padding:.85rem;display:flex;flex-direction:column;gap:.5rem;}
+.demo-q{font-size:.72rem;font-weight:600;color:#444;margin-bottom:.3rem;}
+.demo-opt{display:flex;align-items:center;gap:.45rem;padding:.3rem .4rem;border-radius:6px;font-size:.7rem;color:#555;border:1px solid transparent;transition:all .3s;}
+.demo-opt.demo-selected{background:#e9f7ee;border-color:#2a9d4e;color:#1a6b38;}
+.demo-opt .demo-radio{width:12px;height:12px;border-radius:50%;border:1.5px solid #bbb;flex-shrink:0;position:relative;transition:all .3s;}
+.demo-opt.demo-selected .demo-radio{border-color:#2a9d4e;background:#2a9d4e;}
+.demo-opt.demo-selected .demo-radio::after{content:'';position:absolute;width:4px;height:4px;background:#fff;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
+.bfi-demo{width:100%;padding:.85rem;display:flex;flex-direction:column;gap:.5rem;}
+.scale-row{display:flex;gap:.3rem;justify-content:space-between;margin-top:.3rem;}
+.scale-btn{flex:1;height:28px;border-radius:5px;border:1px solid var(--border);background:var(--bg);font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;}
+.scale-btn.scale-sel{background:#2c2c2c;color:#fff;border-color:#2c2c2c;}
+.plut-instr-demo{background:#1a1a2e;border-radius:10px;overflow:hidden;border:1px solid #333;display:flex;flex-direction:column;}
+.ax{position:absolute;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;pointer-events:none;}
+.ax-top{top:2px;left:50%;transform:translateX(-50%);color:#c00;}
+.ax-bot{bottom:2px;left:50%;transform:translateX(-50%);color:#00c;}
+.ax-left{left:0;top:50%;transform:translateY(-50%) rotate(-90deg);color:#60a;font-size:9px;}
+.ax-right{right:0;top:50%;transform:translateY(-50%) rotate(90deg);color:#080;font-size:9px;}
+.finish-hero{text-align:center;padding:2rem 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
+.finish-icon{font-size:3rem;margin-bottom:.75rem;animation:bounceIn .6s ease;}
+@keyframes bounceIn{0%{transform:scale(0.3);opacity:0;}60%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+.finish-title{font-size:1.4rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.5rem;}
+.finish-msg{font-size:.95rem;color:var(--muted);line-height:1.7;max-width:480px;margin:0 auto;}
+.emo-summary-grid{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;}
+.emo-summary-card{flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.emo-summary-card-dark{flex:1;min-width:180px;background:#0f1923;border:1px solid #2a3a50;border-radius:10px;padding:1rem;}
+.emo-summary-card-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.65rem;}
+.emo-summary-card-title-dark{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6090b0;margin-bottom:.65rem;}
+</style>
+</head>
+<body>
+
+<!-- ===== First Screen ===== -->
+<div id="intro-screen">
+  <div class="panel" style="padding:2rem;">
+    <div class="intro-eyebrow">Research Study</div>
+    <h1 class="intro-title">Multimodal Behavioral Observation<br>During Psychometric Testing</h1>
+    <p class="intro-subtitle">Within the framework of this research protocol, we invite you to read the following passage carefully before proceeding.</p>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
+      <p style="font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;">the Rainbow Passage (Fairbanks, 1960):</p>
+      <p style="font-size:.93rem;color:var(--text);line-height:1.85;font-style:italic;">"When the sunlight strikes raindrops in the air, they act as a prism and form a rainbow. The rainbow is a division of white light into many beautiful colors. These take the shape of a long round arch, with its path high above, and its two ends apparently beyond the horizon. There is, according to legend, a boiling pot of gold at one end. People look, but no one ever finds it. When a man looks for something beyond his reach, his heart aches..."</p>
+    </div>
+    <button class="btn-start-tutorial" onclick="skipToConsent()">Continue →</button>
+  </div>
+</div>
+
+<!-- ===== CONSENT ===== -->
+<div id="consent-screen" class="screen-wrap hidden" style="max-width:760px;">
+  <h2>Participant Information &amp; Consent Form</h2>
+  <div class="panel">
+    <p style="margin-bottom:.25rem;"><strong>Study Title:</strong> Multimodal Behavioral Observation During Psychometric Testing Using IoT and AI</p>
+    <hr style="border:none;border-top:1px solid var(--border);margin:1.1rem 0;">
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">About this study</p>
+    <p style="font-size:.87rem;color:var(--muted);line-height:1.6;margin-bottom:.85rem;">You are invited to take part in a study examining the affective, behavioral, and dispositional dimensions of psychological experience, through validated psychometric instruments and emotional evaluation tasks.</p>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.5rem;">Study Procedure</p>
+    <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem;">
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">1.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Carefully read the information sheet, consent form, and debrief</span></div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">2.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Connect to the Heart Rate sensor; use mouse, keyboard, and camera for dynamic detection</span></div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">3.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Complete short questionnaires (HADS, BFI-2-S)</span></div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">4.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">View emotional images and report your feelings using an interactive emotion map and Valence-Arousal Map</span></div>
+    </div>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:.9rem;">⏱ Duration: ~20-25 minutes</p>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">What data is collected?</p>
+    <ul style="font-size:.87rem;color:var(--muted);line-height:1.75;padding-left:1.25rem;margin-bottom:.85rem;">
+      <li>Questionnaire responses</li><li>Emotional ratings</li><li>Reaction times</li>
+      <li>Mouse and keyboard interaction patterns</li><li>Camera-based observations</li><li>Physiological data (Heart Rate Frequency)</li>
+    </ul>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">Risks</p>
+    <p style="font-size:.87rem;color:var(--muted);line-height:1.6;margin-bottom:.85rem;">Some images presented in this protocol are liable to elicit emotionally uncomfortable responses. You may withdraw from participation at any time, without justification or consequence, by closing your browser.</p>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">Your rights</p>
+    <ul style="font-size:.87rem;color:var(--muted);line-height:1.75;padding-left:1.25rem;margin-bottom:.85rem;">
+      <li>Your participation is entirely voluntary and is governed by the principle of free and informed consent.</li><li>You may withdraw at any time without penalty</li>
+      <li>Your data will be pseudonymized and securely stored</li><li>You have the right to request the deletion of your data at any time.</li><li>No personally identifiable information will be published and collected data will only used for academic research purpose.</li>
+    </ul>
+    <hr style="border:none;border-top:1px solid var(--border);margin:1.1rem 0 1rem;">
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.4rem;">Consent</p>
+    <p style="font-size:.87rem;color:var(--muted);margin-bottom:.85rem;">By clicking <strong>"I Agree"</strong>, you confirm that:</p>
+    <div id="consent-checks" style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem;">
+      <label class="consent-check-row" onclick="toggleCheck(0)"><div class="cbox" id="cbox0"><svg class="cbox-tick" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 5,9.5 10,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>You are between 18-40 years of age and have no physical or history of psychological medication or record of condition liable to interfere with the proper conduct of the tasks proposed in this protocol.</span></label>
+      <label class="consent-check-row" onclick="toggleCheck(1)"><div class="cbox" id="cbox1"><svg class="cbox-tick" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 5,9.5 10,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>You have read and understood the information letter and consent form terms</span></label>
+      <label class="consent-check-row" onclick="toggleCheck(2)"><div class="cbox" id="cbox2"><svg class="cbox-tick" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 5,9.5 10,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>You voluntarily agree to participate</span></label>
+    </div>
+    <div class="d-flex gap-3 align-items-center flex-wrap">
+      <button class="btn-agree" id="agreeBtn" disabled>I Agree and wish to participate</button>
+      <button class="btn-danger-custom" id="declineBtn">I Do Not Agree</button>
+    </div>
+    <p id="consent-hint" style="font-size:.78rem;color:#c06000;margin-top:.55rem;display:none;">Please tick all three boxes above to proceed.</p>
+  </div>
+</div>
+
+<!-- PARTICIPANT INFO -->
+<div id="participant-screen" class="screen-wrap hidden">
+  <h2>Participant Information</h2>
+  <div class="panel">
+    <label class="field-label">Gender</label>
+    <select id="p_gender" class="field-ctrl"><option value="">Select</option><option>Male</option><option>Female</option><option>Prefer not to say</option></select>
+    <label class="field-label">Age Range</label>
+    <select id="p_age" class="field-ctrl"><option value="">Select</option><option>18-21</option><option>22-25</option><option>26-30</option><option>31-35</option><option>36-40</option></select>
+    <label class="field-label">Email</label>
+    <input type="email" id="p_email" class="field-ctrl" placeholder="e.g. name@email.com">
+    <label class="field-label">Nationality</label>
+    <input type="text" id="p_nationality" class="field-ctrl" placeholder="e.g. France">
+    <label class="field-label">Native Language</label>
+    <select id="p_language" class="field-ctrl"><option value="">Select</option><option>English</option><option>French</option><option>Others</option></select>
+    <div class="mt-3"><button class="btn-primary-custom" id="startStudyBtn">Continue →</button></div>
+  </div>
+</div>
+
+<!-- READY SCREEN -->
+<div id="ready-screen" class="screen-wrap hidden">
+  <div class="panel" style="text-align:center;padding:3rem 2rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎯</div>
+    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:.5rem;letter-spacing:-.02em;">Are you ready to start?</h2>
+    <p style="color:var(--muted);font-size:.93rem;line-height:1.6;margin-bottom:.5rem;">You are about to begin the psychometric evaluation protocol test.</p>
+    <p style="color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:2rem;">We invite you to settle in a calm environment conducive to concentration, and to set aside approximately <strong>25-30 minutes</strong> for the tasks ahead.</p>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;">
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-bottom:.5rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.82rem;color:var(--muted);"><span>📝</span><span><strong>HADS</strong> - 14 questions</span></div>
+        <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.82rem;color:var(--muted);"><span>📋</span><span><strong>BFI-2-S</strong> - 30 questions</span></div>
+        <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.82rem;color:var(--muted);"><span>🖼️</span><span><strong>Emotions</strong> - 20 images</span></div>
+      </div>
+      <button class="btn-start-tutorial" id="readyStartBtn" onclick="startCountdown()" style="font-size:1.05rem;padding:.85rem 2.5rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Start the Test
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN OVERLAY -->
+<div id="countdown-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(26,23,20,0.92);backdrop-filter:blur(6px);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
+  <div style="font-size:.85rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.45);">Starting in</div>
+  <div id="countdown-number" style="font-family:var(--mono);font-size:8rem;font-weight:700;color:#fff;line-height:1;transition:transform .15s,opacity .15s;"></div>
+  <div style="font-size:.9rem;color:rgba(255,255,255,.4);">Get ready…</div>
+</div>
+
+<!-- INSTRUCTION -->
+<div id="instruction-screen" class="screen-wrap hidden">
+  <h2 id="instr-title">Instructions</h2>
+  <div class="panel">
+    <div id="instruction-text"></div>
+    <div class="mt-4"><button class="btn-primary-custom" id="beginTestBtn">Start Test →</button></div>
+  </div>
+</div>
+
+<!-- TUTORIAL SCREEN -->
+<div id="tutorial-screen" class="hidden" style="max-width:900px;margin:0 auto;">
+  <div class="panel">
+    <div class="tut-eyebrow">Practice</div>
+    <div class="tut-title" id="tutTitle">Practice Question</div>
+    <div class="tut-desc" id="tutDesc"></div>
+    <div class="tut-stepper" style="margin-top:.75rem;">
+      <div class="tut-step-dot" id="sdot0"></div>
+      <div class="tut-step-dot" id="sdot1"></div>
+      <div class="tut-step-dot" id="sdot2"></div>
+      <span class="tut-step-label" id="stepLabel"></span>
+    </div>
+    <div id="tut-question-area"></div>
+    <div class="tut-feedback hidden correct" id="tut-feedback">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><polyline points="5,8.5 7,10.5 11,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="tut-feedback-text"></span>
+    </div>
+    <div class="tut-nav">
+      <span class="tut-hint" id="tutHint"></span>
+      <button class="btn-tut-next" id="tutNextBtn" disabled onclick="tutNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TUTORIAL DONE -->
+<div id="tutorial-done-screen" class="screen-wrap hidden">
+  <div class="panel" style="text-align:center;padding:2.5rem 2rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">✅</div>
+    <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:.5rem;">Practice complete!</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;">You're ready to begin the real study.</p>
+    <button class="btn-start-tutorial" onclick="goToConsent()">Continue to Consent →</button>
+  </div>
+</div>
+
+<!-- MAIN TEST -->
+<div id="main-test" class="hidden">
+  <div class="prog-wrap">
+    <div class="prog-top"><span id="progLabel">Question 1</span><span id="progPct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+  <div id="test-area"></div>
+  <div id="plutchik-area" class="hidden">
+    <div style="font-size:.82rem;font-weight:600;color:var(--muted);border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;background:var(--bg);margin-bottom:.75rem;">
+      For each image: <strong>① Based on the emotional experience evoked, </strong> identify and select the corresponding emotion on Plutchik's wheel, then <strong>② indicate your position on Russell's circumplex model grid.</strong>. Both steps must be completed before proceeding.
+    </div>
+    <div class="plut-row">
+      <div class="img-panel">
+        <div class="img-qlabel" id="qLbl">Image 1</div>
+        <img class="img-display" id="qImg" src="" alt="stimulus"/>
+        <div class="step-checklist" style="width:100%;margin-top:.5rem;">
+          <div class="step-check-item" id="check-wheel">
+            <div class="step-check-dot" id="dot-wheel"><svg viewBox="0 0 10 10" fill="none"><polyline points="1.5,5.5 4,8 8.5,2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>① Emotion wheel selected</span>
+          </div>
+          <div class="step-check-item" id="check-russell">
+            <div class="step-check-dot" id="dot-russell"><svg viewBox="0 0 10 10" fill="none"><polyline points="1.5,5.5 4,8 8.5,2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>② Valence-Arousal grid clicked</span>
+          </div>
+        </div>
+      </div>
+      <div class="wheel-wrap" style="width:660px;height:660px;">
+        <span class="ax ax-top">STRONG ACTIVATION</span>
+        <span class="ax ax-bot">LOW ACTIVATION</span>
+        <span class="ax ax-left">NEGATIVE VALENCE</span>
+        <span class="ax ax-right">POSITIVE VALENCE</span>
+        <svg id="wheel" viewBox="0 0 800 800" width="660" height="660" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="mU" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M2,6L4,2L6,6" fill="none" stroke="#333" stroke-width="1.3"/></marker>
+            <marker id="mD" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M2,2L4,6L6,2" fill="none" stroke="#333" stroke-width="1.3"/></marker>
+          </defs>
+          <line x1="400" y1="370" x2="400" y2="32" stroke="#333" stroke-width="1.8" marker-end="url(#mU)"/>
+          <line x1="400" y1="430" x2="400" y2="768" stroke="#333" stroke-width="1.8" marker-end="url(#mD)"/>
+          <g id="segs"></g><g id="lbls"></g>
+        </svg>
+      </div>
+      <div class="plut-sidebar">
+        <div class="info-card">
+          <div class="emo-name" id="eName" style="color:#bbb;">—</div>
+          <div class="emo-sub" id="eSub">Select an emotion on the wheel</div>
+          <div id="emoSectorBadgeWrap"></div>
+          <div class="intensity-row" id="emoIntensityRow" style="display:none;">
+            <span class="intensity-label">Intensity</span>
+            <div class="idots" id="eDots" style="color:#ccc;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <span class="intensity-text" id="eIs"></span>
+          </div>
+          <div class="qbadge" id="eQ" style="background:#f0f0f0;color:#999;display:none;"></div>
+        </div>
+        <div class="russell-grid-wrap-main locked" id="russellGridWrap">
+          <div class="russell-grid-title">② Russell's Circumplex — Click to rate Valence &amp; Arousal</div>
+          <div class="russell-canvas-wrap"><canvas id="russellCanvas" width="300" height="300"></canvas></div>
+        </div>
+        <div class="va-display-panel empty" id="vaDisplayPanel">
+          <div class="va-axis-block">
+            <div class="va-axis-label">Valence</div>
+            <div class="va-axis-value" id="vaValenceVal">—</div>
+            <div style="font-size:9px;color:#4a6a80;margin-top:2px;">← unpleasant · pleasant →</div>
+          </div>
+          <div class="va-divider"></div>
+          <div class="va-axis-block">
+            <div class="va-axis-label">Arousal</div>
+            <div class="va-axis-value" id="vaArousalVal">—</div>
+            <div style="font-size:9px;color:#4a6a80;margin-top:2px;">↓ low · high ↑</div>
+          </div>
+          <div class="va-divider"></div>
+          <div class="va-quadrant-label" id="vaQuadrantLabel">Click grid<br>to rate</div>
+        </div>
+        <div class="act-row">
+          <button class="next-btn" id="plutNextBtn" disabled onclick="plutNext()">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="mcq-nav" style="margin-top:1.25rem;display:flex;gap:.65rem;">
+    <button class="next-btn" id="nextBtn" onclick="handleNext()" style="max-width:200px;">Next →</button>
+  </div>
+</div>
+
+<!-- THANK YOU -->
+<div id="finish-screen" class="screen-wrap hidden">
+  <h2 style="text-align:center;">Study Complete</h2>
+  <div class="panel">
+    <div class="finish-hero">
+      <div class="finish-icon">🎉</div>
+      <div class="finish-title">Thank you for participating!</div>
+      <p class="finish-msg">Your responses are a genuine and valuable contribution to this research programme. By sharing your emotional and behavioural experience, you have helped advance our understanding of the relationship between human psychology and technology. We sincerely thank you for your time and engagement.</p>
+    </div>
+    <p id="completionID" style="font-family:var(--mono);font-size:.9rem;color:var(--muted);margin-bottom:1.25rem;text-align:center;"></p>
+    <label class="field-label">Your Feedback</label>
+    <textarea id="userFeedback" class="field-ctrl" rows="4" placeholder="We invite you to share any observations regarding the conduct of the protocol, difficulties encountered, or remarks that may enrich our research approach."></textarea>
+    <div class="mt-3"><button class="btn-primary-custom" id="finishBtn">Finish Test →</button></div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div id="summary-screen" class="screen-wrap hidden" style="max-width:820px;">
+  <h2>Results Summary</h2>
+  <div class="panel">
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">HADS</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Subscale</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Total Score</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Average</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Time (s)</th>
+        </tr></thead>
+        <tbody id="hads-sum-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">Big Five Personality (BFI-2-S)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Domain</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Total Score</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Average (÷6)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Time (s)</th>
+        </tr></thead>
+        <tbody id="bfi-sum-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">Plutchik + Russell — Emotion Responses</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Image</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">NAPS ID</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Emotion (Wheel)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Valence (Grid)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Arousal (Grid)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Time (s)</th>
+        </tr></thead>
+        <tbody id="plut-sum-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-bottom:1.75rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;">Emotion Summary — Wheel &amp; Valence/Arousal Overview</div>
+      <div class="emo-summary-grid">
+        <div class="emo-summary-card">
+          <div class="emo-summary-card-title">Most Selected Emotions</div>
+          <div id="emo-freq-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+        </div>
+        <div class="emo-summary-card">
+          <div class="emo-summary-card-title">Valence / Arousal Averages</div>
+          <div id="va-avg-display" style="display:flex;flex-direction:column;gap:.5rem;"></div>
+        </div>
+        <div class="emo-summary-card-dark">
+          <div class="emo-summary-card-title-dark">Quadrant Distribution</div>
+          <div id="quadrant-dist" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+        </div>
+      </div>
+      <div style="background:#f3f4f6;border:1px solid #2a3a50;border-radius:10px;padding:.75rem;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6090b0;margin-bottom:.5rem;text-align:center;">Your Valence-Arousal Response Map (all 20 images)</div>
+        <div style="display:flex;justify-content:center;">
+          <canvas id="summaryVACanvas" width="340" height="300" style="border-radius:8px;"></canvas>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary-custom" onclick="downloadCSV(completionID)" style="width:100%;justify-content:center;display:flex;align-items:center;gap:8px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Results (CSV)
+    </button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+
+
+let napsOrderNumber = 1;
+const plutchikImages = [];
+
+function initImageOrder() {
+  // ⬇ Replace entries below with your real NAPS images
+  const allImages = [
+  { image: 'images/example.jpg', napsPhoto: 'img0', napsId: 'N0', napsEmotion: 'neutral', napsValence: '', napsIntensity: '' }
+];
+  // Randomise order and assign an order number (1 or 2)
+  const shuffled = allImages.slice().sort(() => Math.random() - 0.5);
+  const orderNum  = Math.floor(Math.random() * 2) + 1;
+  sessionStorage.setItem('naps_image_sequence', JSON.stringify(shuffled));
+  return orderNum;
+}
+
+
+// TUTORIAL LOGIC
+let tutStep = 0;
+let tutHadsSelected = false;
+let tutBfiSelected  = false;
+let tutPlutWheelDone = false;
+let tutPlutGridDone  = false;
+
+const TUT_HADS_Q = {
+  text: "Eating ice cream makes me happy:",
+  options: ["Most of the time", "A lot of the time", "From time to time, occasionally", "Not at all"]
+};
+const TUT_BFI_Q = {
+  text: "I am someone who likes traveling.",
+  options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+};
+
+let tutCurEmo = null, tutSelEl = null, tutRV = null, tutRA = null;
+
+function startTutorial() { $('#intro-screen').addClass('hidden'); $('#tutorial-screen').removeClass('hidden'); tutStep=0; renderTutStep(); }
+function skipToConsent()  { $('#intro-screen').addClass('hidden'); $('#consent-screen').removeClass('hidden'); }
+function goToConsent()    { $('#tutorial-done-screen').addClass('hidden'); $('#consent-screen').removeClass('hidden'); }
+
+function updateStepDots(step){for(let i=0;i<3;i++){const el=document.getElementById('sdot'+i);el.classList.remove('active','done');if(i<step)el.classList.add('done');else if(i===step)el.classList.add('active');}document.getElementById('stepLabel').textContent='Step '+(step+1)+' of 3';}
+
+function renderTutStep(){
+  tutHadsSelected=tutBfiSelected=tutPlutWheelDone=tutPlutGridDone=false;
+  tutCurEmo=tutSelEl=tutRV=tutRA=null;
+  document.getElementById('tut-feedback').classList.add('hidden');
+  document.getElementById('tutNextBtn').disabled=true;
+  updateStepDots(tutStep);
+  if(tutStep===0){document.getElementById('tutTitle').textContent='Practice Question 1 of 3 - HADS';document.getElementById('tutDesc').textContent='Read the statement and select the option that best describes how you felt over the past week.';document.getElementById('tutHint').textContent='Select one answer to continue';document.getElementById('tutNextBtn').textContent='Next practice question →';renderTutHADS();}
+  else if(tutStep===1){document.getElementById('tutTitle').textContent='Practice Question 2 of 3 - BFI-2-S';document.getElementById('tutDesc').textContent='Rate how much this personality statement applies to you on the 5-point scale below.';document.getElementById('tutHint').textContent='Click a scale button to continue';document.getElementById('tutNextBtn').textContent='Next practice question →';renderTutBFI();}
+  else if(tutStep===2){document.getElementById('tutTitle').textContent='Practice Question 3 of 3 - Emotion Task';document.getElementById('tutDesc').textContent='In the emotion task you will rate images one at a time. Here is what to expect:';document.getElementById('tutHint').textContent='Read the overview below, then click Finish practice →';document.getElementById('tutNextBtn').textContent='Finish practice →';renderTutPlutchik();}
+}
+
+function renderTutHADS(){let html='<div class="question-card">';html+=`<div style="display:inline-flex;align-items:center;gap:6px;background:#fef9ec;color:#7a5200;border:1px solid #f0d888;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 10px;margin-bottom:.75rem;">HADS — Anxiety &amp; Depression</div>`;html+=`<div class="question-text">${TUT_HADS_Q.text}</div>`;TUT_HADS_Q.options.forEach((o,i)=>{html+=`<div class="opt-row" id="tut-hads-opt-${i}" onclick="selectTutHads(${i})"><input type="radio" name="tut-hads-q" id="tut-hads-r${i}" value="${i}"><label for="tut-hads-r${i}">${o}</label></div>`;});html+='</div>';document.getElementById('tut-question-area').innerHTML=html;}
+function selectTutHads(idx){document.querySelectorAll('[id^="tut-hads-opt-"]').forEach(el=>el.classList.remove('selected'));document.getElementById('tut-hads-opt-'+idx).classList.add('selected');document.getElementById('tut-hads-r'+idx).checked=true;tutHadsSelected=true;showTutFeedback('Good — in the real test, your actual score is calculated from this choice. Click Next to continue.');document.getElementById('tutNextBtn').disabled=false;document.getElementById('tutHint').textContent='Answer selected ✓';}
+
+function renderTutBFI(){let html='<div class="question-card">';html+=`<div style="display:inline-flex;align-items:center;gap:6px;background:#edf4ff;color:#204080;border:1px solid #b0ccf0;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 10px;margin-bottom:.75rem;">BFI-2-S — personality test</div>`;html+=`<div class="question-text">${TUT_BFI_Q.text}</div>`;html+='<div class="bfi-scale-row" id="tut-bfi-scale">';TUT_BFI_Q.options.forEach((o,i)=>{html+=`<button class="bfi-scale-btn" data-i="${i}" onclick="selectTutBfi(this)">${o}</button>`;});html+='</div><div class="bfi-scale-labels"><span>← Strongly Disagree</span><span>Strongly Agree →</span></div></div>';document.getElementById('tut-question-area').innerHTML=html;}
+function selectTutBfi(btn){document.querySelectorAll('#tut-bfi-scale .bfi-scale-btn').forEach(b=>b.classList.remove('bfi-sel'));btn.classList.add('bfi-sel');tutBfiSelected=true;showTutFeedback('In the real test, some items are reverse-scored automatically — just answer honestly. Click Next to continue.');document.getElementById('tutNextBtn').disabled=false;document.getElementById('tutHint').textContent='Answer selected ✓';}
+
+
+function renderTutPlutchik(){
+  const html=`
+    <div style="max-width:560px;">
+      <p style="font-size:.88rem;color:var(--muted);line-height:1.6;margin-bottom:1rem;">
+        In this section you will see <strong>20 images</strong> one at a time. For each image you must complete two steps in order:
+        <strong>① select an emotion on Plutchik's wheel</strong>, then
+        <strong>② click your position on the Valence-Arousal grid.</strong>
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:1rem;">
+        <div style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);">Example — what an image looks like</div>
+        <div style="padding:1rem;display:flex;align-items:center;gap:1.25rem;">
+          <img src="images/example.jpg"
+               style="width:110px;height:130px;object-fit:contain;border-radius:8px;border:1px solid var(--border);background:#f0ede8;flex-shrink:0;"
+               alt="Example stimulus"
+               onerror="this.style.display='none';document.getElementById('tut-img-fb').style.display='flex'"/>
+          <div id="tut-img-fb" style="display:none;width:110px;height:130px;border-radius:8px;border:1px solid var(--border);background:#f0ede8;align-items:center;justify-content:center;flex-direction:column;gap:.35rem;flex-shrink:0;">
+            <span style="font-size:2rem;">🖼️</span>
+            <span style="font-size:.7rem;color:var(--muted);font-family:var(--mono);">example.jpg</span>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem;">Image filename shown above</div>
+            <div style="font-family:var(--mono);font-size:.88rem;font-weight:600;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.3rem .6rem;display:inline-block;margin-bottom:.65rem;">example.jpg</div>
+            <div style="font-size:.82rem;color:var(--muted);line-height:1.55;">Each image is displayed like this. Look at it carefully, then use the wheel and grid on the right to report your felt response.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.55rem;">
+        <div style="display:flex;align-items:flex-start;gap:.65rem;font-size:.85rem;line-height:1.5;"><div class="step-num">1</div><span>Click a <strong>Plutchik wheel segment</strong> matching your emotion — inner ring = high intensity, outer ring = low intensity. The grid unlocks once step 1 is done.</span></div>
+        <div style="display:flex;align-items:flex-start;gap:.65rem;font-size:.85rem;line-height:1.5;"><div class="step-num">2</div><span>Click the <strong>Valence-Arousal grid:</strong> left = unpleasant, right = pleasant; top = high arousal, bottom = low arousal.</span></div>
+        <div style="display:flex;align-items:flex-start;gap:.65rem;font-size:.85rem;line-height:1.5;"><div class="step-num">3</div><span>Once both steps are complete, <strong>Next →</strong> unlocks and you advance to the next image.</span></div>
+      </div>
+    </div>`;
+  document.getElementById('tut-question-area').innerHTML=html;
+  // Info-only slide — auto-satisfy so Next is immediately available
+  tutPlutWheelDone = true;
+  tutPlutGridDone  = true;
+  document.getElementById('tutNextBtn').disabled = false;
+}
+
+function showTutFeedback(msg){const el=document.getElementById('tut-feedback'),txt=document.getElementById('tut-feedback-text');el.classList.remove('hidden');txt.textContent=msg;}
+function tutNext(){tutStep++;if(tutStep>=3){$('#tutorial-screen').addClass('hidden');$('#tutorial-done-screen').removeClass('hidden');}else{document.getElementById('tut-feedback').classList.add('hidden');renderTutStep();}}
+
+
+// CONSENT
+const consentState=[false,false,false];
+function toggleCheck(idx){consentState[idx]=!consentState[idx];document.querySelectorAll('.consent-check-row')[idx].classList.toggle('checked',consentState[idx]);const allChecked=consentState.every(Boolean);document.getElementById('agreeBtn').disabled=!allChecked;document.getElementById('consent-hint').style.display=allChecked?'none':'block';}
+
+const DOMAIN_COLOURS={
+  'Extraversion':{bg:'#e8f0fd',color:'#2350a8'},
+  'Agreeableness':{bg:'#e8faf0',color:'#1a7a45'},
+  'Conscientiousness':{bg:'#fff5e0',color:'#8a5500'},
+  'Negative Emotionality':{bg:'#fde8e8',color:'#a82323'},
+  'Open-Mindedness':{bg:'#f3e8fd',color:'#6b2398'},
+};
+
+// RUSSELL GRID
+const RUSSELL_W=300;
+let R_PAD=42,R_GW,R_GH,R_CX,R_CY;
+function initRussellDims(){R_GW=RUSSELL_W-R_PAD*2;R_GH=RUSSELL_W-R_PAD*2;R_CX=R_PAD+R_GW/2;R_CY=R_PAD+R_GH/2;}
+initRussellDims();
+let russellClickedV=null,russellClickedA=null;
+
+function drawRussellGrid(clickedPoint){const canvas=document.getElementById('russellCanvas');if(!canvas)return;const ctx=canvas.getContext('2d');const W=RUSSELL_W,PAD=R_PAD,GW=R_GW,GH=R_GH,CX=R_CX,CY=R_CY;ctx.clearRect(0,0,W,W);ctx.fillStyle='#0d1520';ctx.fillRect(0,0,W,W);const QUADS=[{x:-1,y:1,color:'rgba(180,40,40,0.18)',label:'Tense / Alarmed',tc:'#e07070'},{x:1,y:1,color:'rgba(180,160,0,0.16)',label:'Happy / Excited',tc:'#d4c040'},{x:-1,y:-1,color:'rgba(30,60,180,0.18)',label:'Sad / Depressed',tc:'#7090e8'},{x:1,y:-1,color:'rgba(30,140,70,0.16)',label:'Calm / Relaxed',tc:'#60d890'}];QUADS.forEach(q=>{const qx=q.x<0?PAD:CX,qy=q.y>0?PAD:CY;ctx.fillStyle=q.color;ctx.fillRect(qx,qy,GW/2,GH/2);ctx.font='bold 13px DM Sans,sans-serif';ctx.fillStyle=q.tc;ctx.globalAlpha=1;ctx.textAlign='center';const lines=q.label.split(' / ');const tx=q.x<0?PAD+GW*.25:PAD+GW*.75,ty=q.y>0?PAD+GH*.18:PAD+GH*.82;lines.forEach((ln,i)=>ctx.fillText(ln,tx,ty+i*16));ctx.globalAlpha=1;});ctx.strokeStyle='rgba(50,80,110,0.4)';ctx.lineWidth=0.5;for(let i=1;i<8;i++){const xi=PAD+(GW/8)*i,yi=PAD+(GH/8)*i;ctx.beginPath();ctx.moveTo(xi,PAD);ctx.lineTo(xi,PAD+GH);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD,yi);ctx.lineTo(PAD+GW,yi);ctx.stroke();}ctx.strokeStyle='rgba(100,160,220,0.7)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(PAD,CY);ctx.lineTo(PAD+GW,CY);ctx.stroke();ctx.beginPath();ctx.moveTo(CX,PAD);ctx.lineTo(CX,PAD+GH);ctx.stroke();const drawArrow=(x1,y1,x2,y2)=>{const angle=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-7*Math.cos(angle-.4),y2-7*Math.sin(angle-.4));ctx.lineTo(x2-7*Math.cos(angle+.4),y2-7*Math.sin(angle+.4));ctx.closePath();ctx.fillStyle='rgba(100,160,220,0.8)';ctx.fill();};drawArrow(PAD,CY,PAD+GW-2,CY);drawArrow(PAD+GW,CY,PAD+2,CY);drawArrow(CX,PAD+GH,CX,PAD+2);drawArrow(CX,PAD,CX,PAD+GH-2);ctx.font='bold 10.5px DM Sans,sans-serif';ctx.textAlign='left';ctx.fillStyle='#e07070';ctx.fillText('Unpleasant',PAD+2,CY-5);ctx.textAlign='right';ctx.fillStyle='#60d890';ctx.fillText('Pleasant',PAD+GW-2,CY-5);ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.6)';ctx.font='bold 10px DM Sans,sans-serif';ctx.fillText('VALENCE',CX,PAD+GH+14);ctx.save();ctx.translate(PAD-12,CY);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.6)';ctx.font='bold 10px DM Sans,sans-serif';ctx.fillText('AROUSAL',0,0);ctx.restore();ctx.textAlign='center';ctx.font='bold 10px DM Sans,sans-serif';ctx.fillStyle='#e0a040';ctx.fillText('High',CX+3,PAD+10);ctx.fillStyle='#6090c0';ctx.fillText('Low',CX+3,PAD+GH-3);ctx.font='10px DM Mono,monospace';ctx.fillStyle='rgba(80,110,150,0.6)';[-1,-.5,.5,1].forEach(v=>{const px=CX+v*(GW/2);ctx.textAlign='center';ctx.fillText(v>0?'+'+v.toFixed(1):v.toFixed(1),px,CY+12);});ctx.textAlign='right';[-1,-.5,.5,1].forEach(a=>{const py=CY-a*(GH/2);ctx.fillText(a>0?'+'+a.toFixed(1):a.toFixed(1),PAD-3,py+3);});if(clickedPoint){const px=CX+clickedPoint.v*(GW/2),py=CY-clickedPoint.a*(GH/2);ctx.save();ctx.shadowColor='#4ae0a0';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(px,py,9,0,Math.PI*2);ctx.strokeStyle='rgba(74,224,160,0.5)';ctx.lineWidth=2;ctx.stroke();ctx.restore();ctx.save();ctx.shadowColor='#4ae0a0';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fillStyle='#4ae0a0';ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);ctx.fillStyle='#0d2a1a';ctx.fill();ctx.strokeStyle='rgba(74,224,160,0.25)';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(PAD,py);ctx.lineTo(px-10,py);ctx.stroke();ctx.beginPath();ctx.moveTo(px+10,py);ctx.lineTo(PAD+GW,py);ctx.stroke();ctx.beginPath();ctx.moveTo(px,PAD);ctx.lineTo(px,py-10);ctx.stroke();ctx.beginPath();ctx.moveTo(px,py+10);ctx.lineTo(px,PAD+GH);ctx.stroke();ctx.setLineDash([]);ctx.font='bold 7.5px DM Mono,monospace';ctx.fillStyle='#4ae0a0';ctx.textAlign='center';const vy=clickedPoint.v>=0?'+'+clickedPoint.v.toFixed(2):clickedPoint.v.toFixed(2),ay=clickedPoint.a>=0?'+'+clickedPoint.a.toFixed(2):clickedPoint.a.toFixed(2),ldy=py>PAD+22?py-14:py+18;ctx.fillText('('+vy+', '+ay+')',px,ldy);}}
+
+function updateVAPanel(v,a){const panel=document.getElementById('vaDisplayPanel');const valEl=document.getElementById('vaValenceVal');const aroEl=document.getElementById('vaArousalVal');const quadEl=document.getElementById('vaQuadrantLabel');if(v===null||a===null){panel.classList.add('empty');valEl.textContent='—';valEl.className='va-axis-value';aroEl.textContent='—';aroEl.className='va-axis-value';quadEl.textContent='Click grid\nto rate';quadEl.style.color='#6090b0';quadEl.style.background='rgba(255,255,255,.04)';return;}panel.classList.remove('empty');const vStr=(v>=0?'+':'')+v.toFixed(2),aStr=(a>=0?'+':'')+a.toFixed(2);valEl.textContent=vStr;valEl.className='va-axis-value '+(v>=0?'positive':'negative');aroEl.textContent=aStr;aroEl.className='va-axis-value '+(a>=0?'positive':'negative');let ql,qc,qbg;if(v>=0&&a>=0){ql='Happy /\nExcited';qc='#d4c040';qbg='rgba(180,160,0,0.15)';}if(v<0&&a>=0){ql='Tense /\nAlarmed';qc='#e07070';qbg='rgba(180,40,40,0.15)';}if(v>=0&&a<0){ql='Calm /\nRelaxed';qc='#60d890';qbg='rgba(30,140,70,0.15)';}if(v<0&&a<0){ql='Sad /\nDepressed';qc='#7090e8';qbg='rgba(30,60,180,0.15)';}quadEl.textContent=ql;quadEl.style.color=qc;quadEl.style.background=qbg;quadEl.style.border='1px solid '+qc+'55';}
+
+function initRussellClick(){const canvas=document.getElementById('russellCanvas');if(!canvas)return;if(canvas._russellHandler)canvas.removeEventListener('click',canvas._russellHandler);canvas._russellHandler=function(e){if(!curEmo)return;const rect=canvas.getBoundingClientRect();const scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height;const mx=(e.clientX-rect.left)*scaleX,my=(e.clientY-rect.top)*scaleY;russellClickedV=parseFloat(Math.max(-1,Math.min(1,(mx-R_CX)/(R_GW/2))).toFixed(3));russellClickedA=parseFloat(Math.max(-1,Math.min(1,-(my-R_CY)/(R_GH/2))).toFixed(3));canvas.classList.add('clicked');document.getElementById('dot-russell').classList.add('done');updateVAPanel(russellClickedV,russellClickedA);drawRussellGrid({v:russellClickedV,a:russellClickedA});checkBothSelected();};canvas.addEventListener('click',canvas._russellHandler);}
+function checkBothSelected(){document.getElementById('plutNextBtn').disabled=!(!!curEmo&&russellClickedV!==null);}
+function initRussellGrid(){drawRussellGrid(null);}
+
+// MAIN TEST DATA
+const SECTORS=[
+  {name:'Joy',angle:0,colors:['#e8b800','#f5d020','#fae878'],innerEmo:'Ecstasy',midEmo:'Joy',outerEmo:'Serenity'},
+  {name:'Trust',angle:45,colors:['#4db03a','#72c455','#a8dc90'],innerEmo:'Admiration',midEmo:'Trust',outerEmo:'Acceptance'},
+  {name:'Fear',angle:90,colors:['#38a860','#5cc47a','#9adcb0'],innerEmo:'Terror',midEmo:'Fear',outerEmo:'Apprehension'},
+  {name:'Surprise',angle:135,colors:['#3898cc','#5ab4e0','#96d0f0'],innerEmo:'Amazement',midEmo:'Surprise',outerEmo:'Distraction'},
+  {name:'Sadness',angle:180,colors:['#3858b8','#5070d0','#8ca0e8'],innerEmo:'Grief',midEmo:'Sadness',outerEmo:'Pensiveness'},
+  {name:'Disgust',angle:225,colors:['#8038a8','#a058c4','#c894e0'],innerEmo:'Loathing',midEmo:'Disgust',outerEmo:'Boredom'},
+  {name:'Anger',angle:270,colors:['#d02020','#e84040','#f48888'],innerEmo:'Rage',midEmo:'Anger',outerEmo:'Annoyance'},
+  {name:'Anticipation',angle:315,colors:['#d06010','#e88030','#f4b070'],innerEmo:'Vigilance',midEmo:'Anticipation',outerEmo:'Interest'},
+];
+const INTER=[{name:'Love',angle:22.5},{name:'Submission',angle:67.5},{name:'Awe',angle:112.5},{name:'Disapproval',angle:157.5},{name:'Remorse',angle:202.5},{name:'Contempt',angle:247.5},{name:'Aggressiveness',angle:292.5},{name:'Optimism',angle:337.5}];
+const EMO_DATA={
+  'Ecstasy':{i:3,q:'High Arousal · Positive'},'Joy':{i:2,q:'High Arousal · Positive'},'Serenity':{i:1,q:'Low Arousal · Positive'},
+  'Admiration':{i:3,q:'High Arousal · Positive'},'Trust':{i:2,q:'Low Arousal · Positive'},'Acceptance':{i:1,q:'Low Arousal · Positive'},
+  'Terror':{i:3,q:'High Arousal · Negative'},'Fear':{i:2,q:'High Arousal · Negative'},'Apprehension':{i:1,q:'High Arousal · Negative'},
+  'Amazement':{i:3,q:'High Arousal · Positive'},'Surprise':{i:2,q:'High Arousal · Positive'},'Distraction':{i:1,q:'Low Arousal · Positive'},
+  'Grief':{i:3,q:'Low Arousal · Negative'},'Sadness':{i:2,q:'Low Arousal · Negative'},'Pensiveness':{i:1,q:'Low Arousal · Negative'},
+  'Loathing':{i:3,q:'Low Arousal · Negative'},'Disgust':{i:2,q:'Low Arousal · Negative'},'Boredom':{i:1,q:'Low Arousal · Negative'},
+  'Rage':{i:3,q:'High Arousal · Negative'},'Anger':{i:2,q:'High Arousal · Negative'},'Annoyance':{i:1,q:'High Arousal · Negative'},
+  'Vigilance':{i:3,q:'High Arousal · Positive'},'Anticipation':{i:2,q:'High Arousal · Positive'},'Interest':{i:1,q:'Low Arousal · Positive'},
+  'Love':{i:2,q:'High Arousal · Positive'},'Submission':{i:2,q:'Low Arousal · Positive'},'Awe':{i:2,q:'High Arousal · Positive'},
+  'Disapproval':{i:2,q:'Low Arousal · Negative'},'Remorse':{i:2,q:'Low Arousal · Negative'},'Contempt':{i:2,q:'Low Arousal · Negative'},
+  'Aggressiveness':{i:2,q:'High Arousal · Negative'},'Optimism':{i:2,q:'High Arousal · Positive'},
+};
+
+const CX=400,CY=400,NS='http://www.w3.org/2000/svg';
+function rad(deg){return(deg-90)*Math.PI/180;}function pt(deg,r){return[CX+r*Math.cos(rad(deg)),CY+r*Math.sin(rad(deg))];}
+function slicePath(ca,r1,r2){const h=22.5,a1=ca-h,a2=ca+h;const[ox1,oy1]=pt(a1,r1),[ox2,oy2]=pt(a2,r1);const[ix1,iy1]=pt(a1,r2),[ix2,iy2]=pt(a2,r2);return`M${ox1} ${oy1} A${r1} ${r1} 0 0 1 ${ox2} ${oy2} L${ix2} ${iy2} A${r2} ${r2} 0 0 0 ${ix1} ${iy1} Z`;}
+function interSlicePath(ca,r1,r2){const h=20,a1=ca-h,a2=ca+h;const[ox1,oy1]=pt(a1,r1),[ox2,oy2]=pt(a2,r1);const[ix1,iy1]=pt(a1,r2),[ix2,iy2]=pt(a2,r2);return`M${ox1} ${oy1} A${r1} ${r1} 0 0 1 ${ox2} ${oy2} L${ix2} ${iy2} A${r2} ${r2} 0 0 0 ${ix1} ${iy1} Z`;}
+function svgEl(t){return document.createElementNS(NS,t);}
+function mkPath(d,fill,stroke,sw,dashed){const p=svgEl('path');p.setAttribute('d',d);p.setAttribute('fill',fill);p.setAttribute('stroke',stroke||'#fff');p.setAttribute('stroke-width',sw||'1.5');if(dashed)p.setAttribute('stroke-dasharray','5,3');return p;}
+function mkText(x,y,text,size,weight,fill,angle){const t=svgEl('text');t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.setAttribute('font-size',size);t.setAttribute('font-weight',weight);t.setAttribute('fill',fill);t.setAttribute('font-family',"'DM Sans',sans-serif");t.setAttribute('pointer-events','none');if(angle)t.setAttribute('transform',`rotate(${angle},${x},${y})`);t.textContent=text;return t;}
+const R_IN=120,R_MID=[120,230],R_OUT=[230,320],R_DAS=[320,378];
+const gSegs=document.getElementById('segs');
+const gLbls=document.getElementById('lbls');
+INTER.forEach(em=>{const g=svgEl('g');g.setAttribute('class','seg');g.appendChild(mkPath(interSlicePath(em.angle,R_DAS[0],R_DAS[1]),'#f0ece4','#bbb','1.2',true));g.addEventListener('click',()=>pickEmo({name:em.name,...em,cm:'#888',sector:em.name},g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const g=svgEl('g');g.setAttribute('class','seg');g.appendChild(mkPath(slicePath(sec.angle,R_OUT[0],R_OUT[1]),sec.colors[2],'#fff','1.5'));const em={name:sec.outerEmo,cm:sec.colors[2],sector:sec.name,...EMO_DATA[sec.outerEmo]||{}};g.addEventListener('click',()=>pickEmo(em,g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const g=svgEl('g');g.setAttribute('class','seg');g.appendChild(mkPath(slicePath(sec.angle,R_MID[0],R_MID[1]),sec.colors[1],'#fff','1.5'));const em={name:sec.midEmo,cm:sec.colors[1],sector:sec.name,...EMO_DATA[sec.midEmo]||{}};g.addEventListener('click',()=>pickEmo(em,g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const g=svgEl('g');g.setAttribute('class','seg');const h=22.5,a1=sec.angle-h,a2=sec.angle+h;const[x1,y1]=pt(a1,R_IN),[x2,y2]=pt(a2,R_IN);g.appendChild(mkPath(`M${CX} ${CY} L${x1} ${y1} A${R_IN} ${R_IN} 0 0 1 ${x2} ${y2} Z`,sec.colors[0],'#fff','1.5'));const em={name:sec.innerEmo,cm:sec.colors[0],sector:sec.name,...EMO_DATA[sec.innerEmo]||{}};g.addEventListener('click',()=>pickEmo(em,g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const ang=sec.angle,rot=(ang>90&&ang<270)?ang+180:ang;const[ix,iy]=pt(ang,95);gLbls.appendChild(mkText(ix,iy,sec.innerEmo,'13','700','#fff',rot));const[mx,my]=pt(ang,175);gLbls.appendChild(mkText(mx,my,sec.midEmo,'15','700','#fff',rot));const[ox,oy]=pt(ang,275);gLbls.appendChild(mkText(ox,oy,sec.outerEmo,'13','600','#333',rot));});
+INTER.forEach(em=>{const ang=em.angle,rot=(ang>90&&ang<270)?ang+180:ang;const[x,y]=pt(ang,352);gLbls.appendChild(mkText(x,y,em.name,'11','500','#555',rot));});
+
+// MAIN TEST STATE
+const tests=[
+  {name:'HADS',instructionKey:'HADS',questions:[
+    {q:"1. I feel tense or 'wound up':",options:["Most of the time","A lot of the time","From time to time, occasionally","Not at all"],scores:[3,2,1,0],category:"Anxiety"},
+    {q:"14. I can enjoy a good book or radio or TV program:",options:["Often","Sometimes","Not often","Very seldom"],scores:[0,1,2,3],category:"Depression"}
+  ]},
+  {name:'BFI-2-S',instructionKey:'BFI',questions:[
+    {q:'1. I am someone who tends to be quiet.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Extraversion',reversed:true},
+    {q:'30. I am someone who has little creativity.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Open-Mindedness',reversed:true}
+  ]},
+  {name:'Plutchik',type:'plutchik',instructionKey:'Plutchik'}
+];
+const BFI_DOMAINS=['Extraversion','Agreeableness','Conscientiousness','Negative Emotionality','Open-Mindedness'];
+
+let participantInfo={},answers=[],userFeedback='';
+let currentTest=0,qIndex=0,rIndex=0;
+let questionStartTime=null,plutStartTime=null;
+let completionID='';
+let selEl=null,curEmo=null;
+
+function totalQ(){return tests.reduce((s,t)=>s+(t.type==='plutchik'?plutchikImages.length:t.questions.length),0);}
+function updateProgress(){const pct=Math.round((answers.length/Math.max(totalQ(),1))*100);$('#progFill').css('width',pct+'%');$('#progPct').text(pct+'%');}
+
+$('#agreeBtn').click(()=>{if(!consentState.every(Boolean)){document.getElementById('consent-hint').style.display='block';return;}$('#consent-screen').addClass('hidden');$('#participant-screen').removeClass('hidden');});
+$('#declineBtn').click(()=>window.close());
+
+
+$('#startStudyBtn').click(()=>{
+  const g=$('#p_gender').val(),a=$('#p_age').val(),e=$('#p_email').val(),n=$('#p_nationality').val(),l=$('#p_language').val();
+  if(!g||!a||!n||!l){alert('Please fill all required fields.');return;}
+  const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(e&&!emailRegex.test(e)){alert('Please enter a valid email address.');return;}
+  participantInfo={g,a,e,n,l};
+  napsOrderNumber = initImageOrder();
+  const seq = JSON.parse(sessionStorage.getItem('naps_image_sequence'));
+  plutchikImages.length = 0;
+  seq.forEach(img => plutchikImages.push(img));
+  $('#participant-screen').addClass('hidden');
+  $('#ready-screen').removeClass('hidden');
+});
+
+function startCountdown(){$('#ready-screen').addClass('hidden');startSectionCountdown(loadTest);}
+
+let hadsInterval=null,bfiInterval=null;
+function startHadsDemoAnimation(){if(!document.getElementById('d0'))return;if(hadsInterval)clearInterval(hadsInterval);const opts=['d0','d1','d2','d3'];let current=2;document.getElementById(opts[current]).classList.add('demo-selected');hadsInterval=setInterval(()=>{document.getElementById(opts[current]).classList.remove('demo-selected');current=(current+1)%opts.length;document.getElementById(opts[current]).classList.add('demo-selected');},1500);}
+function startBfiDemoAnimation(){const scaleEl=document.getElementById('bfi-scale');if(!scaleEl)return;if(bfiInterval)clearInterval(bfiInterval);const btns=scaleEl.querySelectorAll('.scale-btn');let cur=3;bfiInterval=setInterval(()=>{btns.forEach(b=>b.classList.remove('scale-sel'));cur=(cur+1)%btns.length;btns[cur].classList.add('scale-sel');},1200);}
+
+function buildPlutchikDemo(){
+  const html=`
+    <div style="border-radius:10px;overflow:hidden;border:1px solid #2a2a50;background:#0f1923;">
+      <video src="images/PlutchickEnglish.mp4" autoplay muted loop playsinline style="width:100%;display:block;max-height:340px;object-fit:cover;"></video>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#555;padding:.4rem .75rem;background:#111;text-align:center;border-top:1px solid #222;">Demo — Emotion Task Walkthrough</div>
+    </div>`;
+  return { html: html, start: function(){} };
+}
+
+const INSTRUCTIONS={
+  HADS:{title:'HADS : Anxiety & Depression Scale',html:`<div class="instr-meta" style="flex-direction:row;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;"><div class="q-count-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">📝</div><div class="q-count-text"><div class="q-count-num">14</div><div class="q-count-lbl">Questions total</div></div></div><div class="time-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">⏱</div><div class="q-count-text"><div class="q-count-num">~7 min</div><div class="q-count-lbl">Estimated time</div></div></div><div style="flex:2;min-width:200px;background:#fff8e6;border:1px solid #f0d890;border-radius:8px;padding:.65rem .8rem;font-size:.78rem;color:#7a5c00;"><strong>💡 Tip:</strong> Think about how you felt over the <strong>past 7 days</strong>, not just today.</div></div><p style="font-size:.88rem;margin-bottom:.75rem;font-weight:600;">How it works:</p><ul class="instr-steps"><li><div class="step-num">1</div> Read each statement carefully.</li><li><div class="step-num">2</div> Select the option that best describes how you have felt over the <strong>past week</strong>.</li><li><div class="step-num">3</div> Try to respond quickly — there are no right or wrong answers.</li><li><div class="step-num">4</div> Click <strong>Start HADS →</strong> to start the HADS questionnaires.</li><li><div class="step-num">5</div> Click <strong>Next →</strong> to proceed to the next question.</li></ul><div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;"><div style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);">Example</div><div class="hads-demo" id="hads-demo"><div class="demo-q">Eating ice cream makes me happy:</div><div class="demo-opt" id="d0"><div class="demo-radio"></div> Most of the time</div><div class="demo-opt" id="d1"><div class="demo-radio"></div> A lot of the time</div><div class="demo-opt" id="d2"><div class="demo-radio"></div> From time to time</div><div class="demo-opt" id="d3"><div class="demo-radio"></div> Not at all</div></div></div>`},
+  BFI:{title:'Big Five Personality Inventory (BFI-2-S)',html:`<div class="instr-meta" style="flex-direction:row;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;"><div class="q-count-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">📝</div><div class="q-count-text"><div class="q-count-num">30</div><div class="q-count-lbl">Questions total</div></div></div><div class="time-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">⏱</div><div class="q-count-text"><div class="q-count-num">~10 min</div><div class="q-count-lbl">Estimated time</div></div></div><div style="flex:2;min-width:200px;background:#f0f7ff;border:1px solid #b0d4f5;border-radius:8px;padding:.65rem .8rem;font-size:.78rem;color:#1a4a7a;"><strong>💡 Tip:</strong> Go with your <strong>first instinct</strong> — don't overthink it.</div></div><p style="font-size:.88rem;margin-bottom:.5rem;font-weight:600;">Domains measured (BFI-2-S):</p><div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;"><span style="background:#e8f0fd;color:#2350a8;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Extraversion</span><span style="background:#e8faf0;color:#1a7a45;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Agreeableness</span><span style="background:#fff5e0;color:#8a5500;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Conscientiousness</span><span style="background:#fde8e8;color:#a82323;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Negative Emotionality</span><span style="background:#f3e8fd;color:#6b2398;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Open-Mindedness</span></div><ul class="instr-steps"><li><div class="step-num">1</div> Here are a number of characteristics that may or may not apply to you. Read each personality statement.</li><li><div class="step-num">2</div> Rate how much you agree on a 5-point scale from <strong>Strongly Disagree</strong> to <strong>Strongly Agree</strong>.</li><li><div class="step-num">3</div> Some items are reverse-scored — just answer honestly, scoring is handled automatically.</li><li><div class="step-num">4</div> Click <strong>Start BFI-2-S →</strong> to start the BFI questionnaires.</li><li><div class="step-num">5</div> Click <strong>Next →</strong> to proceed.</li></ul><div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;"><div style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);">Example</div><div class="bfi-demo"><div class="demo-q">I am someone who likes traveling.</div><div class="scale-row" id="bfi-scale"><div class="scale-btn" data-i="0">Strongly<br>Disagree</div><div class="scale-btn" data-i="1">Disagree</div><div class="scale-btn" data-i="2">Neutral</div><div class="scale-btn scale-sel" data-i="3">Agree</div><div class="scale-btn" data-i="4">Strongly<br>Agree</div></div></div></div>`},
+  Plutchik:{title:"Mapping emotions: Russell's Circumplex / Plutchik's Wheel",buildHtml:function(){const demo=buildPlutchikDemo();const staticHtml=`<div class="instr-layout"><div><div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;">Task Overview</div>${demo.html}</div><div class="instr-meta"><div class="q-count-badge"><div class="q-count-icon">🖼️</div><div class="q-count-text"><div class="q-count-num">20</div><div class="q-count-lbl">Images to evaluate</div></div></div><div class="time-badge"><div class="q-count-icon">⏱</div><div class="q-count-text"><div class="q-count-num">~8 min</div><div class="q-count-lbl">Estimated time</div></div></div><div style="background:#f3fdf3;border:1px solid #a0dba0;border-radius:8px;padding:.65rem .8rem;font-size:.78rem;color:#1a5c1a;"><strong>💡 Tip:</strong> Trust your immediate felt response — select what you experience, not what you think you should feel.</div></div></div><hr class="instr-divider"><p style="font-size:.88rem;margin-bottom:.75rem;font-weight:600;">For each image, complete TWO steps in order:</p><ul class="instr-steps" style="gap:.75rem;"><li style="align-items:flex-start;gap:.75rem;"><div class="step-num" style="flex-shrink:0;margin-top:2px;">1</div><div style="display:flex;gap:.6rem;align-items:flex-start;flex:1;"><div style="min-width:160px;font-weight:700;font-size:.88rem;line-height:1.4;">Click on<br>Plutchik's<br>emotion wheel</div><div style="font-size:.88rem;line-height:1.6;color:var(--text);">Select the segment that best corresponds to your immediate emotional experience. Proximity to the center indicates higher intensity. The grid unlocks once this step is complete.</div></div></li><li style="align-items:flex-start;gap:.75rem;"><div class="step-num" style="flex-shrink:0;margin-top:2px;">2</div><div style="display:flex;gap:.6rem;align-items:flex-start;flex:1;"><div style="min-width:160px;font-weight:700;font-size:.88rem;line-height:1.4;">Click on the grid of<br>Russell's circumplex<br>model</div><div style="font-size:.88rem;line-height:1.6;color:var(--text);">Place your rating. Left = unpleasant, Right = pleasant. Top = high activation, Bottom = low activation.</div></div></li><li style="align-items:flex-start;gap:.75rem;"><div class="step-num" style="flex-shrink:0;margin-top:2px;">3</div><div style="font-size:.88rem;line-height:1.6;">Once ready, click <strong>Start the Emotion Task →</strong> to begin.</div><div class="step-num" style="flex-shrink:0;margin-top:2px;">4</div><div style="font-size:.88rem;line-height:1.6;">During each task, once both steps are completed, <strong>Next →</strong> becomes available.</div></li></ul><div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:.4rem;background:#fff8dc;border:1px solid #e8d870;border-radius:7px;padding:.35rem .65rem;font-size:.75rem;"><span style="width:12px;height:12px;border-radius:3px;background:#e8b800;display:inline-block;flex-shrink:0;"></span><strong>Inner ring</strong>&nbsp;= High intensity</div><div style="display:flex;align-items:center;gap:.4rem;background:#fffbea;border:1px solid #e8d870;border-radius:7px;padding:.35rem .65rem;font-size:.75rem;"><span style="width:12px;height:12px;border-radius:3px;background:#f5d020;display:inline-block;flex-shrink:0;"></span><strong>Middle ring</strong>&nbsp;= Average intensity</div><div style="display:flex;align-items:center;gap:.4rem;background:#fdf9e8;border:1px solid #e8d870;border-radius:7px;padding:.35rem .65rem;font-size:.75rem;"><span style="width:12px;height:12px;border-radius:3px;background:#fae878;display:inline-block;flex-shrink:0;"></span><strong>Outer ring</strong>&nbsp;= Low intensity</div><div style="display:flex;align-items:center;gap:.4rem;background:#edfaf8;border:1px solid #a0e0c8;border-radius:7px;padding:.35rem .65rem;font-size:.75rem;"><span style="width:12px;height:12px;border-radius:3px;background:#4ae0a0;display:inline-block;flex-shrink:0;"></span><strong>Green dot</strong>&nbsp;= Your V/A click</div></div>`;return{html:staticHtml,startDemo:demo.start};}}
+};
+
+function loadTest(){
+  if(currentTest>=tests.length){finishStudy();return;}
+  $('#main-test').addClass('hidden');$('#instruction-screen').removeClass('hidden');
+  const t=tests[currentTest];const key=t.instructionKey;let instrHtml='';let _plutDemoStart=null;
+  const titleEl=document.getElementById('instr-title');
+  if(key==='Plutchik'){titleEl.textContent="Mapping emotions: Russell's circumplex model / Plutchik's wheel of emotions";const built=INSTRUCTIONS.Plutchik.buildHtml();instrHtml=built.html;_plutDemoStart=built.startDemo;}
+  else{const instr=INSTRUCTIONS[key]||{title:'Instructions',html:''};titleEl.textContent=instr.title;instrHtml=instr.html;}
+  document.getElementById('instruction-text').innerHTML=instrHtml;
+  setTimeout(()=>{startHadsDemoAnimation();startBfiDemoAnimation();if(_plutDemoStart)_plutDemoStart();},300);
+  const sectionLabels={HADS:'Start HADS →',BFI:'Start BFI-2-S →',Plutchik:'Start the Emotion Task →'};
+  const btn=document.getElementById('beginTestBtn');btn.textContent=sectionLabels[key]||'Start Test →';
+  $('#beginTestBtn').off().click(function(){$('#instruction-screen').addClass('hidden');$('#main-test').removeClass('hidden');qIndex=0;if(tests[currentTest].type==='plutchik'){rIndex=0;loadPluImage();}else loadQuestion();});
+}
+
+function startSectionCountdown(onDone){const overlay=document.getElementById('countdown-overlay');const numEl=document.getElementById('countdown-number');overlay.classList.remove('hidden');overlay.style.display='flex';let count=3;function tick(){numEl.style.transition='none';numEl.style.transform='scale(1.5)';numEl.style.opacity='0';setTimeout(()=>{numEl.textContent=count;numEl.style.transition='none';numEl.style.transform='scale(1.5)';numEl.style.opacity='1';setTimeout(()=>{numEl.style.transition='transform .55s cubic-bezier(.2,0,.2,1), opacity .55s';numEl.style.transform='scale(1)';},30);if(count>1){count--;setTimeout(tick,950);}else{setTimeout(()=>{overlay.style.display='none';overlay.classList.add('hidden');onDone();},900);}},120);}tick();}
+
+function loadQuestion(){
+  if(hadsInterval){clearInterval(hadsInterval);hadsInterval=null;}if(bfiInterval){clearInterval(bfiInterval);bfiInterval=null;}
+  questionStartTime=Date.now();$('#plutchik-area').addClass('hidden');$('#mcq-nav').show();
+  const t=tests[currentTest],q=t.questions[qIndex];let html=`<div class="question-card">`;html+=`<div class="question-text">${q.q}</div>`;
+  if(t.name==='BFI-2-S'){html+=`<div class="bfi-scale-row" id="bfi-live-scale">`;q.options.forEach((o,i)=>{html+=`<button class="bfi-scale-btn" data-i="${i}" onclick="selectBfi(this)">${o}</button>`;});html+=`</div><div class="bfi-scale-labels"><span>← Strongly Disagree</span><span>Strongly Agree →</span></div>`;html+=`<input type="hidden" id="bfi-selected-val" value="">`;}
+  else{q.options.forEach((o,i)=>{html+=`<div class="opt-row" onclick="document.getElementById('opt${i}').checked=true"><input type="radio" name="q" id="opt${i}" value="${i}"><label for="opt${i}">${o}</label></div>`;});}
+  html+='</div>';$('#test-area').html(html);$('#progLabel').text(`${t.name} — Question ${qIndex+1} of ${t.questions.length}`);updateProgress();
+}
+function selectBfi(btn){document.querySelectorAll('.bfi-scale-btn').forEach(b=>b.classList.remove('bfi-sel'));btn.classList.add('bfi-sel');document.getElementById('bfi-selected-val').value=btn.getAttribute('data-i');}
+function handleNext(){
+  if(tests[currentTest].type==='plutchik')return;
+  const t=tests[currentTest],q=t.questions[qIndex];let idx;
+  if(t.name==='BFI-2-S'){const hv=document.getElementById('bfi-selected-val');if(!hv||hv.value===''){alert('Please select an answer.');return;}idx=parseInt(hv.value);}
+  else{const sel=$("input[name='q']:checked");if(!sel.length){alert('Please select an answer.');return;}idx=parseInt(sel.val());}
+  const endTime=Date.now();
+  answers.push({test:t.name,question:q.q,answer:q.options[idx],score:q.scores[idx],trait:q.category||'',reversed:q.reversed||false,startTime:new Date(questionStartTime).toISOString(),endTime:new Date(endTime).toISOString(),time:((endTime-questionStartTime)/1000).toFixed(2),timestamp:new Date().toISOString()});
+  qIndex++;if(qIndex<t.questions.length)loadQuestion();else{currentTest++;loadTest();}
+}
+
+function loadPluImage(){
+  plutStartTime=Date.now();curEmo=null;russellClickedV=null;russellClickedA=null;
+  if(selEl){selEl.classList.remove('sel');selEl=null;}
+  document.getElementById('plutNextBtn').disabled=true;
+  document.getElementById('eName').textContent='—';document.getElementById('eName').style.color='#bbb';
+  document.getElementById('eSub').textContent='Select an emotion on the wheel';
+  document.getElementById('emoSectorBadgeWrap').innerHTML='';
+  document.getElementById('emoIntensityRow').style.display='none';document.getElementById('eQ').style.display='none';
+  document.getElementById('russellGridWrap').classList.add('locked');
+  const rc=document.getElementById('russellCanvas');if(rc)rc.classList.remove('clicked');
+  updateVAPanel(null,null);
+  document.getElementById('dot-wheel').classList.remove('done');document.getElementById('dot-russell').classList.remove('done');
+  $('#test-area').html('');$('#mcq-nav').hide();$('#plutchik-area').removeClass('hidden');
+  const total=plutchikImages.length;
+  const imgMeta=plutchikImages[rIndex];
+  $('#qLbl').text(`Image ${rIndex+1} of ${total}`);
+  document.getElementById('plutNextBtn').textContent=rIndex===total-1?'Finish ✓':'Next →';
+  document.getElementById('qImg').src=imgMeta.image;
+  $('#progLabel').text(`Emotion Task — Image ${rIndex+1} of ${total}`);
+  updateProgress();
+  setTimeout(()=>{initRussellDims();drawRussellGrid(null);initRussellClick();},80);
+}
+
+function plutNext(){
+  if(!curEmo){alert('Please select an emotion.');return;}
+  if(russellClickedV===null){alert('Please click the Valence-Arousal grid.');return;}
+  const endTime=Date.now();
+  const imgMeta=plutchikImages[rIndex];
+  answers.push({
+    test:'Plutchik',question:`Image ${rIndex+1}`,
+    napsPhoto:imgMeta.napsPhoto||'',napsId:imgMeta.napsId||'',napsEmotion:imgMeta.napsEmotion||'',
+    napsValence:imgMeta.napsValence||'',napsIntensity:imgMeta.napsIntensity||'',
+    napsPosition:rIndex+1,napsOrder:napsOrderNumber,
+    emotion:curEmo.name,russellValence:russellClickedV.toFixed(3),russellArousal:russellClickedA.toFixed(3),
+    startTime:new Date(plutStartTime).toISOString(),endTime:new Date(endTime).toISOString(),
+    time:((endTime-plutStartTime)/1000).toFixed(2),timestamp:new Date().toISOString()
+  });
+  rIndex++;if(rIndex<plutchikImages.length)loadPluImage();else{currentTest++;$('#plutchik-area').addClass('hidden');loadTest();}
+}
+
+function pickEmo(em,gEl){
+  if(selEl)selEl.classList.remove('sel');gEl.classList.add('sel');selEl=gEl;curEmo=em;
+  document.getElementById('dot-wheel').classList.add('done');document.getElementById('russellGridWrap').classList.remove('locked');
+  const d=EMO_DATA[em.name]||em;const intensity=d.i||em.intensity||1;const q=d.q||em.quadrant||'—';const cm=em.cm||'#888';
+  document.getElementById('eName').textContent=em.name;document.getElementById('eName').style.color=cm;
+  const sectorName=em.sector||em.name;const sectorObj=SECTORS.find(s=>s.name===sectorName)||null;const sectorColor=sectorObj?sectorObj.colors[1]:'#888';
+  document.getElementById('emoSectorBadgeWrap').innerHTML=`<div class="emo-sector-badge" style="background:${sectorColor}22;color:${sectorColor};border:1px solid ${sectorColor}44;">${sectorName}</div>`;
+  const intL=['Low','Medium','High'][intensity-1];document.getElementById('emoIntensityRow').style.display='flex';
+  const dots=document.getElementById('eDots');dots.style.color=cm;dots.innerHTML='';
+  for(let i=1;i<=3;i++){const d2=document.createElement('div');d2.className='dot'+(i<=intensity?' on':'');dots.appendChild(d2);}
+  document.getElementById('eIs').textContent=intL;document.getElementById('eSub').textContent=`${intL} intensity`;
+  const v=d.v||0,a=d.a||0,isPos=v>=0,isHi=a>=0;const qc=isPos&&isHi?['#fff8e0','#b07000']:isPos?['#edfaf5','#1a8c6c']:isHi?['#fdf5f3','#c0392b']:['#f9f2fd','#7c3d9e'];
+  const qEl=document.getElementById('eQ');qEl.textContent=q;qEl.style.background=qc[0];qEl.style.color=qc[1];qEl.style.display='inline-block';
+  drawRussellGrid(russellClickedV!==null?{v:russellClickedV,a:russellClickedA}:null);checkBothSelected();
+}
+
+function finishStudy(){
+  if(hadsInterval)clearInterval(hadsInterval);if(bfiInterval)clearInterval(bfiInterval);
+  completionID='P-'+Math.random().toString(36).substr(2,9).toUpperCase();
+  $('#main-test').addClass('hidden');$('#finish-screen').removeClass('hidden');
+  $('#completionID').text('Completion ID: '+completionID);
+  const duration=3000,end=Date.now()+duration;
+  (function frame(){
+    confetti({particleCount:6,angle:60,spread:55,origin:{x:0},colors:['#2a9d4e','#2350a8','#e8b800']});
+    confetti({particleCount:6,angle:120,spread:55,origin:{x:1},colors:['#2a9d4e','#2350a8','#e8b800']});
+    if(Date.now()<end)requestAnimationFrame(frame);
+  }());
+}
+
+function calculateSummaryScores(){
+  const scores={HADS:{Anxiety:{score:0,time:0,count:0},Depression:{score:0,time:0,count:0}},BFI:{}};
+  BFI_DOMAINS.forEach(d=>{scores.BFI[d]={score:0,time:0,count:0};});
+  answers.forEach(a=>{if(a.test==='HADS'){const sub=a.trait;if(scores.HADS[sub]){scores.HADS[sub].score+=Number(a.score);scores.HADS[sub].time+=Number(a.time);scores.HADS[sub].count++;}}if(a.test==='BFI-2-S'){const domain=a.trait;if(scores.BFI[domain]){scores.BFI[domain].score+=Number(a.score);scores.BFI[domain].time+=Number(a.time);scores.BFI[domain].count++;}}});
+  return scores;
+}
+
+$('#finishBtn').click(function(){
+  userFeedback=$('#userFeedback').val().trim();
+  if(!userFeedback){alert('Please enter your feedback before continuing.');return;}
+  const summary=calculateSummaryScores();const plut=answers.filter(a=>a.test==='Plutchik');
+  const hadsBody=document.getElementById('hads-sum-body');hadsBody.innerHTML='';
+  [['Anxiety',summary.HADS.Anxiety,7],['Depression',summary.HADS.Depression,7]].forEach(([trait,data,n])=>{const tr=document.createElement('tr');tr.innerHTML=`<td style="padding:6px 8px;border-bottom:1px solid var(--border);">${trait}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.score}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${(data.score/n).toFixed(2)}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.time.toFixed(2)}s</td>`;hadsBody.appendChild(tr);});
+  const bfiBody=document.getElementById('bfi-sum-body');bfiBody.innerHTML='';
+  BFI_DOMAINS.forEach(domain=>{const data=summary.BFI[domain];const dc=DOMAIN_COLOURS[domain]||{bg:'#f0f0f0',color:'#555'};const tr=document.createElement('tr');tr.innerHTML=`<td style="padding:6px 8px;border-bottom:1px solid var(--border);"><span style="background:${dc.bg};color:${dc.color};padding:2px 8px;border-radius:12px;font-size:.78rem;font-weight:600;">${domain}</span></td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.score}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.count>0?(data.score/data.count).toFixed(2):'—'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.time.toFixed(2)}s</td>`;bfiBody.appendChild(tr);});
+  const plutBody=document.getElementById('plut-sum-body');plutBody.innerHTML='';
+  if(plut.length){plut.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td style="padding:6px 8px;border-bottom:1px solid var(--border);">${r.question}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.8rem;">${r.napsPhoto||'—'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-weight:600;">${r.emotion}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${r.russellValence||'—'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${r.russellArousal||'—'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${r.time}s</td>`;plutBody.appendChild(tr);});}
+  else{plutBody.innerHTML='<tr><td colspan="6" style="padding:6px 8px;color:var(--muted);font-size:.82rem;">No Plutchik responses recorded.</td></tr>';}
+  const sectorColor=name=>{const s=SECTORS.find(s=>s.innerEmo===name||s.midEmo===name||s.outerEmo===name);return s?s.colors[1]:'#888';};
+  const emoCount={};plut.forEach(a=>{emoCount[a.emotion]=(emoCount[a.emotion]||0)+1;});
+  const sorted=Object.entries(emoCount).sort((x,y)=>y[1]-x[1]);
+  const freqEl=document.getElementById('emo-freq-list');
+  if(freqEl){freqEl.innerHTML='';sorted.forEach(([emo,count])=>{const pct=Math.round((count/Math.max(plut.length,1))*100);const col=sectorColor(emo);freqEl.innerHTML+=`<div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:.78rem;font-weight:600;min-width:90px;color:var(--text);">${emo}</span><div style="flex:1;background:var(--border);border-radius:4px;height:8px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${col};border-radius:4px;"></div></div><span style="font-size:.72rem;color:var(--muted);min-width:28px;text-align:right;">${count}×</span></div>`;});}
+  const avgV=plut.length?plut.reduce((s,a)=>s+parseFloat(a.russellValence),0)/plut.length:0;
+  const avgA=plut.length?plut.reduce((s,a)=>s+parseFloat(a.russellArousal),0)/plut.length:0;
+  const vaAvgEl=document.getElementById('va-avg-display');
+  if(vaAvgEl){const vStr=(avgV>=0?'+':'')+avgV.toFixed(3),aStr=(avgA>=0?'+':'')+avgA.toFixed(3);const vCol=avgV>=0?'#2a9d4e':'#d63838',aCol=avgA>=0?'#e0a040':'#7090e8';const ql=avgV>=0&&avgA>=0?'Happy / Excited':avgV<0&&avgA>=0?'Tense / Alarmed':avgV>=0&&avgA<0?'Calm / Relaxed':'Sad / Depressed';vaAvgEl.innerHTML=`<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;"><span style="font-size:.75rem;font-weight:700;color:var(--muted);min-width:55px;">Valence</span><span style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:${vCol};">${vStr}</span><span style="font-size:.72rem;color:var(--muted);">${avgV>=0?'→ Pleasant':'→ Unpleasant'}</span></div><div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;"><span style="font-size:.75rem;font-weight:700;color:var(--muted);min-width:55px;">Arousal</span><span style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:${aCol};">${aStr}</span><span style="font-size:.72rem;color:var(--muted);">${avgA>=0?'↑ High activation':'↓ Low activation'}</span></div><div style="padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:.78rem;font-weight:600;color:var(--text);">Overall zone: <span style="color:#2350a8;">${ql}</span></div>`;}
+  const qdEl=document.getElementById('quadrant-dist');
+  if(qdEl){const qd={'Happy / Excited':0,'Tense / Alarmed':0,'Calm / Relaxed':0,'Sad / Depressed':0};const qColors={'Happy / Excited':'#d4c040','Tense / Alarmed':'#e07070','Calm / Relaxed':'#60d890','Sad / Depressed':'#7090e8'};plut.forEach(a=>{const v=parseFloat(a.russellValence),ar=parseFloat(a.russellArousal);if(v>=0&&ar>=0)qd['Happy / Excited']++;else if(v<0&&ar>=0)qd['Tense / Alarmed']++;else if(v>=0&&ar<0)qd['Calm / Relaxed']++;else qd['Sad / Depressed']++;});qdEl.innerHTML='';Object.entries(qd).forEach(([q,c])=>{const pct=Math.round((c/Math.max(plut.length,1))*100);qdEl.innerHTML+=`<div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:.72rem;font-weight:600;min-width:100px;color:${qColors[q]};">${q}</span><div style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:7px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${qColors[q]};border-radius:4px;"></div></div><span style="font-size:.7rem;color:#6090b0;min-width:22px;text-align:right;">${c}</span></div>`;});}
+  setTimeout(()=>{
+    const sc=document.getElementById('summaryVACanvas');if(!sc||!plut.length)return;
+    const ctx=sc.getContext('2d');const W=340,H=300,PAD=42,GW=W-PAD*2,GH=H-PAD*2,CX=PAD+GW/2,CY=PAD+GH/2;
+    ctx.fillStyle='#0d1520';ctx.fillRect(0,0,W,H);
+    [[-1,1,'rgba(180,40,40,0.15)'],[1,1,'rgba(180,160,0,0.12)'],[-1,-1,'rgba(30,60,180,0.15)'],[1,-1,'rgba(30,140,70,0.12)']].forEach(([vx,ay,col])=>{ctx.fillStyle=col;ctx.fillRect(vx<0?PAD:CX,ay>0?PAD:CY,GW/2,GH/2);});
+    ctx.strokeStyle='rgba(50,80,110,0.35)';ctx.lineWidth=0.5;
+    for(let i=1;i<8;i++){const xi=PAD+(GW/8)*i,yi=PAD+(GH/8)*i;ctx.beginPath();ctx.moveTo(xi,PAD);ctx.lineTo(xi,PAD+GH);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD,yi);ctx.lineTo(PAD+GW,yi);ctx.stroke();}
+    ctx.strokeStyle='rgba(100,160,220,0.6)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(PAD,CY);ctx.lineTo(PAD+GW,CY);ctx.stroke();ctx.beginPath();ctx.moveTo(CX,PAD);ctx.lineTo(CX,PAD+GH);ctx.stroke();
+    ctx.font='bold 8px DM Sans,sans-serif';ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.55)';ctx.fillText('VALENCE',CX,PAD+GH+14);ctx.fillStyle='#e07070';ctx.textAlign='left';ctx.fillText('Unpleasant',PAD+2,CY-4);ctx.fillStyle='#60d890';ctx.textAlign='right';ctx.fillText('Pleasant',PAD+GW-2,CY-4);ctx.fillStyle='#e0a040';ctx.textAlign='center';ctx.fillText('High',CX+3,PAD+9);ctx.fillStyle='#6090c0';ctx.fillText('Low',CX+3,PAD+GH-3);
+    plut.forEach((a,i)=>{const px=CX+parseFloat(a.russellValence)*(GW/2),py=CY-parseFloat(a.russellArousal)*(GH/2);const col=sectorColor(a.emotion);ctx.save();ctx.shadowColor=col;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fillStyle='#0d1520';ctx.fill();ctx.font='bold 7px DM Mono,monospace';ctx.fillStyle='rgba(255,255,255,0.55)';ctx.textAlign='center';ctx.fillText(i+1,px,py-8);});
+    const ax=CX+avgV*(GW/2),ay2=CY-avgA*(GH/2);
+    ctx.save();ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(PAD,ay2);ctx.lineTo(PAD+GW,ay2);ctx.stroke();ctx.beginPath();ctx.moveTo(ax,PAD);ctx.lineTo(ax,PAD+GH);ctx.stroke();ctx.restore();ctx.setLineDash([]);
+    ctx.save();ctx.shadowColor='#fff';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(ax,ay2,7,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=2;ctx.stroke();ctx.restore();
+    ctx.font='bold 7.5px DM Mono,monospace';ctx.fillStyle='rgba(255,255,255,0.7)';ctx.textAlign='center';ctx.fillText('AVG',ax,ay2-11);
+  },200);
+  $('#finish-screen').addClass('hidden');$('#summary-screen').removeClass('hidden');
+});
+
+function downloadCSV(id){
+  const summary=calculateSummaryScores();
+  const hadsAnswers=answers.filter(a=>a.test==='HADS');
+  const bfiAnswers=answers.filter(a=>a.test==='BFI-2-S');
+  const plut=answers.filter(a=>a.test==='Plutchik');
+  let csv='';
+  csv+='PARTICIPANT INFO\n';
+  csv+='Completion ID,Gender,Age,Email,Nationality,Native Language,Consent,NAPS Order\n';
+  csv+=`"${id}","${participantInfo.g||''}","${participantInfo.a||''}","${participantInfo.e||''}","${participantInfo.n||''}","${participantInfo.l||''}","Agreed","Order ${napsOrderNumber}"\n\n`;
+  csv+='HADS RESPONSES\nTest,Subscale,Question,Answer,Score,StartTime,EndTime,Time(s),Timestamp\n';
+  hadsAnswers.forEach(a=>{csv+=`"HADS","${a.trait}","${a.question}","${a.answer}","${a.score}","${a.startTime}","${a.endTime}","${a.time}","${a.timestamp}"\n`;});
+  csv+='\nHADS SUMMARY\nSubscale,Total Score,Average (÷7),Total Time (s)\n';
+  csv+=`"Anxiety","${summary.HADS.Anxiety.score}","${(summary.HADS.Anxiety.score/7).toFixed(2)}","${summary.HADS.Anxiety.time.toFixed(2)}"\n`;
+  csv+=`"Depression","${summary.HADS.Depression.score}","${(summary.HADS.Depression.score/7).toFixed(2)}","${summary.HADS.Depression.time.toFixed(2)}"\n\n`;
+  csv+='BFI-2-S RESPONSES\nTest,Domain,Question,Reversed,Answer,Score,StartTime,EndTime,Time(s),Timestamp\n';
+  bfiAnswers.forEach(a=>{csv+=`"BFI-2-S","${a.trait}","${a.question}","${a.reversed?'Yes':'No'}","${a.answer}","${a.score}","${a.startTime}","${a.endTime}","${a.time}","${a.timestamp}"\n`;});
+  csv+='\nBFI-2-S SUMMARY\nDomain,Total Score,Average (÷6 items),Total Time (s),Items Answered\n';
+  BFI_DOMAINS.forEach(domain=>{const d=summary.BFI[domain];csv+=`"${domain}","${d.score}","${d.count>0?(d.score/d.count).toFixed(2):'—'}","${d.time.toFixed(2)}","${d.count}"\n`;});
+  csv+='\nNAPS EMOTION RESPONSES\n';
+  csv+='Test,Position,NAPS_Photo,NAPS_ID,NAPS_Emotion_Category,NAPS_Valence,NAPS_Intensity,NAPS_Order,';
+  csv+='Participant_Emotion,Russell_Valence,Russell_Arousal,StartTime,EndTime,Time(s),Timestamp\n';
+  plut.forEach(a=>{csv+=`"Plutchik","${a.napsPosition}","${a.napsPhoto}","${a.napsId}","${a.napsEmotion}","${a.napsValence}","${a.napsIntensity}","Order ${a.napsOrder}","${a.emotion}","${a.russellValence||''}","${a.russellArousal||''}","${a.startTime}","${a.endTime}","${a.time}","${a.timestamp}"\n`;});
+  csv+='\n==========\nPARTICIPANT FEEDBACK\n==========\n"'+userFeedback+'"\n';
+  const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));link.download=`results_${id}.csv`;link.click();
+}
+
+const plutObserver=new MutationObserver(function(mutations){mutations.forEach(function(m){if(!m.target.classList.contains('hidden')){setTimeout(function(){initRussellDims();drawRussellGrid(null);initRussellClick();},80);}});});
+const plutArea=document.getElementById('plutchik-area');
+if(plutArea)plutObserver.observe(plutArea,{attributes:true,attributeFilter:['class']});
+</script>
+</body>
+</html>

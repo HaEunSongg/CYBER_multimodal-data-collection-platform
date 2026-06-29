@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psychometric Test</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;}
+:root{
+  --bg:#f9f8f5;--surface:#fff;--border:#e0dbd2;
+  --text:#1a1714;--muted:#7a7469;--accent:#2c2c2c;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;--r:12px;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:20px;}
+.hidden{display:none!important;}
+#intro-screen{max-width:780px;margin:0 auto;}
+.intro-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;}
+.intro-title{font-size:1.75rem;font-weight:600;line-height:1.25;letter-spacing:-.025em;margin-bottom:.4rem;}
+.intro-subtitle{font-size:.93rem;color:var(--muted);line-height:1.6;margin-bottom:1.5rem;}
+.video-shell{background:#1a1a24;border-radius:14px;border:1px solid #2e2e3a;overflow:hidden;margin-bottom:1.5rem;position:relative;}
+.video-shell video{width:100%;display:block;max-height:420px;object-fit:cover;}
+.video-placeholder{width:100%;aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;background:linear-gradient(135deg,#1a1a28 0%,#12121c 100%);}
+.video-placeholder-icon{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;}
+.video-placeholder-icon svg{width:24px;height:24px;fill:rgba(255,255,255,.4);}
+.video-placeholder p{font-size:.8rem;color:rgba(255,255,255,.3);letter-spacing:.04em;margin:0;}
+.video-label{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.1);border-radius:6px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55);padding:4px 9px;}
+.intro-meta-row{display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.intro-meta-chip{display:flex;align-items:center;gap:.45rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.45rem .8rem;font-size:.8rem;font-weight:500;color:var(--muted);}
+.intro-meta-chip strong{color:var(--text);font-weight:600;}
+.intro-chip-icon{font-size:.95rem;line-height:1;}
+.intro-section-pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.section-pill{display:flex;align-items:center;gap:.4rem;padding:.35rem .8rem;border-radius:20px;font-size:.75rem;font-weight:600;border:1px solid transparent;}
+.pill-hads{background:#fef9ec;color:#7a5200;border-color:#f0d888;}
+.pill-bfi{background:#edf4ff;color:#204080;border-color:#b0ccf0;}
+.pill-emo{background:#f0fdf4;color:#1a6040;border-color:#a0d8b8;}
+.pill-num{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+.pill-hads .pill-num{background:#f0d888;color:#7a5200;}
+.pill-bfi .pill-num{background:#b0ccf0;color:#204080;}
+.pill-emo .pill-num{background:#a0d8b8;color:#1a6040;}
+.btn-start-tutorial{display:inline-flex;align-items:center;gap:.55rem;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:var(--font);font-size:.95rem;font-weight:600;padding:.75rem 1.8rem;cursor:pointer;transition:background .15s,transform .1s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+.btn-start-tutorial:hover{background:#444;transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.18);}
+.btn-start-tutorial:active{transform:translateY(0);}
+.btn-start-tutorial svg{width:16px;height:16px;flex-shrink:0;}
+.btn-skip-link{font-size:.8rem;color:var(--muted);cursor:pointer;text-decoration:underline;text-decoration-color:rgba(122,116,105,.35);text-underline-offset:3px;background:none;border:none;font-family:var(--font);padding:0;transition:color .15s;}
+.btn-skip-link:hover{color:var(--text);}
+#tutorial-screen{max-width:1400px;margin:0 auto;}
+.tut-header{margin-bottom:1.5rem;}
+.tut-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;}
+.tut-title{font-size:1.1rem;font-weight:600;letter-spacing:-.01em;margin-bottom:.2rem;}
+.tut-desc{font-size:.85rem;color:var(--muted);line-height:1.55;}
+.tut-stepper{display:flex;align-items:center;gap:.4rem;margin-bottom:1.5rem;}
+.tut-step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .25s,transform .25s;}
+.tut-step-dot.active{background:var(--accent);transform:scale(1.35);}
+.tut-step-dot.done{background:#2a9d4e;}
+.tut-step-label{font-size:.75rem;font-weight:600;color:var(--muted);margin-left:.4rem;letter-spacing:.03em;}
+.tut-feedback{padding:.65rem 1rem;border-radius:9px;font-size:.85rem;font-weight:500;margin-top:1rem;display:flex;align-items:flex-start;gap:.6rem;transition:opacity .3s;}
+.tut-feedback.correct{background:#edfaf3;border:1px solid #a0d8b8;color:#1a6040;}
+.tut-feedback.neutral{background:#f0f4ff;border:1px solid #b0ccf0;color:#204080;}
+.tut-feedback svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;}
+.tut-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;flex-wrap:wrap;gap:.75rem;}
+.btn-tut-next{display:inline-flex;align-items:center;gap:.45rem;background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:var(--font);font-size:.88rem;font-weight:600;padding:.6rem 1.4rem;cursor:pointer;transition:background .15s,opacity .15s;}
+.btn-tut-next:hover:not(:disabled){background:#444;}
+.btn-tut-next:disabled{opacity:.4;cursor:not-allowed;}
+.tut-hint{font-size:.78rem;color:var(--muted);font-style:italic;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;}
+.question-text{font-size:1rem;font-weight:600;margin-bottom:1.25rem;}
+.opt-row{display:flex;align-items:center;gap:10px;padding:.55rem .7rem;border-radius:7px;border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s;margin-bottom:.4rem;}
+.opt-row:hover{background:var(--bg);border-color:var(--border);}
+.opt-row.selected{background:#edfaf3;border-color:#2a9d4e;}
+.opt-row input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+.opt-row label{font-size:.9rem;cursor:pointer;}
+.bfi-scale-row{display:flex;gap:.4rem;margin-top:.75rem;}
+.bfi-scale-btn{flex:1;padding:.55rem .3rem;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);font-family:var(--font);font-size:.75rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center;line-height:1.3;}
+.bfi-scale-btn:hover{border-color:#aaa;background:#f0ede8;color:var(--text);}
+.bfi-scale-btn.bfi-sel{background:var(--accent);color:#fff;border-color:var(--accent);}
+.bfi-scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:.3rem;padding:0 2px;}
+#tut-question-area .plut-row{justify-content:flex-start;overflow-x:auto;padding-bottom:.5rem;}
+canvas#tutRussellCanvas{display:block;border-radius:8px;cursor:crosshair;transition:box-shadow .2s;}
+canvas#tutRussellCanvas:hover{box-shadow:0 0 0 2px rgba(80,160,255,0.4);}
+canvas#tutRussellCanvas.clicked{box-shadow:0 0 0 2px rgba(80,220,140,0.6);}
+#tutRussellGridWrap{background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem;width:100%;position:relative;transition:opacity .3s;}
+#tutRussellGridWrap.locked{opacity:.45;pointer-events:none;}
+#tutRussellGridWrap.locked::after{content:'① Select emotion on wheel first';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:#6090b0;letter-spacing:.04em;text-align:center;background:rgba(15,25,35,0.55);border-radius:var(--r);pointer-events:none;}
+.screen-wrap{max-width:700px;margin:0 auto;}
+.screen-wrap h2{font-size:1.25rem;font-weight:600;margin-bottom:1.25rem;letter-spacing:-.01em;}
+.screen-wrap p,.screen-wrap li{font-size:.93rem;line-height:1.65;}
+.field-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.3rem;}
+.field-ctrl{font-family:var(--font);font-size:.9rem;padding:.5rem .75rem;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);width:100%;outline:none;margin-bottom:1rem;}
+.field-ctrl:focus{border-color:#aaa;}
+.btn-primary-custom{background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.9rem;font-weight:600;padding:.65rem 1.6rem;cursor:pointer;transition:background .15s;}
+.btn-primary-custom:hover{background:#444;}
+.btn-danger-custom{background:#d63838;color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.9rem;font-weight:600;padding:.65rem 1.6rem;cursor:pointer;}
+.btn-agree{background:#2a9d4e;color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.9rem;font-weight:600;padding:.65rem 1.6rem;cursor:pointer;transition:background .15s,opacity .15s;}
+.btn-agree:hover:not(:disabled){background:#228a42;}
+.btn-agree:disabled{opacity:.45;cursor:not-allowed;}
+.consent-check-row{display:flex;align-items:center;gap:.75rem;padding:.55rem .75rem;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;user-select:none;transition:border-color .15s,background .15s;}
+.consent-check-row:hover{border-color:#aaa;background:#f3f1ed;}
+.consent-check-row.checked{border-color:#2a9d4e;background:#edfaf3;}
+.consent-check-row span{font-size:.88rem;color:var(--text);line-height:1.4;}
+.cbox{width:20px;height:20px;border-radius:5px;border:1.5px solid #ccc;background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;}
+.consent-check-row.checked .cbox{border-color:#2a9d4e;background:#2a9d4e;}
+.cbox-tick{width:11px;height:11px;opacity:0;transform:scale(.5);transition:opacity .15s,transform .15s;}
+.consent-check-row.checked .cbox-tick{opacity:1;transform:scale(1);}
+#main-test{max-width:1400px;margin:0 auto;}
+.prog-wrap{margin-bottom:1rem;}
+.prog-top{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;letter-spacing:.04em;}
+.prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .35s;}
+.instruction{font-size:.82rem;font-weight:600;color:var(--muted);border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;background:var(--bg);margin-bottom:1rem;}
+.next-btn{flex:1;padding:.65rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.88rem;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;max-width:200px;}
+.next-btn:hover{background:#444;}.next-btn:active{transform:scale(.98);}
+.next-btn:disabled{background:#bbb;cursor:not-allowed;}
+.act-row{display:flex;gap:.65rem;width:100%;}
+#plutchik-area{display:flex;flex-direction:column;gap:.75rem;}
+.plut-row{display:flex;flex-direction:row;gap:1rem;align-items:flex-start;justify-content:center;flex-wrap:nowrap;}
+.img-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;display:flex;flex-direction:column;align-items:center;gap:.6rem;flex-shrink:0;width:280px;}
+.img-qlabel{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.img-display{width:260px;height:300px;object-fit:contain;border-radius:9px;border:1px solid var(--border);background:var(--bg);}
+.wheel-wrap{position:relative;flex-shrink:0;}
+svg#wheel{display:block;cursor:pointer;}
+.seg{transition:filter .15s;cursor:pointer;}
+.seg:hover{filter:brightness(1.08);}
+.seg.sel{filter:brightness(1.18) drop-shadow(0 0 8px rgba(0,0,0,.3));}
+.plut-sidebar{display:flex;flex-direction:column;gap:.8rem;width:340px;flex-shrink:0;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;}
+.emo-name{font-size:1.5rem;font-weight:600;line-height:1;margin-bottom:.15rem;transition:color .2s;}
+.emo-sub{font-size:.7rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;}
+.intensity-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;}
+.intensity-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.idots{display:flex;align-items:center;gap:4px;}
+.dot{width:10px;height:10px;border-radius:50%;background:#ddd;}
+.dot.on{background:currentColor;}
+.intensity-text{font-size:.78rem;font-weight:600;color:var(--muted);}
+.step-checklist{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.4rem;}
+.step-check-item{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--muted);}
+.step-check-dot{width:16px;height:16px;border-radius:50%;border:1.5px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.step-check-dot.done{border-color:#2a9d4e;background:#2a9d4e;}
+.step-check-dot svg{display:none;width:9px;height:9px;}
+.step-check-dot.done svg{display:block;}
+.va-display-panel{background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem 1rem;display:flex;align-items:center;gap:1rem;transition:opacity .3s;}
+.va-display-panel.empty{opacity:.4;}
+.va-axis-block{flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem;}
+.va-axis-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6090b0;}
+.va-axis-value{font-family:var(--mono);font-size:1.35rem;font-weight:600;color:#ccc;transition:color .3s,transform .2s;line-height:1;}
+.va-axis-value.positive{color:#4ae0a0;}
+.va-axis-value.negative{color:#e07070;}
+.va-axis-value.popped{transform:scale(1.18);}
+.va-divider{width:1px;height:40px;background:#2a3a50;flex-shrink:0;}
+.va-quadrant-label{font-size:.7rem;font-weight:600;color:#6090b0;text-align:center;line-height:1.3;padding:.25rem .5rem;background:rgba(255,255,255,.04);border-radius:6px;border:1px solid #2a3a50;min-width:80px;transition:color .3s,background .3s;}
+.emo-sector-badge{display:inline-flex;align-items:center;gap:6px;padding:.35rem .75rem;border-radius:20px;font-size:.78rem;font-weight:600;margin-bottom:.5rem;}
+.qbadge{display:inline-block;margin-top:.4rem;font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;}
+.russell-grid-wrap-main{background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem;position:relative;transition:opacity .3s;}
+.russell-grid-wrap-main.locked{opacity:.45;pointer-events:none;}
+.russell-grid-wrap-main.locked::after{content:'① Select emotion on wheel first';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:#6090b0;letter-spacing:.04em;text-align:center;background:rgba(15,25,35,0.55);border-radius:var(--r);pointer-events:none;}
+.russell-grid-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6090b0;margin-bottom:.5rem;text-align:center;}
+.russell-canvas-wrap{position:relative;display:flex;justify-content:center;}
+canvas#russellCanvas{display:block;border-radius:8px;cursor:crosshair;transition:box-shadow .2s;}
+canvas#russellCanvas:hover{box-shadow:0 0 0 2px rgba(80,160,255,0.4);}
+canvas#russellCanvas.clicked{box-shadow:0 0 0 2px rgba(80,220,140,0.6);}
+.domain-Extraversion{background:#e8f0fd;color:#2350a8;}
+.domain-Agreeableness{background:#e8faf0;color:#1a7a45;}
+.domain-Conscientiousness{background:#fff5e0;color:#8a5500;}
+.domain-NegativeEmotionality{background:#fde8e8;color:#a82323;}
+.domain-OpenMindedness{background:#f3e8fd;color:#6b2398;}
+.domain-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:.75rem;}
+.model-title-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.1rem;}
+.model-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.28rem .75rem;border-radius:20px;font-size:.78rem;font-weight:600;letter-spacing:.01em;white-space:nowrap;}
+.model-badge-russell{background:#e8f0fd;color:#2350a8;border:1px solid #b8cef5;}
+.model-badge-plutchik{background:#fdf0e8;color:#8a3800;border:1px solid #f5c8a0;}
+.model-badge-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.model-badge-dot-russell{background:#2350a8;}
+.model-badge-dot-plutchik{background:#e07020;}
+.model-divider{font-size:.8rem;color:var(--muted);font-weight:500;}
+.instr-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;}
+@media(max-width:600px){.instr-layout{grid-template-columns:1fr;}.tut-plut-wrap{flex-direction:column;}.plut-row{flex-direction:column;}}
+.instr-meta{display:flex;flex-direction:column;gap:1rem;}
+.q-count-badge{display:flex;align-items:center;gap:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:.65rem .9rem;}
+.q-count-icon{font-size:1.3rem;line-height:1;}
+.q-count-text{display:flex;flex-direction:column;}
+.q-count-num{font-family:var(--mono);font-size:1.4rem;font-weight:600;line-height:1;color:var(--accent);}
+.q-count-lbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.time-badge{display:flex;align-items:center;gap:.6rem;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:.65rem .9rem;}
+.instr-steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;}
+.instr-steps li{display:flex;align-items:flex-start;gap:.55rem;font-size:.85rem;line-height:1.5;}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.instr-divider{border:none;border-top:1px solid var(--border);margin:1.25rem 0;}
+.instr-visual{border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#f4f2ee;display:flex;flex-direction:column;align-items:center;gap:0;}
+.instr-visual img,.instr-visual video{width:100%;height:auto;display:block;border-radius:0;}
+.instr-visual-caption{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:.45rem .75rem;text-align:center;background:#f4f2ee;width:100%;}
+#instruction-screen .panel{padding:1.75rem;}
+.hads-demo{width:100%;padding:.85rem;display:flex;flex-direction:column;gap:.5rem;}
+.demo-q{font-size:.72rem;font-weight:600;color:#444;margin-bottom:.3rem;}
+.demo-opt{display:flex;align-items:center;gap:.45rem;padding:.3rem .4rem;border-radius:6px;font-size:.7rem;color:#555;border:1px solid transparent;transition:all .3s;}
+.demo-opt.demo-selected{background:#e9f7ee;border-color:#2a9d4e;color:#1a6b38;}
+.demo-opt .demo-radio{width:12px;height:12px;border-radius:50%;border:1.5px solid #bbb;flex-shrink:0;position:relative;transition:all .3s;}
+.demo-opt.demo-selected .demo-radio{border-color:#2a9d4e;background:#2a9d4e;}
+.demo-opt.demo-selected .demo-radio::after{content:'';position:absolute;width:4px;height:4px;background:#fff;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
+.bfi-demo{width:100%;padding:.85rem;display:flex;flex-direction:column;gap:.5rem;}
+.scale-row{display:flex;gap:.3rem;justify-content:space-between;margin-top:.3rem;}
+.scale-btn{flex:1;height:28px;border-radius:5px;border:1px solid var(--border);background:var(--bg);font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;}
+.scale-btn.scale-sel{background:#2c2c2c;color:#fff;border-color:#2c2c2c;}
+.plut-instr-demo{background:#1a1a2e;border-radius:10px;overflow:hidden;border:1px solid #333;display:flex;flex-direction:column;}
+.plut-instr-demo-body{padding:.9rem;display:flex;gap:.75rem;align-items:flex-start;}
+.plut-instr-img-frame{width:90px;height:110px;border-radius:8px;border:1px solid #333;background:#12122a;flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;}
+.plut-instr-canvas-wrap{position:relative;flex-shrink:0;}
+.plut-instr-cursor{position:absolute;width:10px;height:10px;border-radius:50%;background:white;border:2px solid #ccc;pointer-events:none;transition:left .65s cubic-bezier(.4,0,.2,1),top .65s cubic-bezier(.4,0,.2,1);opacity:0;z-index:10;}
+.plut-instr-ring{position:absolute;width:20px;height:20px;border-radius:50%;border:2px solid white;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(1);z-index:10;transition:opacity .4s,transform .4s;}
+.plut-instr-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:.5rem;}
+.plut-instr-step-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:#aaa;background:#252540;border:1px solid #333;border-radius:20px;padding:3px 10px;width:fit-content;letter-spacing:.04em;}
+.plut-instr-step-dot{width:6px;height:6px;border-radius:50%;background:#555;transition:background .3s;}
+.plut-instr-step-dot.on{background:#2a9d4e;}
+.plut-instr-emo-card{background:#12122a;border:1px solid #2a2a50;border-radius:8px;padding:.55rem .7rem;min-height:62px;}
+.plut-instr-emo-name{font-size:14px;font-weight:600;color:#888;transition:color .4s;line-height:1.2;}
+.plut-instr-emo-meta{font-size:9px;color:#555;margin-top:2px;transition:color .3s;}
+.plut-instr-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+.plut-instr-tag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;}
+.plut-instr-tag.pos{background:#0d2b18;color:#4ac870;}
+.plut-instr-tag.neg{background:#2b0d0d;color:#e06060;}
+.plut-instr-tag.hi{background:#2b1e00;color:#e0a030;}
+.plut-instr-tag.lo{background:#0d1a2b;color:#5090d8;}
+.plut-instr-img-label{font-size:9px;color:#666;text-align:center;margin-top:3px;transition:color .3s;}
+.plut-instr-caption{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#555;padding:.4rem .75rem;background:#111;text-align:center;border-top:1px solid #222;}
+.ax{position:absolute;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;pointer-events:none;}
+.ax-top{top:2px;left:50%;transform:translateX(-50%);color:#c00;}
+.ax-bot{bottom:2px;left:50%;transform:translateX(-50%);color:#00c;}
+.ax-left{left:0;top:50%;transform:translateY(-50%) rotate(-90deg);color:#60a;font-size:9px;}
+.ax-right{right:0;top:50%;transform:translateY(-50%) rotate(90deg);color:#080;font-size:9px;}
+
+/* ── FINISH SCREEN ── */
+.finish-hero{text-align:center;padding:2rem 1.5rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
+.finish-icon{font-size:3rem;margin-bottom:.75rem;animation:bounceIn .6s ease;}
+@keyframes bounceIn{0%{transform:scale(0.3);opacity:0;}60%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+.finish-title{font-size:1.4rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.5rem;}
+.finish-msg{font-size:.95rem;color:var(--muted);line-height:1.7;max-width:480px;margin:0 auto;}
+
+/* ── SUMMARY EMOTION SECTION ── */
+.emo-summary-grid{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;}
+.emo-summary-card{flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.emo-summary-card-dark{flex:1;min-width:180px;background:#0f1923;border:1px solid #2a3a50;border-radius:10px;padding:1rem;}
+.emo-summary-card-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.65rem;}
+.emo-summary-card-title-dark{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6090b0;margin-bottom:.65rem;}
+</style>
+</head>
+<body>
+
+<!-- ===== INTRO SCREEN ===== -->
+<div id="intro-screen">
+  <div class="panel" style="padding:2rem;">
+    <div class="intro-eyebrow">Research Study</div>
+    <h1 class="intro-title">Multimodal Behavioral Observation<br>During Psychometric Testing</h1>
+    <p class="intro-subtitle">Before the study begins, watch the short video below to understand what to expect — then try 3 interactive practice questions so you know exactly what to do.</p>
+    <div class="video-shell">
+      <div class="video-label">Study Overview</div>
+      <div class="video-placeholder">
+        <div class="video-placeholder-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        <p>Your study overview video will appear here</p>
+      </div>
+    </div>
+    <div class="intro-meta-row">
+      <div class="intro-meta-chip"><span class="intro-chip-icon">⏱</span><span><strong>~20-25 min</strong> total</span></div>
+      <div class="intro-meta-chip"><span class="intro-chip-icon">📋</span><span><strong>3 sections</strong> to complete</span></div>
+      <div class="intro-meta-chip"><span class="intro-chip-icon">🖼️</span><span><strong>20 images</strong> to rate</span></div>
+      <div class="intro-meta-chip"><span class="intro-chip-icon">🔒</span><span><strong>Pseudonymized</strong> &amp; secure</span></div>
+    </div>
+    <p style="font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:.6rem;letter-spacing:.02em;">WHAT YOU'LL COMPLETE</p>
+    <div class="intro-section-pills" style="margin-bottom:1.75rem;">
+      <div class="section-pill pill-hads"><div class="pill-num">14</div> HADS - Anxiety &amp; Depression Scale</div>
+      <div class="section-pill pill-bfi"><div class="pill-num">30</div> BFI-2-S - Big Five Personality</div>
+      <div class="section-pill pill-emo"><div class="pill-num">20</div> Emotion Mapping - Wheel + Grid</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+      <button class="btn-start-tutorial" onclick="startTutorial()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Practice Questions
+      </button>
+      <button class="btn-skip-link" onclick="skipToConsent()">Skip tutorial → go straight to consent</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.75rem;font-style:italic;">The practice session has 3 example questions - one from each section. Your practice answers are not recorded.</p>
+  </div>
+</div>
+
+<!-- ===== TUTORIAL SCREEN ===== -->
+<div id="tutorial-screen" class="hidden">
+  <div class="tut-header">
+    <div class="tut-eyebrow">Practice Session - Not recorded</div>
+    <h2 class="tut-title" id="tutTitle">Practice Question 1 of 3 - HADS</h2>
+    <p class="tut-desc" id="tutDesc">This is what an Anxiety &amp; Depression question looks like. Select the option that best fits how you felt this past week, then click Next.</p>
+  </div>
+  <div class="tut-stepper">
+    <div class="tut-step-dot active" id="sdot0"></div>
+    <div class="tut-step-dot" id="sdot1"></div>
+    <div class="tut-step-dot" id="sdot2"></div>
+    <span class="tut-step-label" id="stepLabel">Step 1 of 3</span>
+  </div>
+  <div id="tut-question-area"></div>
+  <div id="tut-feedback" class="tut-feedback neutral hidden">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="tut-feedback-text">Good job!</span>
+  </div>
+  <div class="tut-nav">
+    <span class="tut-hint" id="tutHint">Select an answer to continue</span>
+    <button class="btn-tut-next" id="tutNextBtn" disabled onclick="tutNext()">Next practice question →</button>
+  </div>
+</div>
+
+<!-- ===== TUTORIAL COMPLETE ===== -->
+<div id="tutorial-done-screen" class="hidden screen-wrap">
+  <h2>Practice Complete!</h2>
+  <div class="panel">
+    <p style="font-size:.95rem;margin-bottom:.5rem;">You've tried all three question types. You're ready for the real study.</p>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1.5rem;">Next, you'll read the consent form and, if you agree, begin the actual test. Your practice answers were <strong>not</strong> saved.</p>
+    <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;">
+      <div style="display:flex;align-items:center;gap:.65rem;padding:.5rem .8rem;background:#edfaf3;border:1px solid #a0d8b8;border-radius:8px;"><span style="color:#2a9d4e;font-size:1rem;">✓</span><span style="font-size:.85rem;color:#1a6040;font-weight:500;">HADS — You know how to select a radio option</span></div>
+      <div style="display:flex;align-items:center;gap:.65rem;padding:.5rem .8rem;background:#edf4ff;border:1px solid #b0ccf0;border-radius:8px;"><span style="color:#2350a8;font-size:1rem;">✓</span><span style="font-size:.85rem;color:#204080;font-weight:500;">BFI-2-S — You know how to use the 5-point agreement scale</span></div>
+      <div style="display:flex;align-items:center;gap:.65rem;padding:.5rem .8rem;background:#f0fdf4;border:1px solid #a0d8b8;border-radius:8px;"><span style="color:#1a6040;font-size:1rem;">✓</span><span style="font-size:.85rem;color:#1a6040;font-weight:500;">Emotion Task — You know how to use the wheel + V/A grid</span></div>
+    </div>
+    <button class="btn-primary-custom" onclick="goToConsent()">Continue to Consent Form →</button>
+  </div>
+</div>
+
+<!-- ===== CONSENT ===== -->
+<div id="consent-screen" class="screen-wrap hidden" style="max-width:760px;">
+  <h2>Participant Information &amp; Consent Form</h2>
+  <div class="panel">
+    <p style="margin-bottom:.25rem;"><strong>Study Title:</strong> Multimodal Behavioral Observation During Psychometric Testing Using IoT and AI</p>
+    <hr style="border:none;border-top:1px solid var(--border);margin:1.1rem 0;">
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">About this study</p>
+    <p style="font-size:.87rem;color:var(--muted);line-height:1.6;margin-bottom:.85rem;">You are invited to participate in a research study, examining personality, emotions, and behavioral responses using questionnaires and interactive tasks.</p>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.5rem;">What will you do?</p>
+    <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem;">
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">1.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Carefully read the information sheet, consent form, and debrief</span></div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">2.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Connect to the Heart Rate sensor; use mouse, keyboard, and camera for dynamic detection</span></div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">3.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">Complete short questionnaires (HADS, BFI-2-S)</span></div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;"><span style="font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;line-height:1.5;">4.</span><span style="font-size:.85rem;color:var(--muted);line-height:1.5;">View emotional images and report your feelings using an interactive emotion map and Valence-Arousal Map</span></div>
+    </div>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:.9rem;">⏱ Duration: ~20-25 minutes</p>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">What data is collected?</p>
+    <ul style="font-size:.87rem;color:var(--muted);line-height:1.75;padding-left:1.25rem;margin-bottom:.85rem;">
+      <li>Questionnaire responses</li><li>Emotional ratings</li><li>Reaction times</li>
+      <li>Mouse and keyboard interaction patterns</li><li>Camera-based observations</li><li>Physiological data (Heart Rate Frequency)</li>
+    </ul>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">Risks</p>
+    <p style="font-size:.87rem;color:var(--muted);line-height:1.6;margin-bottom:.85rem;">Some images may be emotionally uncomfortable. You may stop the study at any time by closing your browser.</p>
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.35rem;">Your rights</p>
+    <ul style="font-size:.87rem;color:var(--muted);line-height:1.75;padding-left:1.25rem;margin-bottom:.85rem;">
+      <li>Participation is voluntary</li><li>You may withdraw at any time without penalty</li>
+      <li>Your data will be pseudonymized and securely stored</li><li>You have the right to request the deletion of your data at any time.</li><li>No personally identifiable information will be published and collected data will only used for academic research purpose.</li>
+    </ul>
+    <hr style="border:none;border-top:1px solid var(--border);margin:1.1rem 0 1rem;">
+    <p style="font-size:.88rem;font-weight:600;margin-bottom:.4rem;">Consent</p>
+    <p style="font-size:.87rem;color:var(--muted);margin-bottom:.85rem;">By clicking <strong>"I Agree"</strong>, you confirm that:</p>
+    <div id="consent-checks" style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem;">
+      <label class="consent-check-row" onclick="toggleCheck(0)"><div class="cbox" id="cbox0"><svg class="cbox-tick" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 5,9.5 10,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>You are within the 18-40 age range and have no physical or psychological conditions that could interfere with the study tasks.</span></label>
+      <label class="consent-check-row" onclick="toggleCheck(1)"><div class="cbox" id="cbox1"><svg class="cbox-tick" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 5,9.5 10,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>You have read and understood the information letter, debriefing material, and consent form terms</span></label>
+      <label class="consent-check-row" onclick="toggleCheck(2)"><div class="cbox" id="cbox2"><svg class="cbox-tick" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 5,9.5 10,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>You voluntarily agree to participate</span></label>
+    </div>
+    <div class="d-flex gap-3 align-items-center flex-wrap">
+      <button class="btn-agree" id="agreeBtn" disabled>I Agree and wish to participate</button>
+      <button class="btn-danger-custom" id="declineBtn">I Do Not Agree</button>
+    </div>
+    <p id="consent-hint" style="font-size:.78rem;color:#c06000;margin-top:.55rem;display:none;">Please tick all three boxes above to proceed.</p>
+  </div>
+</div>
+
+<!-- PARTICIPANT INFO -->
+<div id="participant-screen" class="screen-wrap hidden">
+  <h2>Participant Information</h2>
+  <div class="panel">
+    <label class="field-label">Gender</label>
+    <select id="p_gender" class="field-ctrl"><option value="">Select</option><option>Male</option><option>Female</option><option>Prefer not to say</option></select>
+    <label class="field-label">Age Range</label>
+    <select id="p_age" class="field-ctrl"><option value="">Select</option><option>18-21</option><option>22-25</option><option>26-30</option><option>31-35</option><option>36-40</option></select>
+    <label class="field-label">Email</label>
+    <input type="email" id="p_email" class="field-ctrl" placeholder="e.g. name@email.com">
+    <label class="field-label">Nationality</label>
+    <input type="text" id="p_nationality" class="field-ctrl" placeholder="e.g. France">
+    <label class="field-label">Native Language</label>
+    <select id="p_language" class="field-ctrl"><option value="">Select</option><option>English</option><option>French</option><option>Others</option></select>
+    <div class="mt-3"><button class="btn-primary-custom" id="startStudyBtn">Continue →</button></div>
+  </div>
+</div>
+
+<!-- READY SCREEN -->
+<div id="ready-screen" class="screen-wrap hidden">
+  <div class="panel" style="text-align:center;padding:3rem 2rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎯</div>
+    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:.5rem;letter-spacing:-.02em;">Are you ready to start?</h2>
+    <p style="color:var(--muted);font-size:.93rem;line-height:1.6;margin-bottom:.5rem;">You are about to begin the psychometric test.</p>
+    <p style="color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:2rem;">Make sure you are in a quiet environment and have about <strong>20-25 minutes</strong> available.</p>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;">
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-bottom:.5rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.82rem;color:var(--muted);"><span>📝</span><span><strong>HADS</strong> - 14 questions</span></div>
+        <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.82rem;color:var(--muted);"><span>📋</span><span><strong>BFI-2-S</strong> - 30 questions</span></div>
+        <div style="display:flex;align-items:center;gap:.5rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;font-size:.82rem;color:var(--muted);"><span>🖼️</span><span><strong>Emotions</strong> - 20 images</span></div>
+      </div>
+      <button class="btn-start-tutorial" id="readyStartBtn" onclick="startCountdown()" style="font-size:1.05rem;padding:.85rem 2.5rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Start the Test
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN OVERLAY -->
+<div id="countdown-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(26,23,20,0.92);backdrop-filter:blur(6px);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
+  <div style="font-size:.85rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.45);">Starting in</div>
+  <div id="countdown-number" style="font-family:var(--mono);font-size:8rem;font-weight:700;color:#fff;line-height:1;transition:transform .15s,opacity .15s;"></div>
+  <div style="font-size:.9rem;color:rgba(255,255,255,.4);">Get ready…</div>
+</div>
+
+<!-- INSTRUCTION -->
+<div id="instruction-screen" class="screen-wrap hidden">
+  <h2 id="instr-title">Instructions</h2>
+  <div class="panel">
+    <div id="instruction-text"></div>
+    <div class="mt-4"><button class="btn-primary-custom" id="beginTestBtn">Start Test →</button></div>
+  </div>
+</div>
+
+<!-- MAIN TEST -->
+<div id="main-test" class="hidden">
+  <div class="prog-wrap">
+    <div class="prog-top"><span id="progLabel">Question 1</span><span id="progPct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+  <div id="test-area"></div>
+  <div id="plutchik-area" class="hidden">
+    <div style="font-size:.82rem;font-weight:600;color:var(--muted);border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;background:var(--bg);margin-bottom:.75rem;">
+      For each image: <strong>① Click the Plutchik emotion wheel</strong> segment for your emotion, then <strong>② click the Valence-Arousal grid on the Russell circumplex model</strong>. Both steps required before Next.
+    </div>
+    <div class="plut-row">
+      <div class="img-panel">
+        <div class="img-qlabel" id="qLbl">Image 1</div>
+        <img class="img-display" id="qImg" src="" alt="stimulus"/>
+        <div class="step-checklist" style="width:100%;margin-top:.5rem;">
+          <div class="step-check-item" id="check-wheel">
+            <div class="step-check-dot" id="dot-wheel"><svg viewBox="0 0 10 10" fill="none"><polyline points="1.5,5.5 4,8 8.5,2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>① Emotion wheel selected</span>
+          </div>
+          <div class="step-check-item" id="check-russell">
+            <div class="step-check-dot" id="dot-russell"><svg viewBox="0 0 10 10" fill="none"><polyline points="1.5,5.5 4,8 8.5,2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>② Valence-Arousal grid clicked</span>
+          </div>
+        </div>
+      </div>
+      <div class="wheel-wrap" style="width:660px;height:660px;">
+        <span class="ax ax-top">STRONG ACTIVATION</span>
+        <span class="ax ax-bot">LOW ACTIVATION</span>
+        <span class="ax ax-left">NEGATIVE VALENCE</span>
+        <span class="ax ax-right">POSITIVE VALENCE</span>
+        <svg id="wheel" viewBox="0 0 800 800" width="660" height="660" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="mU" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M2,6L4,2L6,6" fill="none" stroke="#333" stroke-width="1.3"/></marker>
+            <marker id="mD" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M2,2L4,6L6,2" fill="none" stroke="#333" stroke-width="1.3"/></marker>
+          </defs>
+          <line x1="400" y1="370" x2="400" y2="32" stroke="#333" stroke-width="1.8" marker-end="url(#mU)"/>
+          <line x1="400" y1="430" x2="400" y2="768" stroke="#333" stroke-width="1.8" marker-end="url(#mD)"/>
+          <g id="segs"></g><g id="lbls"></g>
+        </svg>
+      </div>
+      <div class="plut-sidebar">
+        <div class="info-card">
+          <div class="emo-name" id="eName" style="color:#bbb;">—</div>
+          <div class="emo-sub" id="eSub">Select an emotion on the wheel</div>
+          <div id="emoSectorBadgeWrap"></div>
+          <div class="intensity-row" id="emoIntensityRow" style="display:none;">
+            <span class="intensity-label">Intensity</span>
+            <div class="idots" id="eDots" style="color:#ccc;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <span class="intensity-text" id="eIs"></span>
+          </div>
+          <div class="qbadge" id="eQ" style="background:#f0f0f0;color:#999;display:none;"></div>
+        </div>
+        <div class="russell-grid-wrap-main locked" id="russellGridWrap">
+          <div class="russell-grid-title">② Russell's Circumplex — Click to rate Valence &amp; Arousal</div>
+          <div class="russell-canvas-wrap"><canvas id="russellCanvas" width="300" height="300"></canvas></div>
+        </div>
+        <div class="va-display-panel empty" id="vaDisplayPanel">
+          <div class="va-axis-block">
+            <div class="va-axis-label">Valence</div>
+            <div class="va-axis-value" id="vaValenceVal">—</div>
+            <div style="font-size:9px;color:#4a6a80;margin-top:2px;">← unpleasant · pleasant →</div>
+          </div>
+          <div class="va-divider"></div>
+          <div class="va-axis-block">
+            <div class="va-axis-label">Arousal</div>
+            <div class="va-axis-value" id="vaArousalVal">—</div>
+            <div style="font-size:9px;color:#4a6a80;margin-top:2px;">↓ low · high ↑</div>
+          </div>
+          <div class="va-divider"></div>
+          <div class="va-quadrant-label" id="vaQuadrantLabel">Click grid<br>to rate</div>
+        </div>
+        <div class="act-row">
+          <button class="next-btn" id="plutNextBtn" disabled onclick="plutNext()">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="mcq-nav" style="margin-top:1.25rem;display:flex;gap:.65rem;">
+    <button class="next-btn" id="nextBtn" onclick="handleNext()" style="max-width:200px;">Next →</button>
+  </div>
+</div>
+
+<!-- THANK YOU -->
+<div id="finish-screen" class="screen-wrap hidden">
+  <h2 style="text-align:center;">Study Complete</h2>
+  <div class="panel">
+    <div class="finish-hero">
+      <div class="finish-icon">🎉</div>
+      <div class="finish-title">Thank you for participating!</div>
+      <p class="finish-msg">Your responses are invaluable to this research. We sincerely appreciate the time and effort you gave today — your honest answers genuinely help us advance our understanding of human emotion and behavior, and we are truly grateful you chose to take part.</p>
+    </div>
+    <p id="completionID" style="font-family:var(--mono);font-size:.9rem;color:var(--muted);margin-bottom:1.25rem;text-align:center;"></p>
+    <label class="field-label">Your Feedback</label>
+    <textarea id="userFeedback" class="field-ctrl" rows="4" placeholder="Please share any thoughts, difficulties, or suggestions..."></textarea>
+    <div class="mt-3"><button class="btn-primary-custom" id="finishBtn">View Summary →</button></div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div id="summary-screen" class="screen-wrap hidden" style="max-width:820px;">
+  <h2>Results Summary</h2>
+  <div class="panel">
+
+    <!-- HADS -->
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">HADS</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Subscale</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Total Score</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Average</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Time (s)</th>
+        </tr></thead>
+        <tbody id="hads-sum-body"></tbody>
+      </table>
+    </div>
+
+    <!-- BFI -->
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">Big Five Personality (BFI-2-S)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Domain</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Total Score</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Average (÷6)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Time (s)</th>
+        </tr></thead>
+        <tbody id="bfi-sum-body"></tbody>
+      </table>
+    </div>
+
+    <!-- PLUTCHIK RAW TABLE -->
+    <div style="margin-bottom:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">Plutchik + Russell — Emotion Responses</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Image</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">NAPS ID</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Emotion (Wheel)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Valence (Grid)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Arousal (Grid)</th>
+          <th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Time (s)</th>
+        </tr></thead>
+        <tbody id="plut-sum-body"></tbody>
+      </table>
+    </div>
+
+    <!-- ── EMOTION SUMMARY SECTION ── -->
+    <div style="margin-bottom:1.75rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;">Emotion Summary — Wheel &amp; Valence/Arousal Overview</div>
+
+      <div class="emo-summary-grid">
+        <!-- Most selected emotions -->
+        <div class="emo-summary-card">
+          <div class="emo-summary-card-title">Most Selected Emotions</div>
+          <div id="emo-freq-list" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+        </div>
+        <!-- V/A averages -->
+        <div class="emo-summary-card">
+          <div class="emo-summary-card-title">Valence / Arousal Averages</div>
+          <div id="va-avg-display" style="display:flex;flex-direction:column;gap:.5rem;"></div>
+        </div>
+        <!-- Quadrant distribution -->
+        <div class="emo-summary-card-dark">
+          <div class="emo-summary-card-title-dark">Quadrant Distribution</div>
+          <div id="quadrant-dist" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+        </div>
+      </div>
+
+      <!-- V/A scatter plot -->
+      <div style="background:#f3f4f6;border:1px solid #2a3a50;border-radius:10px;padding:.75rem;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6090b0;margin-bottom:.5rem;text-align:center;">Your Valence-Arousal Response Map (all 20 images)</div>
+        <div style="display:flex;justify-content:center;">
+          <canvas id="summaryVACanvas" width="340" height="300" style="border-radius:8px;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary-custom" onclick="downloadCSV(completionID)" style="width:100%;justify-content:center;display:flex;align-items:center;gap:8px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Results (CSV)
+    </button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+// =============================================
+// NAPS COUNTERBALANCED IMAGE ORDER
+// =============================================
+const NAPS_ORDERS = {
+  1: [
+    {photo:"Faces_198_h",     emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG03"},
+    {photo:"Animals_008_v",   emotion:"Surprise",    valence:"neutral",  intensity:"low",    napsId:"IMG16"},
+    {photo:"Faces_172_h",     emotion:"Sadness",     valence:"negative", intensity:"medium", napsId:"IMG07"},
+    {photo:"Landscapes_139_h",emotion:"Anger",       valence:"negative", intensity:"medium", napsId:"IMG13"},
+    {photo:"Landscapes_121_h",emotion:"Happiness",   valence:"positive", intensity:"medium", napsId:"IMG05"},
+    {photo:"Animals_087_h",   emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG18"},
+    {photo:"Faces_270_h",     emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG17"},
+    {photo:"People_198_h",    emotion:"Disgust",     valence:"negative", intensity:"high",   napsId:"IMG12"},
+    {photo:"Animals_166_v",   emotion:"Happiness",   valence:"positive", intensity:"medium", napsId:"IMG06"},
+    {photo:"Landscapes_005_h",emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG19"},
+    {photo:"Landscapes_024_v",emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG02"},
+    {photo:"People_220_h",    emotion:"Disgust",     valence:"negative", intensity:"high",   napsId:"IMG11"},
+    {photo:"Objects_177_h",   emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG04"},
+    {photo:"Objects_148_h",   emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG20"},
+    {photo:"Animals_030_h",   emotion:"Fear",        valence:"negative", intensity:"high",   napsId:"IMG09"},
+    {photo:"Landscapes_026_h",emotion:"Anger",       valence:"negative", intensity:"medium", napsId:"IMG14"},
+    {photo:"Objects_282_h",   emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG01"},
+    {photo:"Animals_074_h",   emotion:"Sadness",     valence:"negative", intensity:"medium", napsId:"IMG08"},
+    {photo:"Animals_011_h",   emotion:"Fear",        valence:"negative", intensity:"medium", napsId:"IMG10"},
+    {photo:"People_237_h",    emotion:"Surprise",    valence:"negative", intensity:"medium", napsId:"IMG15"},
+  ],
+  2: [
+    {photo:"Animals_008_v",   emotion:"Surprise",    valence:"neutral",  intensity:"low",    napsId:"IMG16"},
+    {photo:"Objects_282_h",   emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG01"},
+    {photo:"Landscapes_005_h",emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG19"},
+    {photo:"Objects_148_h",   emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG20"},
+    {photo:"Landscapes_121_h",emotion:"Happiness",   valence:"positive", intensity:"medium", napsId:"IMG05"},
+    {photo:"Animals_087_h",   emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG18"},
+    {photo:"Animals_166_v",   emotion:"Happiness",   valence:"positive", intensity:"medium", napsId:"IMG06"},
+    {photo:"Landscapes_139_h",emotion:"Anger",       valence:"negative", intensity:"medium", napsId:"IMG13"},
+    {photo:"People_220_h",    emotion:"Disgust",     valence:"negative", intensity:"high",   napsId:"IMG11"},
+    {photo:"Faces_198_h",     emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG03"},
+    {photo:"Animals_011_h",   emotion:"Fear",        valence:"negative", intensity:"medium", napsId:"IMG10"},
+    {photo:"People_198_h",    emotion:"Disgust",     valence:"negative", intensity:"high",   napsId:"IMG12"},
+    {photo:"Faces_270_h",     emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG17"},
+    {photo:"Objects_177_h",   emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG04"},
+    {photo:"Faces_172_h",     emotion:"Sadness",     valence:"negative", intensity:"medium", napsId:"IMG07"},
+    {photo:"Landscapes_026_h",emotion:"Anger",       valence:"negative", intensity:"medium", napsId:"IMG14"},
+    {photo:"People_237_h",    emotion:"Surprise",    valence:"negative", intensity:"medium", napsId:"IMG15"},
+    {photo:"Landscapes_024_v",emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG02"},
+    {photo:"Animals_030_h",   emotion:"Fear",        valence:"negative", intensity:"high",   napsId:"IMG09"},
+    {photo:"Animals_074_h",   emotion:"Sadness",     valence:"negative", intensity:"medium", napsId:"IMG08"},
+  ],
+  3: [
+    {photo:"Objects_177_h",   emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG04"},
+    {photo:"Objects_282_h",   emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG01"},
+    {photo:"Faces_172_h",     emotion:"Sadness",     valence:"negative", intensity:"medium", napsId:"IMG07"},
+    {photo:"Animals_074_h",   emotion:"Sadness",     valence:"negative", intensity:"medium", napsId:"IMG08"},
+    {photo:"Animals_008_v",   emotion:"Surprise",    valence:"neutral",  intensity:"low",    napsId:"IMG16"},
+    {photo:"Landscapes_026_h",emotion:"Anger",       valence:"negative", intensity:"medium", napsId:"IMG14"},
+    {photo:"Landscapes_121_h",emotion:"Happiness",   valence:"positive", intensity:"medium", napsId:"IMG05"},
+    {photo:"Faces_270_h",     emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG17"},
+    {photo:"People_198_h",    emotion:"Disgust",     valence:"negative", intensity:"high",   napsId:"IMG12"},
+    {photo:"Landscapes_005_h",emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG19"},
+    {photo:"Landscapes_024_v",emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG02"},
+    {photo:"People_237_h",    emotion:"Surprise",    valence:"negative", intensity:"medium", napsId:"IMG15"},
+    {photo:"Animals_087_h",   emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG18"},
+    {photo:"Animals_030_h",   emotion:"Fear",        valence:"negative", intensity:"high",   napsId:"IMG09"},
+    {photo:"Faces_198_h",     emotion:"Neutral",     valence:"neutral",  intensity:"low",    napsId:"IMG03"},
+    {photo:"Animals_011_h",   emotion:"Fear",        valence:"negative", intensity:"medium", napsId:"IMG10"},
+    {photo:"People_220_h",    emotion:"Disgust",     valence:"negative", intensity:"high",   napsId:"IMG11"},
+    {photo:"Animals_166_v",   emotion:"Happiness",   valence:"positive", intensity:"medium", napsId:"IMG06"},
+    {photo:"Objects_148_h",   emotion:"Interesting", valence:"negative", intensity:"medium", napsId:"IMG20"},
+    {photo:"Landscapes_139_h",emotion:"Anger",       valence:"negative", intensity:"medium", napsId:"IMG13"},
+  ],
+};
+
+function initImageOrder() {
+  let counter = parseInt(sessionStorage.getItem('naps_participant_counter') || '0');
+  const orderNumber = (counter % 3) + 1;
+  sessionStorage.setItem('naps_participant_counter', counter + 1);
+  sessionStorage.setItem('naps_order_number', orderNumber);
+  const seq = NAPS_ORDERS[orderNumber].map((img, i) => ({
+    image:         'images/' + img.photo + '.jpg',
+    napsPhoto:     img.photo,
+    napsId:        img.napsId,
+    napsEmotion:   img.emotion,
+    napsValence:   img.valence,
+    napsIntensity: img.intensity,
+    position:      i + 1
+  }));
+  sessionStorage.setItem('naps_image_sequence', JSON.stringify(seq));
+  return orderNumber;
+}
+
+function getOrderNumber() {
+  return parseInt(sessionStorage.getItem('naps_order_number') || '1');
+}
+
+let napsOrderNumber = 1;
+let plutchikImages  = [];
+
+// =============================================
+// TUTORIAL LOGIC
+// =============================================
+let tutStep = 0;
+let tutHadsSelected = false;
+let tutBfiSelected  = false;
+let tutPlutWheelDone = false;
+let tutPlutGridDone  = false;
+
+const TUT_HADS_Q = {
+  text: "Eating ice cream makes me happy:",
+  options: ["Most of the time", "A lot of the time", "From time to time, occasionally", "Not at all"]
+};
+const TUT_BFI_Q = {
+  text: "I am someone who likes traveling.",
+  options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+};
+
+let tutCurEmo = null, tutSelEl = null, tutRV = null, tutRA = null;
+
+function startTutorial() { $('#intro-screen').addClass('hidden'); $('#tutorial-screen').removeClass('hidden'); tutStep=0; renderTutStep(); }
+function skipToConsent()  { $('#intro-screen').addClass('hidden'); $('#consent-screen').removeClass('hidden'); }
+function goToConsent()    { $('#tutorial-done-screen').addClass('hidden'); $('#consent-screen').removeClass('hidden'); }
+
+function updateStepDots(step){for(let i=0;i<3;i++){const el=document.getElementById('sdot'+i);el.classList.remove('active','done');if(i<step)el.classList.add('done');else if(i===step)el.classList.add('active');}document.getElementById('stepLabel').textContent='Step '+(step+1)+' of 3';}
+
+function renderTutStep(){
+  tutHadsSelected=tutBfiSelected=tutPlutWheelDone=tutPlutGridDone=false;
+  tutCurEmo=tutSelEl=tutRV=tutRA=null;
+  document.getElementById('tut-feedback').classList.add('hidden');
+  document.getElementById('tutNextBtn').disabled=true;
+  updateStepDots(tutStep);
+  if(tutStep===0){document.getElementById('tutTitle').textContent='Practice Question 1 of 3 - HADS';document.getElementById('tutDesc').textContent='Read the statement and select the option that best describes how you felt over the past week.';document.getElementById('tutHint').textContent='Select one answer to continue';document.getElementById('tutNextBtn').textContent='Next practice question →';renderTutHADS();}
+  else if(tutStep===1){document.getElementById('tutTitle').textContent='Practice Question 2 of 3 - BFI-2-S';document.getElementById('tutDesc').textContent='Rate how much this personality statement applies to you on the 5-point scale below.';document.getElementById('tutHint').textContent='Click a scale button to continue';document.getElementById('tutNextBtn').textContent='Next practice question →';renderTutBFI();}
+  else if(tutStep===2){document.getElementById('tutTitle').textContent='Practice Question 3 of 3 - Emotion Task';document.getElementById('tutDesc').textContent='Complete TWO steps: ① click your emotion on the wheel, then ② place your rating on the Valence-Arousal grid.';document.getElementById('tutHint').textContent='① Click the wheel, then ② click the grid';document.getElementById('tutNextBtn').textContent='Finish practice →';renderTutPlutchik();}
+}
+
+function renderTutHADS(){let html='<div class="question-card">';html+=`<div style="display:inline-flex;align-items:center;gap:6px;background:#fef9ec;color:#7a5200;border:1px solid #f0d888;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 10px;margin-bottom:.75rem;">HADS — Anxiety &amp; Depression</div>`;html+=`<div class="question-text">${TUT_HADS_Q.text}</div>`;TUT_HADS_Q.options.forEach((o,i)=>{html+=`<div class="opt-row" id="tut-hads-opt-${i}" onclick="selectTutHads(${i})"><input type="radio" name="tut-hads-q" id="tut-hads-r${i}" value="${i}"><label for="tut-hads-r${i}">${o}</label></div>`;});html+='</div>';document.getElementById('tut-question-area').innerHTML=html;}
+function selectTutHads(idx){document.querySelectorAll('[id^="tut-hads-opt-"]').forEach(el=>el.classList.remove('selected'));document.getElementById('tut-hads-opt-'+idx).classList.add('selected');document.getElementById('tut-hads-r'+idx).checked=true;tutHadsSelected=true;showTutFeedback('Good — in the real test, your actual score is calculated from this choice. Click Next to continue.');document.getElementById('tutNextBtn').disabled=false;document.getElementById('tutHint').textContent='Answer selected ✓';}
+
+function renderTutBFI(){let html='<div class="question-card">';html+=`<div style="display:inline-flex;align-items:center;gap:6px;background:#edf4ff;color:#204080;border:1px solid #b0ccf0;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 10px;margin-bottom:.75rem;">BFI-2-S — personality test. </div>`;html+=`<div class="question-text">${TUT_BFI_Q.text}</div>`;html+='<div class="bfi-scale-row" id="tut-bfi-scale">';TUT_BFI_Q.options.forEach((o,i)=>{html+=`<button class="bfi-scale-btn" data-i="${i}" onclick="selectTutBfi(this)">${o}</button>`;});html+='</div><div class="bfi-scale-labels"><span>← Strongly Disagree</span><span>Strongly Agree →</span></div></div>';document.getElementById('tut-question-area').innerHTML=html;}
+function selectTutBfi(btn){document.querySelectorAll('#tut-bfi-scale .bfi-scale-btn').forEach(b=>b.classList.remove('bfi-sel'));btn.classList.add('bfi-sel');tutBfiSelected=true;showTutFeedback('In the real test, some items are reverse-scored automatically — just answer honestly. Click Next to continue.');document.getElementById('tutNextBtn').disabled=false;document.getElementById('tutHint').textContent='Answer selected ✓';}
+
+function renderTutPlutchik(){
+  const html=`<div style="font-size:.82rem;font-weight:600;color:var(--muted);border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;background:var(--bg);margin-bottom:.75rem;">Practice - Not recorded &nbsp;·&nbsp; <strong>① Click the Plutchik wheel</strong> for your emotion, then <strong>② click the Russell V/A grid</strong>.</div>
+  <div class="plut-row" style="justify-content:flex-start;flex-wrap:wrap;">
+    <div class="img-panel"><div class="img-qlabel">Practice Image</div><img src="images/example.jpg" style="width:260px;height:300px;object-fit:contain;border-radius:9px;border:1px solid var(--border);background:var(--bg);" alt="Example image"/>
+    <div class="step-checklist" style="width:100%;margin-top:.5rem;"><div class="step-check-item"><div class="step-check-dot" id="tut-dot-wheel"><svg viewBox="0 0 10 10" fill="none"><polyline points="1.5,5.5 4,8 8.5,2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>① Wheel selected</span></div><div class="step-check-item"><div class="step-check-dot" id="tut-dot-grid"><svg viewBox="0 0 10 10" fill="none"><polyline points="1.5,5.5 4,8 8.5,2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>② Valence-Arousal grid clicked</span></div></div></div>
+    <div class="wheel-wrap" style="width:660px;height:660px;"><span class="ax ax-top">STRONG ACTIVATION</span><span class="ax ax-bot">LOW ACTIVATION</span><span class="ax ax-left">NEGATIVE VALENCE</span><span class="ax ax-right">POSITIVE VALENCE</span>
+    <svg id="tutWheel" viewBox="0 0 800 800" width="660" height="660" xmlns="http://www.w3.org/2000/svg" style="cursor:pointer;display:block;"><defs><marker id="tmU" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M2,6L4,2L6,6" fill="none" stroke="#333" stroke-width="1.3"/></marker><marker id="tmD" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M2,2L4,6L6,2" fill="none" stroke="#333" stroke-width="1.3"/></marker></defs><line x1="400" y1="370" x2="400" y2="32" stroke="#333" stroke-width="1.8" marker-end="url(#tmU)"/><line x1="400" y1="430" x2="400" y2="768" stroke="#333" stroke-width="1.8" marker-end="url(#tmD)"/><g id="tutSegs"></g><g id="tutLbls"></g></svg></div>
+    <div class="plut-sidebar"><div class="info-card"><div class="emo-name" id="tutEName" style="color:#bbb;">—</div><div class="emo-sub" id="tutESub">Select an emotion on the wheel</div><div id="tutEmoSectorWrap"></div><div class="intensity-row" id="tutIntensityRow" style="display:none;"><span class="intensity-label">Intensity</span><div class="idots" id="tutEDots" style="color:#ccc;"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span class="intensity-text" id="tutEIs"></span></div><div class="qbadge" id="tutEQ" style="background:#f0f0f0;color:#999;display:none;"></div></div>
+    <div id="tutRussellGridWrap" class="locked" style="background:#0f1923;border:1px solid #2a3a50;border-radius:var(--r);padding:.75rem;width:100%;position:relative;transition:opacity .3s;"><div class="russell-grid-title">② Russell's Circumplex — Click to rate Valence &amp; Arousal</div><div class="russell-canvas-wrap"><canvas id="tutRussellCanvas" width="300" height="300"></canvas></div></div>
+    <div class="va-display-panel empty" id="tutVAPanel"><div class="va-axis-block"><div class="va-axis-label">Valence</div><div class="va-axis-value" id="tutVAV">—</div><div style="font-size:9px;color:#4a6a80;margin-top:2px;">← unpleasant · pleasant →</div></div><div class="va-divider"></div><div class="va-axis-block"><div class="va-axis-label">Arousal</div><div class="va-axis-value" id="tutVAA">—</div><div style="font-size:9px;color:#4a6a80;margin-top:2px;">↓ low · high ↑</div></div><div class="va-divider"></div><div class="va-quadrant-label" id="tutVAQ">Click grid<br>to rate</div></div></div>
+  </div>`;
+  document.getElementById('tut-question-area').innerHTML=html;
+  buildTutWheel();
+  setTimeout(()=>{initTutRussellDims();drawTutRussellCanvas(null);initTutRussellClick();},80);
+}
+
+const TUT_NS='http://www.w3.org/2000/svg',TCX=400,TCY=400;
+const TR_IN=120,TR_MID0=120,TR_MID1=230,TR_OUT0=230,TR_OUT1=320,TR_DAS0=320,TR_DAS1=378;
+function tRad(deg){return(deg-90)*Math.PI/180;}function tPt(deg,r){return[TCX+r*Math.cos(tRad(deg)),TCY+r*Math.sin(tRad(deg))];}
+function tSlicePath(ca,r1,r2){const h=22.5,a1=ca-h,a2=ca+h;const[ox1,oy1]=tPt(a1,r1),[ox2,oy2]=tPt(a2,r1);const[ix1,iy1]=tPt(a1,r2),[ix2,iy2]=tPt(a2,r2);return`M${ox1} ${oy1} A${r1} ${r1} 0 0 1 ${ox2} ${oy2} L${ix2} ${iy2} A${r2} ${r2} 0 0 0 ${ix1} ${iy1} Z`;}
+function tInterSlicePath(ca,r1,r2){const h=20,a1=ca-h,a2=ca+h;const[ox1,oy1]=tPt(a1,r1),[ox2,oy2]=tPt(a2,r1);const[ix1,iy1]=tPt(a1,r2),[ix2,iy2]=tPt(a2,r2);return`M${ox1} ${oy1} A${r1} ${r1} 0 0 1 ${ox2} ${oy2} L${ix2} ${iy2} A${r2} ${r2} 0 0 0 ${ix1} ${iy1} Z`;}
+function tMkEl(t){return document.createElementNS(TUT_NS,t);}
+function tMkPath(d,fill,stroke,sw,dashed){const p=tMkEl('path');p.setAttribute('d',d);p.setAttribute('fill',fill);p.setAttribute('stroke',stroke||'#fff');p.setAttribute('stroke-width',sw||'1.5');if(dashed)p.setAttribute('stroke-dasharray','5,3');return p;}
+function tMkTxt(x,y,text,size,weight,fill,angle){const t=tMkEl('text');t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.setAttribute('font-size',size);t.setAttribute('font-weight',weight);t.setAttribute('fill',fill);t.setAttribute('font-family',"'DM Sans',sans-serif");t.setAttribute('pointer-events','none');if(angle)t.setAttribute('transform',`rotate(${angle},${x},${y})`);t.textContent=text;return t;}
+
+function buildTutWheel(){const gS=document.getElementById('tutSegs'),gL=document.getElementById('tutLbls');if(!gS||!gL)return;gS.innerHTML='';gL.innerHTML='';INTER.forEach(em=>{const g=tMkEl('g');g.setAttribute('class','seg');g.appendChild(tMkPath(tInterSlicePath(em.angle,TR_DAS0,TR_DAS1),'#f0ece4','#bbb','1.2',true));g.addEventListener('click',()=>pickTutEmo({name:em.name,...em,cm:'#888',sector:em.name},g));gS.appendChild(g);});SECTORS.forEach(sec=>{const g=tMkEl('g');g.setAttribute('class','seg');g.appendChild(tMkPath(tSlicePath(sec.angle,TR_OUT0,TR_OUT1),sec.colors[2],'#fff','1.5'));const em={name:sec.outerEmo,cm:sec.colors[2],sector:sec.name,...(EMO_DATA[sec.outerEmo]||{})};g.addEventListener('click',()=>pickTutEmo(em,g));gS.appendChild(g);});SECTORS.forEach(sec=>{const g=tMkEl('g');g.setAttribute('class','seg');g.appendChild(tMkPath(tSlicePath(sec.angle,TR_MID0,TR_MID1),sec.colors[1],'#fff','1.5'));const em={name:sec.midEmo,cm:sec.colors[1],sector:sec.name,...(EMO_DATA[sec.midEmo]||{})};g.addEventListener('click',()=>pickTutEmo(em,g));gS.appendChild(g);});SECTORS.forEach(sec=>{const g=tMkEl('g');g.setAttribute('class','seg');const h=22.5,a1=sec.angle-h,a2=sec.angle+h;const[x1,y1]=tPt(a1,TR_IN),[x2,y2]=tPt(a2,TR_IN);g.appendChild(tMkPath(`M${TCX} ${TCY} L${x1} ${y1} A${TR_IN} ${TR_IN} 0 0 1 ${x2} ${y2} Z`,sec.colors[0],'#fff','1.5'));const em={name:sec.innerEmo,cm:sec.colors[0],sector:sec.name,...(EMO_DATA[sec.innerEmo]||{})};g.addEventListener('click',()=>pickTutEmo(em,g));gS.appendChild(g);});SECTORS.forEach(sec=>{const ang=sec.angle,rot=(ang>90&&ang<270)?ang+180:ang;const[ix,iy]=tPt(ang,95);gL.appendChild(tMkTxt(ix,iy,sec.innerEmo,'13','700','#fff',rot));const[mx,my]=tPt(ang,175);gL.appendChild(tMkTxt(mx,my,sec.midEmo,'15','700','#fff',rot));const[ox,oy]=tPt(ang,275);gL.appendChild(tMkTxt(ox,oy,sec.outerEmo,'13','600','#333',rot));});INTER.forEach(em=>{const ang=em.angle,rot=(ang>90&&ang<270)?ang+180:ang;const[x,y]=tPt(ang,352);gL.appendChild(tMkTxt(x,y,em.name,'11','500','#555',rot));});}
+
+function pickTutEmo(em,gEl){if(tutSelEl)tutSelEl.classList.remove('sel');gEl.classList.add('sel');tutSelEl=gEl;tutCurEmo=em;tutPlutWheelDone=true;document.getElementById('tut-dot-wheel').classList.add('done');document.getElementById('tutRussellGridWrap').classList.remove('locked');const d=EMO_DATA[em.name]||em;const intensity=d.i||em.intensity||1;const intL=['Low','Medium','High'][intensity-1];const cm=em.cm||'#888';document.getElementById('tutEName').textContent=em.name;document.getElementById('tutEName').style.color=cm;const sectorName=em.sector||em.name;const sectorObj=SECTORS.find(s=>s.name===sectorName)||null;const sc=sectorObj?sectorObj.colors[1]:'#888';document.getElementById('tutEmoSectorWrap').innerHTML=`<div class="emo-sector-badge" style="background:${sc}22;color:${sc};border:1px solid ${sc}44;">${sectorName}</div>`;document.getElementById('tutIntensityRow').style.display='flex';const dots=document.getElementById('tutEDots');dots.style.color=cm;dots.innerHTML='';for(let i=1;i<=3;i++){const d2=document.createElement('div');d2.className='dot'+(i<=intensity?' on':'');dots.appendChild(d2);}document.getElementById('tutEIs').textContent=intL;document.getElementById('tutESub').textContent=intL+' intensity';const q2=d.q||em.quadrant||'—';const isPos=(d.v||0)>=0,isHi=(d.a||0)>=0;const qc=isPos&&isHi?['#fff8e0','#b07000']:isPos?['#edfaf5','#1a8c6c']:isHi?['#fdf5f3','#c0392b']:['#f9f2fd','#7c3d9e'];const qEl=document.getElementById('tutEQ');qEl.textContent=q2;qEl.style.background=qc[0];qEl.style.color=qc[1];qEl.style.display='inline-block';drawTutRussellCanvas(tutRV!==null?{v:tutRV,a:tutRA}:null);checkTutBothDone();}
+
+const TUT_R_W=300;let TUT_R_PAD=42,TUT_R_GW,TUT_R_GH,TUT_R_CX,TUT_R_CY;
+function initTutRussellDims(){TUT_R_GW=TUT_R_W-TUT_R_PAD*2;TUT_R_GH=TUT_R_W-TUT_R_PAD*2;TUT_R_CX=TUT_R_PAD+TUT_R_GW/2;TUT_R_CY=TUT_R_PAD+TUT_R_GH/2;}
+function drawTutRussellCanvas(clickedPoint){const canvas=document.getElementById('tutRussellCanvas');if(!canvas)return;const ctx=canvas.getContext('2d');const W=TUT_R_W,PAD=TUT_R_PAD,GW=TUT_R_GW,GH=TUT_R_GH,CX=TUT_R_CX,CY=TUT_R_CY;ctx.clearRect(0,0,W,W);ctx.fillStyle='#0d1520';ctx.fillRect(0,0,W,W);const QUADS=[{x:-1,y:1,color:'rgba(180,40,40,0.18)',label:'Tense / Alarmed',tc:'#e07070'},{x:1,y:1,color:'rgba(180,160,0,0.16)',label:'Happy / Excited',tc:'#d4c040'},{x:-1,y:-1,color:'rgba(30,60,180,0.18)',label:'Sad / Depressed',tc:'#7090e8'},{x:1,y:-1,color:'rgba(30,140,70,0.16)',label:'Calm / Relaxed',tc:'#60d890'}];QUADS.forEach(q=>{const qx=q.x<0?PAD:CX,qy=q.y>0?PAD:CY;ctx.fillStyle=q.color;ctx.fillRect(qx,qy,GW/2,GH/2);ctx.font='bold 7.5px DM Sans,sans-serif';ctx.fillStyle=q.tc;ctx.globalAlpha=.75;ctx.textAlign='center';const lines=q.label.split(' / ');const tx=q.x<0?PAD+GW*.25:PAD+GW*.75,ty=q.y>0?PAD+GH*.15:PAD+GH*.85;lines.forEach((ln,i)=>ctx.fillText(ln,tx,ty+i*10));ctx.globalAlpha=1;});ctx.strokeStyle='rgba(50,80,110,0.4)';ctx.lineWidth=0.5;for(let i=1;i<8;i++){const xi=PAD+(GW/8)*i,yi=PAD+(GH/8)*i;ctx.beginPath();ctx.moveTo(xi,PAD);ctx.lineTo(xi,PAD+GH);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD,yi);ctx.lineTo(PAD+GW,yi);ctx.stroke();}ctx.strokeStyle='rgba(100,160,220,0.7)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(PAD,CY);ctx.lineTo(PAD+GW,CY);ctx.stroke();ctx.beginPath();ctx.moveTo(CX,PAD);ctx.lineTo(CX,PAD+GH);ctx.stroke();const dA=(x1,y1,x2,y2)=>{const a=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-7*Math.cos(a-.4),y2-7*Math.sin(a-.4));ctx.lineTo(x2-7*Math.cos(a+.4),y2-7*Math.sin(a+.4));ctx.closePath();ctx.fillStyle='rgba(100,160,220,0.8)';ctx.fill();};dA(PAD,CY,PAD+GW-2,CY);dA(PAD+GW,CY,PAD+2,CY);dA(CX,PAD+GH,CX,PAD+2);dA(CX,PAD,CX,PAD+GH-2);ctx.font='bold 8.5px DM Sans,sans-serif';ctx.textAlign='left';ctx.fillStyle='#e07070';ctx.fillText('Unpleasant',PAD+2,CY-5);ctx.textAlign='right';ctx.fillStyle='#60d890';ctx.fillText('Pleasant',PAD+GW-2,CY-5);ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.6)';ctx.font='bold 8px DM Sans,sans-serif';ctx.fillText('VALENCE',CX,PAD+GH+14);ctx.save();ctx.translate(PAD-12,CY);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.6)';ctx.font='bold 8px DM Sans,sans-serif';ctx.fillText('AROUSAL',0,0);ctx.restore();ctx.textAlign='center';ctx.font='bold 8px DM Sans,sans-serif';ctx.fillStyle='#e0a040';ctx.fillText('High',CX+3,PAD+10);ctx.fillStyle='#6090c0';ctx.fillText('Low',CX+3,PAD+GH-3);ctx.font='7px DM Mono,monospace';ctx.fillStyle='rgba(80,110,150,0.6)';[-1,-.5,.5,1].forEach(v=>{const px=CX+v*(GW/2);ctx.textAlign='center';ctx.fillText(v>0?'+'+v.toFixed(1):v.toFixed(1),px,CY+12);});ctx.textAlign='right';[-1,-.5,.5,1].forEach(a=>{const py=CY-a*(GH/2);ctx.fillText(a>0?'+'+a.toFixed(1):a.toFixed(1),PAD-3,py+3);});if(clickedPoint){const px=CX+clickedPoint.v*(GW/2),py=CY-clickedPoint.a*(GH/2);ctx.save();ctx.shadowColor='#4ae0a0';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(px,py,9,0,Math.PI*2);ctx.strokeStyle='rgba(74,224,160,0.5)';ctx.lineWidth=2;ctx.stroke();ctx.restore();ctx.save();ctx.shadowColor='#4ae0a0';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fillStyle='#4ae0a0';ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);ctx.fillStyle='#0d2a1a';ctx.fill();ctx.strokeStyle='rgba(74,224,160,0.25)';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(PAD,py);ctx.lineTo(px-10,py);ctx.stroke();ctx.beginPath();ctx.moveTo(px+10,py);ctx.lineTo(PAD+GW,py);ctx.stroke();ctx.beginPath();ctx.moveTo(px,PAD);ctx.lineTo(px,py-10);ctx.stroke();ctx.beginPath();ctx.moveTo(px,py+10);ctx.lineTo(px,PAD+GH);ctx.stroke();ctx.setLineDash([]);ctx.font='bold 7.5px DM Mono,monospace';ctx.fillStyle='#4ae0a0';ctx.textAlign='center';const vy=clickedPoint.v>=0?'+'+clickedPoint.v.toFixed(2):clickedPoint.v.toFixed(2),ay=clickedPoint.a>=0?'+'+clickedPoint.a.toFixed(2):clickedPoint.a.toFixed(2);ctx.fillText('('+vy+', '+ay+')',px,py>PAD+22?py-14:py+18);}}
+
+function initTutRussellClick(){const canvas=document.getElementById('tutRussellCanvas');if(!canvas)return;if(canvas._tutHandler)canvas.removeEventListener('click',canvas._tutHandler);canvas._tutHandler=function(e){if(!tutCurEmo)return;const rect=canvas.getBoundingClientRect();const sx=canvas.width/rect.width,sy=canvas.height/rect.height;const mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy;tutRV=parseFloat(Math.max(-1,Math.min(1,(mx-TUT_R_CX)/(TUT_R_GW/2))).toFixed(3));tutRA=parseFloat(Math.max(-1,Math.min(1,-(my-TUT_R_CY)/(TUT_R_GH/2))).toFixed(3));tutPlutGridDone=true;canvas.classList.add('clicked');document.getElementById('tut-dot-grid').classList.add('done');drawTutRussellCanvas({v:tutRV,a:tutRA});updateTutVAPanel(tutRV,tutRA);checkTutBothDone();};canvas.addEventListener('click',canvas._tutHandler);}
+
+function updateTutVAPanel(v,a){const panel=document.getElementById('tutVAPanel'),vEl=document.getElementById('tutVAV'),aEl=document.getElementById('tutVAA'),qEl=document.getElementById('tutVAQ');if(v===null||a===null){panel.classList.add('empty');vEl.textContent='—';vEl.className='va-axis-value';aEl.textContent='—';aEl.className='va-axis-value';qEl.textContent='Click grid\nto rate';qEl.style.color='#6090b0';qEl.style.background='rgba(255,255,255,.04)';return;}panel.classList.remove('empty');vEl.textContent=(v>=0?'+':'')+v.toFixed(2);vEl.className='va-axis-value '+(v>=0?'positive':'negative');aEl.textContent=(a>=0?'+':'')+a.toFixed(2);aEl.className='va-axis-value '+(a>=0?'positive':'negative');vEl.classList.add('popped');aEl.classList.add('popped');setTimeout(()=>{vEl.classList.remove('popped');aEl.classList.remove('popped');},220);let ql,qc,qbg;if(v>=0&&a>=0){ql='Happy /\nExcited';qc='#d4c040';qbg='rgba(180,160,0,0.15)';}if(v<0&&a>=0){ql='Tense /\nAlarmed';qc='#e07070';qbg='rgba(180,40,40,0.15)';}if(v>=0&&a<0){ql='Calm /\nRelaxed';qc='#60d890';qbg='rgba(30,140,70,0.15)';}if(v<0&&a<0){ql='Sad /\nDepressed';qc='#7090e8';qbg='rgba(30,60,180,0.15)';}qEl.textContent=ql;qEl.style.color=qc;qEl.style.background=qbg;qEl.style.border='1px solid '+qc+'55';}
+
+function checkTutBothDone(){if(tutPlutWheelDone&&tutPlutGridDone){showTutFeedback('Both steps done! In the real test, click Next → to move to the next image.');document.getElementById('tutNextBtn').disabled=false;document.getElementById('tutHint').textContent='Both steps complete ✓';}else if(tutPlutWheelDone){document.getElementById('tutHint').textContent='① Done — now ② click the grid';}}
+function showTutFeedback(msg){const el=document.getElementById('tut-feedback'),txt=document.getElementById('tut-feedback-text');el.classList.remove('hidden');txt.textContent=msg;}
+function tutNext(){tutStep++;if(tutStep>=3){$('#tutorial-screen').addClass('hidden');$('#tutorial-done-screen').removeClass('hidden');}else{document.getElementById('tut-feedback').classList.add('hidden');renderTutStep();}}
+
+// =============================================
+// CONSENT
+// =============================================
+const consentState=[false,false,false];
+function toggleCheck(idx){consentState[idx]=!consentState[idx];document.querySelectorAll('.consent-check-row')[idx].classList.toggle('checked',consentState[idx]);const allChecked=consentState.every(Boolean);document.getElementById('agreeBtn').disabled=!allChecked;document.getElementById('consent-hint').style.display=allChecked?'none':'block';}
+
+const DOMAIN_COLOURS={
+  'Extraversion':{bg:'#e8f0fd',color:'#2350a8'},
+  'Agreeableness':{bg:'#e8faf0',color:'#1a7a45'},
+  'Conscientiousness':{bg:'#fff5e0',color:'#8a5500'},
+  'Negative Emotionality':{bg:'#fde8e8',color:'#a82323'},
+  'Open-Mindedness':{bg:'#f3e8fd',color:'#6b2398'},
+};
+
+// =============================================
+// RUSSELL GRID (MAIN TEST)
+// =============================================
+const RUSSELL_W=300;
+let R_PAD=42,R_GW,R_GH,R_CX,R_CY;
+function initRussellDims(){R_GW=RUSSELL_W-R_PAD*2;R_GH=RUSSELL_W-R_PAD*2;R_CX=R_PAD+R_GW/2;R_CY=R_PAD+R_GH/2;}
+initRussellDims();
+let russellClickedV=null,russellClickedA=null;
+
+function drawRussellGrid(clickedPoint){const canvas=document.getElementById('russellCanvas');if(!canvas)return;const ctx=canvas.getContext('2d');const W=RUSSELL_W,PAD=R_PAD,GW=R_GW,GH=R_GH,CX=R_CX,CY=R_CY;ctx.clearRect(0,0,W,W);ctx.fillStyle='#0d1520';ctx.fillRect(0,0,W,W);const QUADS=[{x:-1,y:1,color:'rgba(180,40,40,0.18)',label:'Tense / Alarmed',tc:'#e07070'},{x:1,y:1,color:'rgba(180,160,0,0.16)',label:'Happy / Excited',tc:'#d4c040'},{x:-1,y:-1,color:'rgba(30,60,180,0.18)',label:'Sad / Depressed',tc:'#7090e8'},{x:1,y:-1,color:'rgba(30,140,70,0.16)',label:'Calm / Relaxed',tc:'#60d890'}];QUADS.forEach(q=>{const qx=q.x<0?PAD:CX,qy=q.y>0?PAD:CY;ctx.fillStyle=q.color;ctx.fillRect(qx,qy,GW/2,GH/2);ctx.font='bold 7.5px DM Sans,sans-serif';ctx.fillStyle=q.tc;ctx.globalAlpha=.75;ctx.textAlign='center';const lines=q.label.split(' / ');const tx=q.x<0?PAD+GW*.25:PAD+GW*.75,ty=q.y>0?PAD+GH*.15:PAD+GH*.85;lines.forEach((ln,i)=>ctx.fillText(ln,tx,ty+i*10));ctx.globalAlpha=1;});ctx.strokeStyle='rgba(50,80,110,0.4)';ctx.lineWidth=0.5;for(let i=1;i<8;i++){const xi=PAD+(GW/8)*i,yi=PAD+(GH/8)*i;ctx.beginPath();ctx.moveTo(xi,PAD);ctx.lineTo(xi,PAD+GH);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD,yi);ctx.lineTo(PAD+GW,yi);ctx.stroke();}ctx.strokeStyle='rgba(100,160,220,0.7)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(PAD,CY);ctx.lineTo(PAD+GW,CY);ctx.stroke();ctx.beginPath();ctx.moveTo(CX,PAD);ctx.lineTo(CX,PAD+GH);ctx.stroke();const drawArrow=(x1,y1,x2,y2)=>{const angle=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-7*Math.cos(angle-.4),y2-7*Math.sin(angle-.4));ctx.lineTo(x2-7*Math.cos(angle+.4),y2-7*Math.sin(angle+.4));ctx.closePath();ctx.fillStyle='rgba(100,160,220,0.8)';ctx.fill();};drawArrow(PAD,CY,PAD+GW-2,CY);drawArrow(PAD+GW,CY,PAD+2,CY);drawArrow(CX,PAD+GH,CX,PAD+2);drawArrow(CX,PAD,CX,PAD+GH-2);ctx.font='bold 8.5px DM Sans,sans-serif';ctx.textAlign='left';ctx.fillStyle='#e07070';ctx.fillText('Unpleasant',PAD+2,CY-5);ctx.textAlign='right';ctx.fillStyle='#60d890';ctx.fillText('Pleasant',PAD+GW-2,CY-5);ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.6)';ctx.font='bold 8px DM Sans,sans-serif';ctx.fillText('VALENCE',CX,PAD+GH+14);ctx.save();ctx.translate(PAD-12,CY);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillStyle='rgba(100,160,220,0.6)';ctx.font='bold 8px DM Sans,sans-serif';ctx.fillText('AROUSAL',0,0);ctx.restore();ctx.textAlign='center';ctx.font='bold 8px DM Sans,sans-serif';ctx.fillStyle='#e0a040';ctx.fillText('High',CX+3,PAD+10);ctx.fillStyle='#6090c0';ctx.fillText('Low',CX+3,PAD+GH-3);ctx.font='7px DM Mono,monospace';ctx.fillStyle='rgba(80,110,150,0.6)';[-1,-.5,.5,1].forEach(v=>{const px=CX+v*(GW/2);ctx.textAlign='center';ctx.fillText(v>0?'+'+v.toFixed(1):v.toFixed(1),px,CY+12);});ctx.textAlign='right';[-1,-.5,.5,1].forEach(a=>{const py=CY-a*(GH/2);ctx.fillText(a>0?'+'+a.toFixed(1):a.toFixed(1),PAD-3,py+3);});if(clickedPoint){const px=CX+clickedPoint.v*(GW/2),py=CY-clickedPoint.a*(GH/2);ctx.save();ctx.shadowColor='#4ae0a0';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(px,py,9,0,Math.PI*2);ctx.strokeStyle='rgba(74,224,160,0.5)';ctx.lineWidth=2;ctx.stroke();ctx.restore();ctx.save();ctx.shadowColor='#4ae0a0';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fillStyle='#4ae0a0';ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);ctx.fillStyle='#0d2a1a';ctx.fill();ctx.strokeStyle='rgba(74,224,160,0.25)';ctx.lineWidth=1;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(PAD,py);ctx.lineTo(px-10,py);ctx.stroke();ctx.beginPath();ctx.moveTo(px+10,py);ctx.lineTo(PAD+GW,py);ctx.stroke();ctx.beginPath();ctx.moveTo(px,PAD);ctx.lineTo(px,py-10);ctx.stroke();ctx.beginPath();ctx.moveTo(px,py+10);ctx.lineTo(px,PAD+GH);ctx.stroke();ctx.setLineDash([]);ctx.font='bold 7.5px DM Mono,monospace';ctx.fillStyle='#4ae0a0';ctx.textAlign='center';const vy=clickedPoint.v>=0?'+'+clickedPoint.v.toFixed(2):clickedPoint.v.toFixed(2),ay=clickedPoint.a>=0?'+'+clickedPoint.a.toFixed(2):clickedPoint.a.toFixed(2),ldy=py>PAD+22?py-14:py+18;ctx.fillText('('+vy+', '+ay+')',px,ldy);}}
+
+function updateVAPanel(v,a){const panel=document.getElementById('vaDisplayPanel');const valEl=document.getElementById('vaValenceVal');const aroEl=document.getElementById('vaArousalVal');const quadEl=document.getElementById('vaQuadrantLabel');if(v===null||a===null){panel.classList.add('empty');valEl.textContent='—';valEl.className='va-axis-value';aroEl.textContent='—';aroEl.className='va-axis-value';quadEl.textContent='Click grid\nto rate';quadEl.style.color='#6090b0';quadEl.style.background='rgba(255,255,255,.04)';return;}panel.classList.remove('empty');const vStr=(v>=0?'+':'')+v.toFixed(2),aStr=(a>=0?'+':'')+a.toFixed(2);valEl.textContent=vStr;valEl.className='va-axis-value '+(v>=0?'positive':'negative');aroEl.textContent=aStr;aroEl.className='va-axis-value '+(a>=0?'positive':'negative');let ql,qc,qbg;if(v>=0&&a>=0){ql='Happy /\nExcited';qc='#d4c040';qbg='rgba(180,160,0,0.15)';}if(v<0&&a>=0){ql='Tense /\nAlarmed';qc='#e07070';qbg='rgba(180,40,40,0.15)';}if(v>=0&&a<0){ql='Calm /\nRelaxed';qc='#60d890';qbg='rgba(30,140,70,0.15)';}if(v<0&&a<0){ql='Sad /\nDepressed';qc='#7090e8';qbg='rgba(30,60,180,0.15)';}quadEl.textContent=ql;quadEl.style.color=qc;quadEl.style.background=qbg;quadEl.style.border='1px solid '+qc+'55';}
+
+function initRussellClick(){const canvas=document.getElementById('russellCanvas');if(!canvas)return;if(canvas._russellHandler)canvas.removeEventListener('click',canvas._russellHandler);canvas._russellHandler=function(e){if(!curEmo)return;const rect=canvas.getBoundingClientRect();const scaleX=canvas.width/rect.width,scaleY=canvas.height/rect.height;const mx=(e.clientX-rect.left)*scaleX,my=(e.clientY-rect.top)*scaleY;russellClickedV=parseFloat(Math.max(-1,Math.min(1,(mx-R_CX)/(R_GW/2))).toFixed(3));russellClickedA=parseFloat(Math.max(-1,Math.min(1,-(my-R_CY)/(R_GH/2))).toFixed(3));canvas.classList.add('clicked');document.getElementById('dot-russell').classList.add('done');updateVAPanel(russellClickedV,russellClickedA);drawRussellGrid({v:russellClickedV,a:russellClickedA});checkBothSelected();};canvas.addEventListener('click',canvas._russellHandler);}
+function checkBothSelected(){document.getElementById('plutNextBtn').disabled=!(!!curEmo&&russellClickedV!==null);}
+function initRussellGrid(){drawRussellGrid(null);}
+// =============================================
+// MAIN TEST DATA
+// =============================================
+const SECTORS=[
+  {name:'Joy',angle:0,colors:['#e8b800','#f5d020','#fae878'],innerEmo:'Ecstasy',midEmo:'Joy',outerEmo:'Serenity'},
+  {name:'Trust',angle:45,colors:['#4db03a','#72c455','#a8dc90'],innerEmo:'Admiration',midEmo:'Trust',outerEmo:'Acceptance'},
+  {name:'Fear',angle:90,colors:['#38a860','#5cc47a','#9adcb0'],innerEmo:'Terror',midEmo:'Fear',outerEmo:'Apprehension'},
+  {name:'Surprise',angle:135,colors:['#3898cc','#5ab4e0','#96d0f0'],innerEmo:'Amazement',midEmo:'Surprise',outerEmo:'Distraction'},
+  {name:'Sadness',angle:180,colors:['#3858b8','#5070d0','#8ca0e8'],innerEmo:'Grief',midEmo:'Sadness',outerEmo:'Pensiveness'},
+  {name:'Disgust',angle:225,colors:['#8038a8','#a058c4','#c894e0'],innerEmo:'Loathing',midEmo:'Disgust',outerEmo:'Boredom'},
+  {name:'Anger',angle:270,colors:['#d02020','#e84040','#f48888'],innerEmo:'Rage',midEmo:'Anger',outerEmo:'Annoyance'},
+  {name:'Anticipation',angle:315,colors:['#d06010','#e88030','#f4b070'],innerEmo:'Vigilance',midEmo:'Anticipation',outerEmo:'Interest'},
+];
+const INTER=[{name:'Love',angle:22.5},{name:'Submission',angle:67.5},{name:'Awe',angle:112.5},{name:'Disapproval',angle:157.5},{name:'Remorse',angle:202.5},{name:'Contempt',angle:247.5},{name:'Aggressiveness',angle:292.5},{name:'Optimism',angle:337.5}];
+const EMO_DATA={
+  'Ecstasy':{i:3,q:'High Arousal · Positive'},'Joy':{i:2,q:'High Arousal · Positive'},'Serenity':{i:1,q:'Low Arousal · Positive'},
+  'Admiration':{i:3,q:'High Arousal · Positive'},'Trust':{i:2,q:'Low Arousal · Positive'},'Acceptance':{i:1,q:'Low Arousal · Positive'},
+  'Terror':{i:3,q:'High Arousal · Negative'},'Fear':{i:2,q:'High Arousal · Negative'},'Apprehension':{i:1,q:'High Arousal · Negative'},
+  'Amazement':{i:3,q:'High Arousal · Positive'},'Surprise':{i:2,q:'High Arousal · Positive'},'Distraction':{i:1,q:'Low Arousal · Positive'},
+  'Grief':{i:3,q:'Low Arousal · Negative'},'Sadness':{i:2,q:'Low Arousal · Negative'},'Pensiveness':{i:1,q:'Low Arousal · Negative'},
+  'Loathing':{i:3,q:'Low Arousal · Negative'},'Disgust':{i:2,q:'Low Arousal · Negative'},'Boredom':{i:1,q:'Low Arousal · Negative'},
+  'Rage':{i:3,q:'High Arousal · Negative'},'Anger':{i:2,q:'High Arousal · Negative'},'Annoyance':{i:1,q:'High Arousal · Negative'},
+  'Vigilance':{i:3,q:'High Arousal · Positive'},'Anticipation':{i:2,q:'High Arousal · Positive'},'Interest':{i:1,q:'Low Arousal · Positive'},
+  'Love':{i:2,q:'High Arousal · Positive'},'Submission':{i:2,q:'Low Arousal · Positive'},'Awe':{i:2,q:'High Arousal · Positive'},
+  'Disapproval':{i:2,q:'Low Arousal · Negative'},'Remorse':{i:2,q:'Low Arousal · Negative'},'Contempt':{i:2,q:'Low Arousal · Negative'},
+  'Aggressiveness':{i:2,q:'High Arousal · Negative'},'Optimism':{i:2,q:'High Arousal · Positive'},
+};
+
+const CX=400,CY=400,NS='http://www.w3.org/2000/svg';
+function rad(deg){return(deg-90)*Math.PI/180;}function pt(deg,r){return[CX+r*Math.cos(rad(deg)),CY+r*Math.sin(rad(deg))];}
+function slicePath(ca,r1,r2){const h=22.5,a1=ca-h,a2=ca+h;const[ox1,oy1]=pt(a1,r1),[ox2,oy2]=pt(a2,r1);const[ix1,iy1]=pt(a1,r2),[ix2,iy2]=pt(a2,r2);return`M${ox1} ${oy1} A${r1} ${r1} 0 0 1 ${ox2} ${oy2} L${ix2} ${iy2} A${r2} ${r2} 0 0 0 ${ix1} ${iy1} Z`;}
+function interSlicePath(ca,r1,r2){const h=20,a1=ca-h,a2=ca+h;const[ox1,oy1]=pt(a1,r1),[ox2,oy2]=pt(a2,r1);const[ix1,iy1]=pt(a1,r2),[ix2,iy2]=pt(a2,r2);return`M${ox1} ${oy1} A${r1} ${r1} 0 0 1 ${ox2} ${oy2} L${ix2} ${iy2} A${r2} ${r2} 0 0 0 ${ix1} ${iy1} Z`;}
+function svgEl(t){return document.createElementNS(NS,t);}
+function mkPath(d,fill,stroke,sw,dashed){const p=svgEl('path');p.setAttribute('d',d);p.setAttribute('fill',fill);p.setAttribute('stroke',stroke||'#fff');p.setAttribute('stroke-width',sw||'1.5');if(dashed)p.setAttribute('stroke-dasharray','5,3');return p;}
+function mkText(x,y,text,size,weight,fill,angle){const t=svgEl('text');t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');t.setAttribute('font-size',size);t.setAttribute('font-weight',weight);t.setAttribute('fill',fill);t.setAttribute('font-family',"'DM Sans',sans-serif");t.setAttribute('pointer-events','none');if(angle)t.setAttribute('transform',`rotate(${angle},${x},${y})`);t.textContent=text;return t;}
+const R_IN=120,R_MID=[120,230],R_OUT=[230,320],R_DAS=[320,378];
+const gSegs=document.getElementById('segs');
+const gLbls=document.getElementById('lbls');
+INTER.forEach(em=>{const g=svgEl('g');g.setAttribute('class','seg');g.appendChild(mkPath(interSlicePath(em.angle,R_DAS[0],R_DAS[1]),'#f0ece4','#bbb','1.2',true));g.addEventListener('click',()=>pickEmo({name:em.name,...em,cm:'#888',sector:em.name},g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const g=svgEl('g');g.setAttribute('class','seg');g.appendChild(mkPath(slicePath(sec.angle,R_OUT[0],R_OUT[1]),sec.colors[2],'#fff','1.5'));const em={name:sec.outerEmo,cm:sec.colors[2],sector:sec.name,...EMO_DATA[sec.outerEmo]||{}};g.addEventListener('click',()=>pickEmo(em,g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const g=svgEl('g');g.setAttribute('class','seg');g.appendChild(mkPath(slicePath(sec.angle,R_MID[0],R_MID[1]),sec.colors[1],'#fff','1.5'));const em={name:sec.midEmo,cm:sec.colors[1],sector:sec.name,...EMO_DATA[sec.midEmo]||{}};g.addEventListener('click',()=>pickEmo(em,g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const g=svgEl('g');g.setAttribute('class','seg');const h=22.5,a1=sec.angle-h,a2=sec.angle+h;const[x1,y1]=pt(a1,R_IN),[x2,y2]=pt(a2,R_IN);g.appendChild(mkPath(`M${CX} ${CY} L${x1} ${y1} A${R_IN} ${R_IN} 0 0 1 ${x2} ${y2} Z`,sec.colors[0],'#fff','1.5'));const em={name:sec.innerEmo,cm:sec.colors[0],sector:sec.name,...EMO_DATA[sec.innerEmo]||{}};g.addEventListener('click',()=>pickEmo(em,g));gSegs.appendChild(g);});
+SECTORS.forEach(sec=>{const ang=sec.angle,rot=(ang>90&&ang<270)?ang+180:ang;const[ix,iy]=pt(ang,95);gLbls.appendChild(mkText(ix,iy,sec.innerEmo,'13','700','#fff',rot));const[mx,my]=pt(ang,175);gLbls.appendChild(mkText(mx,my,sec.midEmo,'15','700','#fff',rot));const[ox,oy]=pt(ang,275);gLbls.appendChild(mkText(ox,oy,sec.outerEmo,'13','600','#333',rot));});
+INTER.forEach(em=>{const ang=em.angle,rot=(ang>90&&ang<270)?ang+180:ang;const[x,y]=pt(ang,352);gLbls.appendChild(mkText(x,y,em.name,'11','500','#555',rot));});
+
+// =============================================
+// MAIN TEST STATE
+// =============================================
+const tests=[
+  {name:'HADS',instructionKey:'HADS',questions:[
+    {q:"1. I feel tense or 'wound up':",options:["Most of the time","A lot of the time","From time to time, occasionally","Not at all"],scores:[3,2,1,0],category:"Anxiety"},
+    {q:"2. I still enjoy the things I used to enjoy:",options:["Definitely as much","Not quite so much","Only a little","Hardly at all"],scores:[0,1,2,3],category:"Depression"},
+    {q:"3. I get a sort of frightened feeling as if something awful is about to happen:",options:["Very definitely and quite badly","Yes, but not too badly","A little, but it doesn't worry me","Not at all"],scores:[3,2,1,0],category:"Anxiety"},
+    {q:"4. I can laugh and see the funny side of things:",options:["As much as I always could","Not quite so much now","Definitely not so much now","Not at all"],scores:[0,1,2,3],category:"Depression"},
+    {q:"5. Worrying thoughts go through my mind:",options:["A great deal of the time","A lot of the time","From time to time, but not too often","Only occasionally"],scores:[3,2,1,0],category:"Anxiety"},
+    {q:"6. I feel cheerful:",options:["Not at all","Not often","Sometimes","Most of the time"],scores:[3,2,1,0],category:"Depression"},
+    {q:"7. I can sit at ease and feel relaxed:",options:["Definitely","Usually","Not Often","Not at all"],scores:[0,1,2,3],category:"Anxiety"},
+    {q:"8. I feel as if I am slowed down:",options:["Nearly all the time","Very often","Sometimes","Not at all"],scores:[3,2,1,0],category:"Depression"},
+    {q:"9. I get a sort of frightened feeling like 'butterflies' in the stomach:",options:["Not at all","Occasionally","Quite Often","Very Often"],scores:[0,1,2,3],category:"Anxiety"},
+    {q:"10. I have lost interest in my appearance:",options:["I take just as much care as ever","I may not take quite as much care","I don't take as much care as I should","Definitely"],scores:[0,1,2,3],category:"Depression"},
+    {q:"11. I feel restless as I have to be on the move:",options:["Not at all","Not very much","Quite a lot","Very much indeed"],scores:[0,1,2,3],category:"Anxiety"},
+    {q:"12. I look forward with enjoyment to things:",options:["As much as I ever did","Rather less than I used to","Definitely less than I used to","Hardly at all"],scores:[0,1,2,3],category:"Depression"},
+    {q:"13. I get sudden feelings of panic:",options:["Not at all","Not very often","Quite often","Very often indeed"],scores:[0,1,2,3],category:"Anxiety"},
+    {q:"14. I can enjoy a good book or radio or TV program:",options:["Often","Sometimes","Not often","Very seldom"],scores:[0,1,2,3],category:"Depression"}
+  ]},
+  {name:'BFI-2-S',instructionKey:'BFI',questions:[
+    {q:'1. I am someone who tends to be quiet.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Extraversion',reversed:true},
+    {q:'2. I am someone who is compassionate, has a soft heart.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Agreeableness',reversed:false},
+    {q:'3. I am someone who tends to be disorganized.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Conscientiousness',reversed:true},
+    {q:'4. I am someone who worries a lot.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Negative Emotionality',reversed:false},
+    {q:'5. I am someone who is fascinated by art, music, or literature.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Open-Mindedness',reversed:false},
+    {q:'6. I am someone who is dominant, acts as a leader.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Extraversion',reversed:false},
+    {q:'7. I am someone who is sometimes rude to others.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Agreeableness',reversed:true},
+    {q:'8. I am someone who has difficulty getting started on tasks.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Conscientiousness',reversed:true},
+    {q:'9. I am someone who tends to feel depressed, blue.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Negative Emotionality',reversed:false},
+    {q:'10. I am someone who has little interest in abstract ideas.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Open-Mindedness',reversed:true},
+    {q:'11. I am someone who is full of energy.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Extraversion',reversed:false},
+    {q:'12. I am someone who assumes the best about people.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Agreeableness',reversed:false},
+    {q:'13. I am someone who is reliable, can always be counted on.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Conscientiousness',reversed:false},
+    {q:'14. I am someone who is emotionally stable, not easily upset.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Negative Emotionality',reversed:true},
+    {q:'15. I am someone who is original, comes up with new ideas.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Open-Mindedness',reversed:false},
+    {q:'16. I am someone who is outgoing, sociable.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Extraversion',reversed:false},
+    {q:'17. I am someone who can be cold and uncaring.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Agreeableness',reversed:true},
+    {q:'18. I am someone who keeps things neat and tidy.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Conscientiousness',reversed:false},
+    {q:'19. I am someone who is relaxed, handles stress well.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Negative Emotionality',reversed:true},
+    {q:'20. I am someone who has few artistic interests.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Open-Mindedness',reversed:true},
+    {q:'21. I am someone who prefers to have others take charge.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Extraversion',reversed:true},
+    {q:'22. I am someone who is respectful, treats others with respect.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Agreeableness',reversed:false},
+    {q:'23. I am someone who is persistent, works until the task is finished.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Conscientiousness',reversed:false},
+    {q:'24. I am someone who feels secure, comfortable with self.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Negative Emotionality',reversed:true},
+    {q:'25. I am someone who is complex, a deep thinker.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Open-Mindedness',reversed:false},
+    {q:'26. I am someone who is less active than other people.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Extraversion',reversed:true},
+    {q:'27. I am someone who tends to find fault with others.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Agreeableness',reversed:true},
+    {q:'28. I am someone who can be somewhat careless.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Conscientiousness',reversed:true},
+    {q:'29. I am someone who is temperamental, gets emotional easily.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[1,2,3,4,5],category:'Negative Emotionality',reversed:false},
+    {q:'30. I am someone who has little creativity.',options:['Strongly disagree','Disagree','Neutral','Agree','Strongly Agree'],scores:[5,4,3,2,1],category:'Open-Mindedness',reversed:true}
+  ]},
+  {name:'Plutchik',type:'plutchik',instructionKey:'Plutchik'}
+];
+const BFI_DOMAINS=['Extraversion','Agreeableness','Conscientiousness','Negative Emotionality','Open-Mindedness'];
+
+let participantInfo={},answers=[],userFeedback='';
+let currentTest=0,qIndex=0,rIndex=0;
+let questionStartTime=null,plutStartTime=null;
+let completionID='';
+let selEl=null,curEmo=null;
+let _plutDemoStart=null;
+
+function totalQ(){return tests.reduce((s,t)=>s+(t.type==='plutchik'?plutchikImages.length:t.questions.length),0);}
+function updateProgress(){const pct=Math.round((answers.length/totalQ())*100);$('#progFill').css('width',pct+'%');$('#progPct').text(pct+'%');}
+
+$('#agreeBtn').click(()=>{if(!consentState.every(Boolean)){document.getElementById('consent-hint').style.display='block';return;}$('#consent-screen').addClass('hidden');$('#participant-screen').removeClass('hidden');});
+$('#declineBtn').click(()=>window.close());
+
+$('#startStudyBtn').click(()=>{
+  const g=$('#p_gender').val(),a=$('#p_age').val(),e=$('#p_email').val(),n=$('#p_nationality').val(),l=$('#p_language').val();
+  if(!g||!a||!n||!l){alert('Please fill all required fields.');return;}
+  const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(e&&!emailRegex.test(e)){alert('Please enter a valid email address.');return;}
+  participantInfo={g,a,e,n,l};
+  napsOrderNumber = initImageOrder();
+  const seq = JSON.parse(sessionStorage.getItem('naps_image_sequence'));
+  plutchikImages.length = 0;
+  seq.forEach(img => plutchikImages.push(img));
+  $('#participant-screen').addClass('hidden');
+  $('#ready-screen').removeClass('hidden');
+});
+
+function startCountdown(){$('#ready-screen').addClass('hidden');startSectionCountdown(loadTest);}
+
+// =============================================
+// ANIMATED INSTRUCTION DEMOS
+// =============================================
+function buildPlutchikDemo(){
+  const DEMO_SECTORS=[{name:'Joy',angle:0,colors:['#d4a000','#e8c620','#f5e080'],innerEmo:'Ecstasy',midEmo:'Joy',outerEmo:'Serenity'},{name:'Trust',angle:45,colors:['#2a8a25','#4ab840','#88d870'],innerEmo:'Admiration',midEmo:'Trust',outerEmo:'Acceptance'},{name:'Fear',angle:90,colors:['#1a8045','#30a860','#70cc94'],innerEmo:'Terror',midEmo:'Fear',outerEmo:'Apprehension'},{name:'Surprise',angle:135,colors:['#1878a8','#2898d0','#70c0e8'],innerEmo:'Amazement',midEmo:'Surprise',outerEmo:'Distraction'},{name:'Sadness',angle:180,colors:['#1838a0','#3058c0','#7090e0'],innerEmo:'Grief',midEmo:'Sadness',outerEmo:'Pensiveness'},{name:'Disgust',angle:225,colors:['#6820a0','#9040c0','#c080e0'],innerEmo:'Loathing',midEmo:'Disgust',outerEmo:'Boredom'},{name:'Anger',angle:270,colors:['#c01818','#e03030','#f08080'],innerEmo:'Rage',midEmo:'Anger',outerEmo:'Annoyance'},{name:'Anticip.',angle:315,colors:['#c05010','#e07020','#f0a860'],innerEmo:'Vigilance',midEmo:'Anticipation',outerEmo:'Interest'},];
+  const DEMO_PAIRS=[{sec:'Joy',emo:'mid',name:'Joy',v:+0.72,a:+0.68,color:'#e8c620'},{sec:'Trust',emo:'mid',name:'Trust',v:+0.65,a:+0.30,color:'#4ab840'},{sec:'Anger',emo:'inner',name:'Rage',v:-0.90,a:+0.90,color:'#c01818'},{sec:'Sadness',emo:'outer',name:'Pensiveness',v:-0.40,a:-0.25,color:'#7090e0'},{sec:'Anticip.',emo:'mid',name:'Anticipation',v:+0.55,a:+0.48,color:'#e07020'},{sec:'Surprise',emo:'inner',name:'Amazement',v:+0.20,a:+0.90,color:'#2898d0'},];
+  const W=180,CX=90,CY=90,R_INNER=25,R_MID0=25,R_MID1=53,R_OUT0=53,R_OUT1=78,R_DASH0=78,R_DASH1=88;
+  function dRad(deg){return(deg-90)*Math.PI/180;}function lightenHex(hex){let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return'rgba('+Math.min(255,r+50)+','+Math.min(255,g+50)+','+Math.min(255,b+50)+',1)';}
+  function drawDemoWheel(canvas,selSec,selEmoType){const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,W);const half=22.5*Math.PI/180;function slice(angleDeg,r1,r2,color,selected,dashed){const a=dRad(angleDeg);ctx.beginPath();ctx.arc(CX,CY,r1,a-half,a+half);ctx.arc(CX,CY,r2,a+half,a-half,true);ctx.closePath();ctx.fillStyle=selected?lightenHex(color):color;ctx.fill();if(dashed){ctx.save();ctx.setLineDash([2,2]);ctx.strokeStyle='rgba(150,150,150,0.5)';ctx.lineWidth=0.6;ctx.stroke();ctx.restore();}else{ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=0.7;ctx.stroke();}}function innerWedge(angleDeg,r,color,selected){const a=dRad(angleDeg);ctx.beginPath();ctx.moveTo(CX,CY);ctx.arc(CX,CY,r,a-half,a+half);ctx.closePath();ctx.fillStyle=selected?lightenHex(color):color;ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=0.7;ctx.stroke();}function label(text,angleDeg,r,size,color){const x=CX+r*Math.cos(dRad(angleDeg)),y=CY+r*Math.sin(dRad(angleDeg));ctx.save();ctx.translate(x,y);let rot=(angleDeg>90&&angleDeg<270)?angleDeg+180:angleDeg;ctx.rotate(rot*Math.PI/180);ctx.font=size+'px sans-serif';ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';const short=text.length>8?text.slice(0,7)+'.':text;ctx.fillText(short,0,0);ctx.restore();}DEMO_SECTORS.forEach(sec=>{slice(sec.angle,R_DASH0,R_DASH1,'#383850',false,true);});DEMO_SECTORS.forEach(sec=>{const isSel=selSec===sec.name;slice(sec.angle,R_OUT0,R_OUT1,sec.colors[2],isSel&&selEmoType==='outer');});DEMO_SECTORS.forEach(sec=>{const isSel=selSec===sec.name;slice(sec.angle,R_MID0,R_MID1,sec.colors[1],isSel&&selEmoType==='mid');});DEMO_SECTORS.forEach(sec=>{const isSel=selSec===sec.name;innerWedge(sec.angle,R_INNER,sec.colors[0],isSel&&selEmoType==='inner');});DEMO_SECTORS.forEach(sec=>{label(sec.midEmo,sec.angle,39,5.5,'rgba(255,255,255,0.85)');label(sec.outerEmo,sec.angle,65,5,'rgba(200,200,200,0.7)');});}
+  function getSegPt(angleDeg,emoType){const r=emoType==='inner'?16:emoType==='mid'?39:65;return{x:CX+r*Math.cos(dRad(angleDeg)),y:CY+r*Math.sin(dRad(angleDeg))};}
+  const demoId='plut-instr-demo-'+Date.now(),canvasId='plut-instr-canvas-'+Date.now(),cursorId='plut-instr-cur-'+Date.now(),ringId='plut-instr-ring-'+Date.now(),dot0Id='pid0-'+Date.now(),dot1Id='pid1-'+Date.now(),dot2Id='pid2-'+Date.now(),stepTxtId='pstxt-'+Date.now(),emoNameId='pename-'+Date.now(),emoMetaId='pemeta-'+Date.now(),eTagsId='petags-'+Date.now(),imgLblId='pimglbl-'+Date.now(),whlLblId='pwlbl-'+Date.now();
+  const html=`<div class="plut-instr-demo" id="${demoId}"><div class="plut-instr-demo-body"><div style="display:flex;flex-direction:column;align-items:center;gap:5px;"><div class="plut-instr-img-frame"><svg width="74" height="90" viewBox="0 0 74 90" xmlns="http://www.w3.org/2000/svg"><rect width="74" height="90" rx="6" fill="#12122a"/><rect x="8" y="10" width="58" height="38" rx="4" fill="#252545" opacity=".9"/><circle cx="20" cy="26" r="7" fill="#4a4a80"/><path d="M8 40 Q37 26 66 38" stroke="#3a3a68" stroke-width="1.5" fill="none"/><rect x="8" y="58" width="36" height="5" rx="2" fill="#252545" opacity=".6"/><rect x="8" y="67" width="58" height="4" rx="2" fill="#252545" opacity=".4"/><rect x="8" y="75" width="44" height="4" rx="2" fill="#252545" opacity=".4"/></svg></div><div class="plut-instr-img-label" id="${imgLblId}">Viewing image...</div></div><div class="plut-instr-canvas-wrap" style="position:relative;width:${W}px;height:${W}px;"><canvas id="${canvasId}" width="${W}" height="${W}" style="display:block;border-radius:50%;"></canvas><div class="plut-instr-cursor" id="${cursorId}"></div><div class="plut-instr-ring" id="${ringId}"></div><div style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:#555;white-space:nowrap;" id="${whlLblId}">① Click your emotion</div></div><div class="plut-instr-info"><div class="plut-instr-step-badge"><div class="plut-instr-step-dot" id="${dot0Id}"></div><div class="plut-instr-step-dot" id="${dot1Id}"></div><div class="plut-instr-step-dot" id="${dot2Id}"></div><span id="${stepTxtId}">View the image</span></div><div class="plut-instr-emo-card"><div class="plut-instr-emo-name" id="${emoNameId}">—</div><div class="plut-instr-emo-meta" id="${emoMetaId}">Select a segment</div><div class="plut-instr-tags" id="${eTagsId}"></div></div><div style="font-size:9px;color:#666;line-height:1.55;background:#12122a;border-radius:7px;padding:.5rem .65rem;border:1px solid #2a2a50;"><span style="color:#aaa;font-weight:600;">Ring distance = intensity</span><br>Inner → strongest &nbsp;·&nbsp; Outer → mildest</div></div></div><div class="plut-instr-caption">① View image → ② Click your emotion on the wheel</div></div>`;
+  return{html:html,start:function(){const canvas=document.getElementById(canvasId);if(!canvas)return;drawDemoWheel(canvas,null,null);const cursor=document.getElementById(cursorId),ring=document.getElementById(ringId),dot0=document.getElementById(dot0Id),dot1=document.getElementById(dot1Id),dot2=document.getElementById(dot2Id),stepTxt=document.getElementById(stepTxtId),emoName=document.getElementById(emoNameId),emoMeta=document.getElementById(emoMetaId),eTags=document.getElementById(eTagsId),imgLbl=document.getElementById(imgLblId),whlLbl=document.getElementById(whlLblId);function setDots(active){[dot0,dot1,dot2].forEach((d,i)=>d.classList.toggle('on',i===active));}function animClick(cx,cy){cursor.style.left=(cx-5)+'px';cursor.style.top=(cy-5)+'px';cursor.style.opacity='1';ring.style.left=cx+'px';ring.style.top=cy+'px';ring.style.opacity='0';ring.style.transition='none';ring.style.transform='translate(-50%,-50%) scale(1)';setTimeout(function(){ring.style.transition='opacity .5s, transform .5s';ring.style.opacity='0.9';ring.style.transform='translate(-50%,-50%) scale(2)';setTimeout(function(){ring.style.opacity='0';},400);},50);}let step=0,phase=0,timerId=null;function runStep(){const pair=DEMO_PAIRS[step%DEMO_PAIRS.length];const secObj=DEMO_SECTORS.find(function(s){return s.name===pair.sec;});if(phase===0){setDots(0);stepTxt.textContent='View the image';imgLbl.textContent='Looking at image...';whlLbl.textContent='① Click your emotion';cursor.style.opacity='0';emoName.textContent='—';emoName.style.color='#888';emoMeta.textContent='Select a segment';eTags.innerHTML='';drawDemoWheel(canvas,null,null);phase=1;timerId=setTimeout(runStep,1300);}else if(phase===1){setDots(1);stepTxt.textContent='Moving to wheel';imgLbl.textContent='Image viewed';whlLbl.textContent='Finding emotion...';const pos=getSegPt(secObj.angle,pair.emo);cursor.style.transition='none';cursor.style.left='14px';cursor.style.top='55px';cursor.style.opacity='1';setTimeout(function(){cursor.style.transition='left .65s cubic-bezier(.4,0,.2,1), top .65s cubic-bezier(.4,0,.2,1)';cursor.style.left=pos.x+'px';cursor.style.top=pos.y+'px';},80);phase=2;timerId=setTimeout(runStep,950);}else if(phase===2){setDots(2);stepTxt.textContent='Emotion selected!';whlLbl.textContent=pair.name+' selected';const pos=getSegPt(secObj.angle,pair.emo);animClick(pos.x,pos.y);drawDemoWheel(canvas,pair.sec,pair.emo);emoName.textContent=pair.name;emoName.style.color=pair.color;const intL=pair.emo==='inner'?'High':pair.emo==='mid'?'Medium':'Low';emoMeta.textContent=pair.sec+' · '+intL+' intensity';const vTag=pair.v>=0?'<span class="plut-instr-tag pos">Positive valence</span>':'<span class="plut-instr-tag neg">Negative valence</span>';const aTag=pair.a>=0?'<span class="plut-instr-tag hi">High arousal</span>':'<span class="plut-instr-tag lo">Low arousal</span>';eTags.innerHTML=vTag+aTag;phase=0;step++;timerId=setTimeout(runStep,2400);}}timerId=setTimeout(runStep,500);var observer=new MutationObserver(function(mutations){mutations.forEach(function(m){if(m.target.classList.contains('hidden')){clearTimeout(timerId);observer.disconnect();}});});var instrScreen=document.getElementById('instruction-screen');if(instrScreen)observer.observe(instrScreen,{attributes:true,attributeFilter:['class']});}};
+}
+
+let hadsInterval=null,bfiInterval=null;
+function startHadsDemoAnimation(){if(!document.getElementById('d0'))return;if(hadsInterval)clearInterval(hadsInterval);const opts=['d0','d1','d2','d3'];let current=2;document.getElementById(opts[current]).classList.add('demo-selected');hadsInterval=setInterval(()=>{document.getElementById(opts[current]).classList.remove('demo-selected');current=(current+1)%opts.length;document.getElementById(opts[current]).classList.add('demo-selected');},1500);}
+function startBfiDemoAnimation(){const scaleEl=document.getElementById('bfi-scale');if(!scaleEl)return;if(bfiInterval)clearInterval(bfiInterval);const btns=scaleEl.querySelectorAll('.scale-btn');let cur=3;bfiInterval=setInterval(()=>{btns.forEach(b=>b.classList.remove('scale-sel'));cur=(cur+1)%btns.length;btns[cur].classList.add('scale-sel');},1200);}
+
+const INSTRUCTIONS={
+  HADS:{title:'HADS : Anxiety & Depression Scale',html:`<div class="instr-meta" style="flex-direction:row;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;"><div class="q-count-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">📝</div><div class="q-count-text"><div class="q-count-num">14</div><div class="q-count-lbl">Questions total</div></div></div><div class="time-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">⏱</div><div class="q-count-text"><div class="q-count-num">~7 min</div><div class="q-count-lbl">Estimated time</div></div></div><div style="flex:2;min-width:200px;background:#fff8e6;border:1px solid #f0d890;border-radius:8px;padding:.65rem .8rem;font-size:.78rem;color:#7a5c00;"><strong>💡 Tip:</strong> Think about how you felt over the <strong>past 7 days</strong>, not just today.</div></div><p style="font-size:.88rem;margin-bottom:.75rem;font-weight:600;">How it works:</p><ul class="instr-steps"><li><div class="step-num">1</div> Read each statement carefully.</li><li><div class="step-num">2</div> Select the option that best describes how you have felt over the <strong>past week</strong>.</li><li><div class="step-num">3</div> Try to respond quickly,  there are no right or wrong answers.</li><li><div class="step-num">4</div> Click <strong>Start HADS →</strong> to the start the HADS questionaires.</li><li><div class="step-num">5</div> Click <strong>Next →</strong> to proceed to the next question.</li></ul><div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;"><div style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);">Example</div><div class="hads-demo" id="hads-demo"><div class="demo-q">Eating ice cream makes me happy:</div><div class="demo-opt" id="d0"><div class="demo-radio"></div> Most of the time</div><div class="demo-opt" id="d1"><div class="demo-radio"></div> A lot of the time</div><div class="demo-opt" id="d2"><div class="demo-radio"></div> From time to time</div><div class="demo-opt" id="d3"><div class="demo-radio"></div> Not at all</div></div></div>`},
+  BFI:{title:'Big Five Personality Inventory (BFI-2-S)',html:`<div class="instr-meta" style="flex-direction:row;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;"><div class="q-count-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">📝</div><div class="q-count-text"><div class="q-count-num">30</div><div class="q-count-lbl">Questions total</div></div></div><div class="time-badge" style="flex:1;min-width:130px;"><div class="q-count-icon">⏱</div><div class="q-count-text"><div class="q-count-num">~10 min</div><div class="q-count-lbl">Estimated time</div></div></div><div style="flex:2;min-width:200px;background:#f0f7ff;border:1px solid #b0d4f5;border-radius:8px;padding:.65rem .8rem;font-size:.78rem;color:#1a4a7a;"><strong>💡 Tip:</strong> Go with your <strong>first instinct</strong> don't overthink it.</div></div><p style="font-size:.88rem;margin-bottom:.5rem;font-weight:600;">Domains measured (BFI-2-S):</p><div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;"><span style="background:#e8f0fd;color:#2350a8;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Extraversion</span><span style="background:#e8faf0;color:#1a7a45;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Agreeableness</span><span style="background:#fff5e0;color:#8a5500;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Conscientiousness</span><span style="background:#fde8e8;color:#a82323;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Negative Emotionality</span><span style="background:#f3e8fd;color:#6b2398;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:600;">Open-Mindedness</span></div><ul class="instr-steps"><li><div class="step-num">1</div> Here are a number of characteristics that may or may not apply to you. Read each personality statement.</li><li><div class="step-num">2</div> Rate how much you agree on a 5-point scale from <strong>Strongly Disagree</strong> to <strong>Strongly Agree</strong>.</li><li><div class="step-num">3</div> Some items are reverse-scored, just answer honestly as the scoring is handled automatically.</li><li><div class="step-num">4</div> Click <strong>Start BFI-2-S →</strong> to the start the BFI questionaires.</li><li><div class="step-num">5</div> Click <strong>Next →</strong> to proceed.</li></ul><div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;"><div style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);">Example</div><div class="bfi-demo"><div class="demo-q">I am someone who likes traveling.</div><div class="scale-row" id="bfi-scale"><div class="scale-btn" data-i="0">Strongly<br>Disagree</div><div class="scale-btn" data-i="1">Disagree</div><div class="scale-btn" data-i="2">Neutral</div><div class="scale-btn scale-sel" data-i="3">Agree</div><div class="scale-btn" data-i="4">Strongly<br>Agree</div></div></div></div>`},
+  Plutchik:{title:'Emotion Mapping: Russell\'s Circumplex / Plutchik\'s Wheel',buildHtml:function(){const demo=buildPlutchikDemo();const staticHtml=`<div class="instr-layout"><div><div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;">Task Overview</div>${demo.html}</div><div class="instr-meta"><div class="q-count-badge"><div class="q-count-icon">🖼️</div><div class="q-count-text"><div class="q-count-num">20</div><div class="q-count-lbl">Images to evaluate</div></div></div><div class="time-badge"><div class="q-count-icon">⏱</div><div class="q-count-text"><div class="q-count-num">~8 min</div><div class="q-count-lbl">Estimated time</div></div></div><div style="background:#f3fdf3;border:1px solid #a0dba0;border-radius:8px;padding:.65rem .8rem;font-size:.78rem;color:#1a5c1a;"><strong>💡 Tip:</strong> Trust your intuition: choose what you feel, not what seems "right".</div></div></div><hr class="instr-divider"><p style="font-size:.88rem;margin-bottom:.75rem;font-weight:600;">For each image, complete TWO steps in order:</p><ul class="instr-steps" style="gap:.75rem;"><li style="align-items:flex-start;gap:.75rem;"><div class="step-num" style="flex-shrink:0;margin-top:2px;">1</div><div style="display:flex;gap:.6rem;align-items:flex-start;flex:1;"><div style="min-width:160px;font-weight:700;font-size:.88rem;line-height:1.4;">Click on<br>Plutchik's<br>emotion wheel</div><div style="font-size:.88rem;line-height:1.6;color:var(--text);">Choose the segment that best describes your emotion. The distance from the center indicates the intensity (inside = stronger). The grid will unlock after this step.</div></div></li><li style="align-items:flex-start;gap:.75rem;"><div class="step-num" style="flex-shrink:0;margin-top:2px;">2</div><div style="display:flex;gap:.6rem;align-items:flex-start;flex:1;"><div style="min-width:160px;font-weight:700;font-size:.88rem;line-height:1.4;">Click on the grid of<br>Russell's circumplex<br>model</div><div style="font-size:.88rem;line-height:1.6;color:var(--text);"> Place your rating. Left = unpleasant, Right = pleasant. Top = high activation, Bottom = low activation.</div></div></li><li style="align-items:flex-start;gap:.75rem;"><div class="step-num" style="flex-shrink:0;margin-top:2px;">3</div><div style="font-size:.88rem;line-height:1.6;">Once you are ready to start,click &nbsp;<strong>Start the Emotion Task →</strong>&nbsp; to start the task. </div><div class="step-num" style="flex-shrink:0;margin-top:2px;">4</div><div style="font-size:.88rem;line-height:1.6;">During each task, once both steps are completed, &nbsp;<strong>Next →</strong>&nbsp; becomes available.</div></li></ul><div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:.4rem;background:#fff8dc;border:1px solid #e8d870;border-radius:7px;padding:.35rem .65rem;font-size:.75rem;"><span style="width:12px;height:12px;border-radius:3px;background:#e8b800;display:inline-block;flex-shrink:0;"></span><strong>Inner ring</strong> &nbsp;= High intensity</div><div style="display:flex;align-items:center;gap:.4rem;background:#fffbea;border:1px solid #e8d870;border-radius:7px;padding:.35rem .65rem;font-size:.75rem;"><span style="width:12px;height:12px;border-radius:3px;background:#f5d020;display:inline-block;flex-shrink:0;"></span><strong>Middle ring</strong> &nbsp;= Average intensity</div><div style="display:flex;align-items:center;gap:.4rem;background:#fdf9e8;border:1px solid #e8d870;border-radius:7px;padding:.35rem .65rem;font-size:.75rem;"><span style="width:12px;height:12px;border-radius:3px;background:#fae878;display:inline-block;flex-shrink:0;"></span><strong>Outer ring</strong> &nbsp;= Low intensity</div><div style="display:flex;align-items:center;gap:.4rem;background:#edfaf8;border:1px solid #a0e0c8;border-radius:7px;padding:.35rem .65rem;font-size:.75rem;"><span style="width:12px;height:12px;border-radius:3px;background:#4ae0a0;display:inline-block;flex-shrink:0;"></span><strong>Green dot</strong> &nbsp;= Your V/A click</div></div>`;return{html:staticHtml,startDemo:demo.start};}}
+};
+
+function loadTest(){
+  if(currentTest>=tests.length){finishStudy();return;}
+  $('#main-test').addClass('hidden');$('#instruction-screen').removeClass('hidden');
+  const t=tests[currentTest];const key=t.instructionKey;_plutDemoStart=null;let instrHtml='';
+  const titleEl=document.getElementById('instr-title');
+  if(key==='Plutchik'){titleEl.textContent='Mapping emotions: Russell\'s circumplex model / Plutchik\'s wheel of emotions';const built=INSTRUCTIONS.Plutchik.buildHtml();instrHtml=built.html;_plutDemoStart=built.startDemo;}
+  else{const instr=INSTRUCTIONS[key]||{title:'Instructions',html:''};titleEl.textContent=instr.title;instrHtml=instr.html;}
+  document.getElementById('instruction-text').innerHTML=instrHtml;
+  setTimeout(()=>{startHadsDemoAnimation();startBfiDemoAnimation();if(_plutDemoStart)_plutDemoStart();},300);
+  const sectionLabels={HADS:'Start HADS →',BFI:'Start BFI-2-S →',Plutchik:'Start the Emotion Task →'};
+  const btn=document.getElementById('beginTestBtn');btn.textContent=sectionLabels[key]||'Start Test →';
+  $('#beginTestBtn').off().click(function(){$('#instruction-screen').addClass('hidden');$('#main-test').removeClass('hidden');qIndex=0;if(tests[currentTest].type==='plutchik'){rIndex=0;loadPluImage();}else loadQuestion();});
+}
+
+function startSectionCountdown(onDone){const overlay=document.getElementById('countdown-overlay');const numEl=document.getElementById('countdown-number');overlay.classList.remove('hidden');overlay.style.display='flex';let count=3;function tick(){numEl.style.transition='none';numEl.style.transform='scale(1.5)';numEl.style.opacity='0';setTimeout(()=>{numEl.textContent=count;numEl.style.transition='none';numEl.style.transform='scale(1.5)';numEl.style.opacity='1';setTimeout(()=>{numEl.style.transition='transform .55s cubic-bezier(.2,0,.2,1), opacity .55s';numEl.style.transform='scale(1)';},30);if(count>1){count--;setTimeout(tick,950);}else{setTimeout(()=>{overlay.style.display='none';overlay.classList.add('hidden');onDone();},900);}},120);}tick();}
+
+function loadQuestion(){
+  if(hadsInterval){clearInterval(hadsInterval);hadsInterval=null;}if(bfiInterval){clearInterval(bfiInterval);bfiInterval=null;}
+  questionStartTime=Date.now();$('#plutchik-area').addClass('hidden');$('#mcq-nav').show();
+  const t=tests[currentTest],q=t.questions[qIndex];let html=`<div class="question-card">`;html+=`<div class="question-text">${q.q}</div>`;
+  if(t.name==='BFI-2-S'){html+=`<div class="bfi-scale-row" id="bfi-live-scale">`;q.options.forEach((o,i)=>{html+=`<button class="bfi-scale-btn" data-i="${i}" onclick="selectBfi(this)">${o}</button>`;});html+=`</div><div class="bfi-scale-labels"><span>← Strongly Disagree</span><span>Strongly Agree →</span></div>`;html+=`<input type="hidden" id="bfi-selected-val" value="">`;}
+  else{q.options.forEach((o,i)=>{html+=`<div class="opt-row" onclick="document.getElementById('opt${i}').checked=true"><input type="radio" name="q" id="opt${i}" value="${i}"><label for="opt${i}">${o}</label></div>`;});}
+  html+='</div>';$('#test-area').html(html);$('#progLabel').text(`${t.name} — Question ${qIndex+1} of ${t.questions.length}`);updateProgress();
+}
+function selectBfi(btn){document.querySelectorAll('.bfi-scale-btn').forEach(b=>b.classList.remove('bfi-sel'));btn.classList.add('bfi-sel');document.getElementById('bfi-selected-val').value=btn.getAttribute('data-i');}
+function handleNext(){
+  if(tests[currentTest].type==='plutchik')return;
+  const t=tests[currentTest],q=t.questions[qIndex];let idx;
+  if(t.name==='BFI-2-S'){const hv=document.getElementById('bfi-selected-val');if(!hv||hv.value===''){alert('Please select an answer.');return;}idx=parseInt(hv.value);}
+  else{const sel=$("input[name='q']:checked");if(!sel.length){alert('Please select an answer.');return;}idx=parseInt(sel.val());}
+  const endTime=Date.now();
+  answers.push({test:t.name,question:q.q,answer:q.options[idx],score:q.scores[idx],trait:q.category||'',reversed:q.reversed||false,startTime:new Date(questionStartTime).toISOString(),endTime:new Date(endTime).toISOString(),time:((endTime-questionStartTime)/1000).toFixed(2),timestamp:new Date().toISOString()});
+  qIndex++;if(qIndex<t.questions.length)loadQuestion();else{currentTest++;loadTest();}
+}
+
+function loadPluImage(){
+  plutStartTime=Date.now();curEmo=null;russellClickedV=null;russellClickedA=null;
+  if(selEl){selEl.classList.remove('sel');selEl=null;}
+  document.getElementById('plutNextBtn').disabled=true;
+  document.getElementById('eName').textContent='—';document.getElementById('eName').style.color='#bbb';
+  document.getElementById('eSub').textContent='Select an emotion on the wheel';
+  document.getElementById('emoSectorBadgeWrap').innerHTML='';
+  document.getElementById('emoIntensityRow').style.display='none';document.getElementById('eQ').style.display='none';
+  document.getElementById('russellGridWrap').classList.add('locked');
+  const rc=document.getElementById('russellCanvas');if(rc)rc.classList.remove('clicked');
+  updateVAPanel(null,null);
+  document.getElementById('dot-wheel').classList.remove('done');document.getElementById('dot-russell').classList.remove('done');
+  $('#test-area').html('');$('#mcq-nav').hide();$('#plutchik-area').removeClass('hidden');
+  const total=plutchikImages.length;
+  const imgMeta=plutchikImages[rIndex];
+  $('#qLbl').text(`Image ${rIndex+1} of ${total}`);
+  document.getElementById('plutNextBtn').textContent=rIndex===total-1?'Finish ✓':'Next →';
+  document.getElementById('qImg').src=imgMeta.image;
+  $('#progLabel').text(`Emotion Task — Image ${rIndex+1} of ${total}`);
+  updateProgress();
+  setTimeout(()=>{initRussellDims();drawRussellGrid(null);initRussellClick();},80);
+}
+
+function plutNext(){
+  if(!curEmo){alert('Please select an emotion.');return;}
+  if(russellClickedV===null){alert('Please click the Valence-Arousal grid.');return;}
+  const endTime=Date.now();
+  const imgMeta=plutchikImages[rIndex];
+  answers.push({
+    test:'Plutchik',question:`Image ${rIndex+1}`,
+    napsPhoto:imgMeta.napsPhoto||'',napsId:imgMeta.napsId||'',napsEmotion:imgMeta.napsEmotion||'',
+    napsValence:imgMeta.napsValence||'',napsIntensity:imgMeta.napsIntensity||'',
+    napsPosition:rIndex+1,napsOrder:napsOrderNumber,
+    emotion:curEmo.name,russellValence:russellClickedV.toFixed(3),russellArousal:russellClickedA.toFixed(3),
+    startTime:new Date(plutStartTime).toISOString(),endTime:new Date(endTime).toISOString(),
+    time:((endTime-plutStartTime)/1000).toFixed(2),timestamp:new Date().toISOString()
+  });
+  rIndex++;if(rIndex<plutchikImages.length)loadPluImage();else{currentTest++;$('#plutchik-area').addClass('hidden');loadTest();}
+}
+
+function pickEmo(em,gEl){
+  if(selEl)selEl.classList.remove('sel');gEl.classList.add('sel');selEl=gEl;curEmo=em;
+  document.getElementById('dot-wheel').classList.add('done');document.getElementById('russellGridWrap').classList.remove('locked');
+  const d=EMO_DATA[em.name]||em;const intensity=d.i||em.intensity||1;const q=d.q||em.quadrant||'—';const cm=em.cm||'#888';
+  document.getElementById('eName').textContent=em.name;document.getElementById('eName').style.color=cm;
+  const sectorName=em.sector||em.name;const sectorObj=SECTORS.find(s=>s.name===sectorName)||null;const sectorColor=sectorObj?sectorObj.colors[1]:'#888';
+  document.getElementById('emoSectorBadgeWrap').innerHTML=`<div class="emo-sector-badge" style="background:${sectorColor}22;color:${sectorColor};border:1px solid ${sectorColor}44;">${sectorName}</div>`;
+  const intL=['Low','Medium','High'][intensity-1];document.getElementById('emoIntensityRow').style.display='flex';
+  const dots=document.getElementById('eDots');dots.style.color=cm;dots.innerHTML='';
+  for(let i=1;i<=3;i++){const d2=document.createElement('div');d2.className='dot'+(i<=intensity?' on':'');dots.appendChild(d2);}
+  document.getElementById('eIs').textContent=intL;document.getElementById('eSub').textContent=`${intL} intensity`;
+  const v=d.v||0,a=d.a||0,isPos=v>=0,isHi=a>=0;const qc=isPos&&isHi?['#fff8e0','#b07000']:isPos?['#edfaf5','#1a8c6c']:isHi?['#fdf5f3','#c0392b']:['#f9f2fd','#7c3d9e'];
+  const qEl=document.getElementById('eQ');qEl.textContent=q;qEl.style.background=qc[0];qEl.style.color=qc[1];qEl.style.display='inline-block';
+  drawRussellGrid(russellClickedV!==null?{v:russellClickedV,a:russellClickedA}:null);checkBothSelected();
+}
+
+// =============================================
+// FINISH + CONFETTI
+// =============================================
+function finishStudy(){
+  if(hadsInterval)clearInterval(hadsInterval);if(bfiInterval)clearInterval(bfiInterval);
+  completionID='P-'+Math.random().toString(36).substr(2,9).toUpperCase();
+  $('#main-test').addClass('hidden');$('#finish-screen').removeClass('hidden');
+  $('#completionID').text('Completion ID: '+completionID);
+  // Confetti burst
+  const duration=3000,end=Date.now()+duration;
+  (function frame(){
+    confetti({particleCount:6,angle:60,spread:55,origin:{x:0},colors:['#2a9d4e','#2350a8','#e8b800']});
+    confetti({particleCount:6,angle:120,spread:55,origin:{x:1},colors:['#2a9d4e','#2350a8','#e8b800']});
+    if(Date.now()<end)requestAnimationFrame(frame);
+  }());
+}
+
+function calculateSummaryScores(){
+  const scores={HADS:{Anxiety:{score:0,time:0,count:0},Depression:{score:0,time:0,count:0}},BFI:{}};
+  BFI_DOMAINS.forEach(d=>{scores.BFI[d]={score:0,time:0,count:0};});
+  answers.forEach(a=>{if(a.test==='HADS'){const sub=a.trait;if(scores.HADS[sub]){scores.HADS[sub].score+=Number(a.score);scores.HADS[sub].time+=Number(a.time);scores.HADS[sub].count++;}}if(a.test==='BFI-2-S'){const domain=a.trait;if(scores.BFI[domain]){scores.BFI[domain].score+=Number(a.score);scores.BFI[domain].time+=Number(a.time);scores.BFI[domain].count++;}}});
+  return scores;
+}
+
+$('#finishBtn').click(function(){
+  userFeedback=$('#userFeedback').val().trim();
+  if(!userFeedback){alert('Please enter your feedback before continuing.');return;}
+  const summary=calculateSummaryScores();const plut=answers.filter(a=>a.test==='Plutchik');
+
+  // HADS table
+  const hadsBody=document.getElementById('hads-sum-body');hadsBody.innerHTML='';
+  [['Anxiety',summary.HADS.Anxiety,7],['Depression',summary.HADS.Depression,7]].forEach(([trait,data,n])=>{const tr=document.createElement('tr');tr.innerHTML=`<td style="padding:6px 8px;border-bottom:1px solid var(--border);">${trait}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.score}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${(data.score/n).toFixed(2)}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.time.toFixed(2)}s</td>`;hadsBody.appendChild(tr);});
+
+  // BFI table
+  const bfiBody=document.getElementById('bfi-sum-body');bfiBody.innerHTML='';
+  BFI_DOMAINS.forEach(domain=>{const data=summary.BFI[domain];const dc=DOMAIN_COLOURS[domain]||{bg:'#f0f0f0',color:'#555'};const tr=document.createElement('tr');tr.innerHTML=`<td style="padding:6px 8px;border-bottom:1px solid var(--border);"><span style="background:${dc.bg};color:${dc.color};padding:2px 8px;border-radius:12px;font-size:.78rem;font-weight:600;">${domain}</span></td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.score}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.count>0?(data.score/data.count).toFixed(2):'—'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${data.time.toFixed(2)}s</td>`;bfiBody.appendChild(tr);});
+
+  // Plutchik raw table
+  const plutBody=document.getElementById('plut-sum-body');plutBody.innerHTML='';
+  if(plut.length){plut.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td style="padding:6px 8px;border-bottom:1px solid var(--border);">${r.question}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.8rem;">${r.napsPhoto||'—'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-weight:600;">${r.emotion}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${r.russellValence||'—'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${r.russellArousal||'—'}</td><td style="padding:6px 8px;border-bottom:1px solid var(--border);font-family:var(--mono);">${r.time}s</td>`;plutBody.appendChild(tr);});}
+  else{plutBody.innerHTML='<tr><td colspan="6" style="padding:6px 8px;color:var(--muted);font-size:.82rem;">No Plutchik responses recorded.</td></tr>';}
+
+  // ── EMOTION SUMMARY PANELS ──
+  const sectorColor=name=>{const s=SECTORS.find(s=>s.innerEmo===name||s.midEmo===name||s.outerEmo===name);return s?s.colors[1]:'#888';};
+
+  // Emotion frequency bars
+  const emoCount={};
+  plut.forEach(a=>{emoCount[a.emotion]=(emoCount[a.emotion]||0)+1;});
+  const sorted=Object.entries(emoCount).sort((x,y)=>y[1]-x[1]);
+  const freqEl=document.getElementById('emo-freq-list');
+  if(freqEl){
+    freqEl.innerHTML='';
+    sorted.forEach(([emo,count])=>{
+      const pct=Math.round((count/Math.max(plut.length,1))*100);
+      const col=sectorColor(emo);
+      freqEl.innerHTML+=`<div style="display:flex;align-items:center;gap:.5rem;">
+        <span style="font-size:.78rem;font-weight:600;min-width:90px;color:var(--text);">${emo}</span>
+        <div style="flex:1;background:var(--border);border-radius:4px;height:8px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${col};border-radius:4px;"></div>
+        </div>
+        <span style="font-size:.72rem;color:var(--muted);min-width:28px;text-align:right;">${count}×</span>
+      </div>`;
+    });
+  }
+
+  // V/A averages
+  const avgV=plut.length?plut.reduce((s,a)=>s+parseFloat(a.russellValence),0)/plut.length:0;
+  const avgA=plut.length?plut.reduce((s,a)=>s+parseFloat(a.russellArousal),0)/plut.length:0;
+  const vaAvgEl=document.getElementById('va-avg-display');
+  if(vaAvgEl){
+    const vStr=(avgV>=0?'+':'')+avgV.toFixed(3),aStr=(avgA>=0?'+':'')+avgA.toFixed(3);
+    const vCol=avgV>=0?'#2a9d4e':'#d63838',aCol=avgA>=0?'#e0a040':'#7090e8';
+    const ql=avgV>=0&&avgA>=0?'Happy / Excited':avgV<0&&avgA>=0?'Tense / Alarmed':avgV>=0&&avgA<0?'Calm / Relaxed':'Sad / Depressed';
+    vaAvgEl.innerHTML=`
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;">
+        <span style="font-size:.75rem;font-weight:700;color:var(--muted);min-width:55px;">Valence</span>
+        <span style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:${vCol};">${vStr}</span>
+        <span style="font-size:.72rem;color:var(--muted);">${avgV>=0?'→ Pleasant':'→ Unpleasant'}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;">
+        <span style="font-size:.75rem;font-weight:700;color:var(--muted);min-width:55px;">Arousal</span>
+        <span style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:${aCol};">${aStr}</span>
+        <span style="font-size:.72rem;color:var(--muted);">${avgA>=0?'↑ High activation':'↓ Low activation'}</span>
+      </div>
+      <div style="padding:.5rem .75rem;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:.78rem;font-weight:600;color:var(--text);">
+        Overall zone: <span style="color:#2350a8;">${ql}</span>
+      </div>`;
+  }
+
+  // Quadrant distribution
+  const qdEl=document.getElementById('quadrant-dist');
+  if(qdEl){
+    const qd={'Happy / Excited':0,'Tense / Alarmed':0,'Calm / Relaxed':0,'Sad / Depressed':0};
+    const qColors={'Happy / Excited':'#d4c040','Tense / Alarmed':'#e07070','Calm / Relaxed':'#60d890','Sad / Depressed':'#7090e8'};
+    plut.forEach(a=>{
+      const v=parseFloat(a.russellValence),ar=parseFloat(a.russellArousal);
+      if(v>=0&&ar>=0)qd['Happy / Excited']++;
+      else if(v<0&&ar>=0)qd['Tense / Alarmed']++;
+      else if(v>=0&&ar<0)qd['Calm / Relaxed']++;
+      else qd['Sad / Depressed']++;
+    });
+    qdEl.innerHTML='';
+    Object.entries(qd).forEach(([q,c])=>{
+      const pct=Math.round((c/Math.max(plut.length,1))*100);
+      qdEl.innerHTML+=`<div style="display:flex;align-items:center;gap:.5rem;">
+        <span style="font-size:.72rem;font-weight:600;min-width:100px;color:${qColors[q]};">${q}</span>
+        <div style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;height:7px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${qColors[q]};border-radius:4px;"></div>
+        </div>
+        <span style="font-size:.7rem;color:#6090b0;min-width:22px;text-align:right;">${c}</span>
+      </div>`;
+    });
+  }
+
+  // V/A scatter plot
+  setTimeout(()=>{
+    const sc=document.getElementById('summaryVACanvas');
+    if(!sc||!plut.length)return;
+    const ctx=sc.getContext('2d');
+    const W=340,H=300,PAD=42,GW=W-PAD*2,GH=H-PAD*2,CX=PAD+GW/2,CY=PAD+GH/2;
+    ctx.fillStyle='#0d1520';ctx.fillRect(0,0,W,H);
+    [[-1,1,'rgba(180,40,40,0.15)'],[1,1,'rgba(180,160,0,0.12)'],[-1,-1,'rgba(30,60,180,0.15)'],[1,-1,'rgba(30,140,70,0.12)']].forEach(([vx,ay,col])=>{
+      ctx.fillStyle=col;ctx.fillRect(vx<0?PAD:CX,ay>0?PAD:CY,GW/2,GH/2);
+    });
+    ctx.strokeStyle='rgba(50,80,110,0.35)';ctx.lineWidth=0.5;
+    for(let i=1;i<8;i++){const xi=PAD+(GW/8)*i,yi=PAD+(GH/8)*i;ctx.beginPath();ctx.moveTo(xi,PAD);ctx.lineTo(xi,PAD+GH);ctx.stroke();ctx.beginPath();ctx.moveTo(PAD,yi);ctx.lineTo(PAD+GW,yi);ctx.stroke();}
+    ctx.strokeStyle='rgba(100,160,220,0.6)';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(PAD,CY);ctx.lineTo(PAD+GW,CY);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(CX,PAD);ctx.lineTo(CX,PAD+GH);ctx.stroke();
+    ctx.font='bold 8px DM Sans,sans-serif';ctx.textAlign='center';
+    ctx.fillStyle='rgba(100,160,220,0.55)';ctx.fillText('VALENCE',CX,PAD+GH+14);
+    ctx.fillStyle='#e07070';ctx.textAlign='left';ctx.fillText('Unpleasant',PAD+2,CY-4);
+    ctx.fillStyle='#60d890';ctx.textAlign='right';ctx.fillText('Pleasant',PAD+GW-2,CY-4);
+    ctx.fillStyle='#e0a040';ctx.textAlign='center';ctx.fillText('High',CX+3,PAD+9);
+    ctx.fillStyle='#6090c0';ctx.fillText('Low',CX+3,PAD+GH-3);
+    // dots
+    plut.forEach((a,i)=>{
+      const px=CX+parseFloat(a.russellValence)*(GW/2),py=CY-parseFloat(a.russellArousal)*(GH/2);
+      const col=sectorColor(a.emotion);
+      ctx.save();ctx.shadowColor=col;ctx.shadowBlur=8;
+      ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+      ctx.restore();
+      ctx.beginPath();ctx.arc(px,py,2,0,Math.PI*2);ctx.fillStyle='#0d1520';ctx.fill();
+      ctx.font='bold 7px DM Mono,monospace';ctx.fillStyle='rgba(255,255,255,0.55)';ctx.textAlign='center';
+      ctx.fillText(i+1,px,py-8);
+    });
+    // average crosshair
+    const ax=CX+avgV*(GW/2),ay2=CY-avgA*(GH/2);
+    ctx.save();ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(PAD,ay2);ctx.lineTo(PAD+GW,ay2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ax,PAD);ctx.lineTo(ax,PAD+GH);ctx.stroke();
+    ctx.restore();ctx.setLineDash([]);
+    ctx.save();ctx.shadowColor='#fff';ctx.shadowBlur=10;
+    ctx.beginPath();ctx.arc(ax,ay2,7,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=2;ctx.stroke();
+    ctx.restore();
+    ctx.font='bold 7.5px DM Mono,monospace';ctx.fillStyle='rgba(255,255,255,0.7)';ctx.textAlign='center';
+    ctx.fillText('AVG',ax,ay2-11);
+  },200);
+
+  $('#finish-screen').addClass('hidden');$('#summary-screen').removeClass('hidden');
+});
+
+// ── CSV export ──
+function downloadCSV(id){
+  const summary=calculateSummaryScores();
+  const hadsAnswers=answers.filter(a=>a.test==='HADS');
+  const bfiAnswers=answers.filter(a=>a.test==='BFI-2-S');
+  const plut=answers.filter(a=>a.test==='Plutchik');
+  let csv='';
+  csv+='PARTICIPANT INFO\n';
+  csv+='Completion ID,Gender,Age,Email,Nationality,Native Language,Consent,NAPS Order\n';
+  csv+=`"${id}","${participantInfo.g||''}","${participantInfo.a||''}","${participantInfo.e||''}","${participantInfo.n||''}","${participantInfo.l||''}","Agreed","Order ${napsOrderNumber}"\n\n`;
+  csv+='HADS RESPONSES\nTest,Subscale,Question,Answer,Score,StartTime,EndTime,Time(s),Timestamp\n';
+  hadsAnswers.forEach(a=>{csv+=`"HADS","${a.trait}","${a.question}","${a.answer}","${a.score}","${a.startTime}","${a.endTime}","${a.time}","${a.timestamp}"\n`;});
+  csv+='\nHADS SUMMARY\nSubscale,Total Score,Average (÷7),Total Time (s)\n';
+  csv+=`"Anxiety","${summary.HADS.Anxiety.score}","${(summary.HADS.Anxiety.score/7).toFixed(2)}","${summary.HADS.Anxiety.time.toFixed(2)}"\n`;
+  csv+=`"Depression","${summary.HADS.Depression.score}","${(summary.HADS.Depression.score/7).toFixed(2)}","${summary.HADS.Depression.time.toFixed(2)}"\n\n`;
+  csv+='BFI-2-S RESPONSES\nTest,Domain,Question,Reversed,Answer,Score,StartTime,EndTime,Time(s),Timestamp\n';
+  bfiAnswers.forEach(a=>{csv+=`"BFI-2-S","${a.trait}","${a.question}","${a.reversed?'Yes':'No'}","${a.answer}","${a.score}","${a.startTime}","${a.endTime}","${a.time}","${a.timestamp}"\n`;});
+  csv+='\nBFI-2-S SUMMARY\nDomain,Total Score,Average (÷6 items),Total Time (s),Items Answered\n';
+  BFI_DOMAINS.forEach(domain=>{const d=summary.BFI[domain];csv+=`"${domain}","${d.score}","${d.count>0?(d.score/d.count).toFixed(2):'—'}","${d.time.toFixed(2)}","${d.count}"\n`;});
+  csv+='\nNAPS EMOTION RESPONSES\n';
+  csv+='Test,Position,NAPS_Photo,NAPS_ID,NAPS_Emotion_Category,NAPS_Valence,NAPS_Intensity,NAPS_Order,';
+  csv+='Participant_Emotion,Russell_Valence,Russell_Arousal,StartTime,EndTime,Time(s),Timestamp\n';
+  plut.forEach(a=>{csv+=`"Plutchik","${a.napsPosition}","${a.napsPhoto}","${a.napsId}","${a.napsEmotion}","${a.napsValence}","${a.napsIntensity}","Order ${a.napsOrder}","${a.emotion}","${a.russellValence||''}","${a.russellArousal||''}","${a.startTime}","${a.endTime}","${a.time}","${a.timestamp}"\n`;});
+  csv+='\nPARTICIPANT FEEDBACK\n"'+userFeedback+'"\n';
+  const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));link.download=`results_${id}.csv`;link.click();
+}
+
+const plutObserver=new MutationObserver(function(mutations){mutations.forEach(function(m){if(!m.target.classList.contains('hidden')){setTimeout(function(){initRussellDims();drawRussellGrid(null);initRussellClick();},80);}});});
+const plutArea=document.getElementById('plutchik-area');
+if(plutArea)plutObserver.observe(plutArea,{attributes:true,attributeFilter:['class']});
+</script>
+</body>
+</html>
